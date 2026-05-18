@@ -3,7 +3,7 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nasp_atlas"
+name = "nasp_compendium"
 version = "0.1.0"
 description = "Curation and analyses of NASP in publicly-available single-cell atlases."
 readme = "README.md"
@@ -29,13 +29,14 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
+include = ["nasp_compendium*"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 80
 indent-width = 4
-src = ["src", "scripts", "tests"]
+src = ["nasp_compendium"]
 
 exclude = [
   ".git",
@@ -71,9 +72,10 @@ unfixable = [
 fixable = ["ALL"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["nasp_atlas"]
+known-first-party = ["nasp_compendium"]
 
-force-sort-within-sections = true
+force-single-line = true
+single-line-exclusions = ["typing", "collections.abc"]
 combine-as-imports = true
 split-on-trailing-comma = true
 lines-after-imports = 2
@@ -125,11 +127,8 @@ pyink-annotation-pragmas = [
 [tool.pyright]
 pythonVersion = "3.11"
 typeCheckingMode = "standard"
-
 include = [
-  "src",
-  "scripts",
-  "tests",
+  "nasp_compendium",
 ]
 
 exclude = [

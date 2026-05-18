@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
-from pathlib import Path
 import sys
+from pathlib import Path
 from typing import Any
 
 import graphviz  # type: ignore
@@ -140,7 +140,7 @@ class Compendium:
 
         for md_path in sorted(directory.glob("*.md")):
             file_papers, file_edges = parse_md(md_path)
-            papers.update(file_papers)
+            papers |= file_papers
             edges.extend(file_edges)
 
         return cls(papers=papers, edges=edges)
@@ -276,8 +276,7 @@ def render(
         color = REL_COLOR.get(rel, DEFAULT_REL_COLOR)
         edge_label = rel.replace("_", " ")
         if annotate_papers:
-            paper_ids = edge.get("papers") or []
-            if paper_ids:
+            if paper_ids := edge.get("papers") or []:
                 citations = "; ".join(format_citation(pid) for pid in paper_ids)
                 edge_label = f"{edge_label}\n[{citations}]"
         diagram.edge(
