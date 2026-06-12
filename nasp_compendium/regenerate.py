@@ -65,6 +65,7 @@ def regenerate(
         output_dir=docs_dir,
         module_figures=module_figures,
         index_figure=index_figure,
+        index_name="README.md",
     )
 
 
