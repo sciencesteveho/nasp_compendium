@@ -14,7 +14,6 @@ PQBP1	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	medi
 PRKDC	NASP_DNA_SENSING	dna_sensing_core		Early	positive	Broad	high		10.7554/eLife.00047	DNA-PK	dna_sensor	
 PYHIN1	NASP_DNA_SENSING	dna_sensing_alr	ALR	Early	positive	Broad	medium		10.15252/msb.20145808	IFIX	dna_sensor	
 STING1	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Broad	medium		10.1038/nature07317	TMEM173		
-TLR9	NASP_DNA_SENSING	dna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1038/35047123		dna_sensor	
 ZBP1	NASP_DNA_SENSING	dna_sensing_core	ZBP1	Early	positive	Broad	low	IFN_I_OUTPUT	10.1038/nature06013		dna_sensor; rna_sensor	
 ZCCHC3	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	low		10.1038/s41467-018-05559-w		dna_sensor	
 DDX1	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1016/j.immuni.2011.03.027	 	rna_sensor	
@@ -33,6 +32,7 @@ RNF135	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1074/j
 TLR3	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1038/35099560		rna_sensor	
 TLR7	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
 TLR8	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	NFKB_CYTOKINE_OUTPUT|IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
+TLR9	NASP_DNA_SENSING	dna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1038/35047123		dna_sensor	
 TRIM25	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1126/science.ads4539			
 ZC3HAV1	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1038/s42003-024-07116-2	ZAP; PARP13	rna_sensor	
 NFKBIA	NASP_FEEDBACK	induced_negative_regulator		Early	positive	Broad	high	SENESCENCE|SASP|SIGNALING_CONTEXT | NFKB_CYTOKINE_OUTPUT	10.1101/cshperspect.a000034			
