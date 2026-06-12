@@ -1,0 +1,154 @@
+canonical:
+  pathways:
+    - AIM2_inflammasome
+    - cGAS-STING
+    - DNA_damage_response
+    - heterochromatin_maintenance
+    - JAK-STAT
+    - L1_retrotransposition
+    - NF-kB
+    - NLRP3_inflammasome
+    - oncogenic_RAS
+    - p38_MAPK
+    - p53_p21
+    - Rb_p16
+    - RIG-I/MDA5-MAVS
+    - SASP
+    - TLR3
+    - TLR7/8
+    - TLR9
+    - type_I_IFN
+    - type_III_IFN
+
+  nucleic_acid_sensors:
+    - AIM2
+    - CGAS
+    - DDX41
+    - DDX58
+    - DHX58
+    - EIF2AK2
+    - IFI16
+    - IFIH1
+    - MAVS
+    - NLRP1
+    - NLRP3
+    - OAS1
+    - OAS2
+    - OAS3
+    - OASL
+    - STING1
+    - TLR3
+    - TLR7
+    - TLR8
+    - TLR9
+    - ZBP1
+
+  mechanisms:
+    - aging
+    - apoptosis
+    - BAX/BAK_pore
+    - CCF_formation
+    - cGAMP_paracrine
+    - cell_state_transition
+    - cellular_senescence
+    - chromatin_accessibility
+    - cognitive_decline
+    - cytoplasmic_chromatin_fragments
+    - cytoplasmic_mtDNA
+    - cytoplasmic_mt_dsRNA
+    - cytoplasmic_retroelement_cDNA
+    - cytosolic_DNA_sensing
+    - cytosolic_L1_cDNA_accumulation
+    - cytosolic_RNA_sensing
+    - DNA_damage
+    - DNA_methylation_loss
+    - epigenetic_remodeling
+    - fibrosis
+    - heterochromatin_disruption
+    - hippocampal_neuron_loss
+    - immune_cell_recruitment
+    - immune_evasion
+    - immunosurveillance
+    - inflammaging
+    - inflammasome_activation
+    - LLPS_condensate_formation
+    - L1_de-repression
+    - MAVS_aggregation
+    - metabolic_reprogramming
+    - microglial_activation
+    - micronuclei_formation
+    - mitochondrial_dysfunction
+    - mtDNA_release
+    - mt_dsRNA_release
+    - neurodegeneration
+    - nuclear_envelope_compromise
+    - retrotransposon_derepression
+    - SASP_secretion
+    - senescence_associated_heterochromatin_foci
+    - senescence_evasion
+    - tissue_inflammation
+    - tumorigenesis
+    - VDAC_oligomerization
+
+  model_systems:
+    - CCLE_pan_cancer
+    - CZ_CELLxGENE
+    - human_cohort
+    - human_in_vitro
+    - human_tissue_explant
+    - mouse_genetic_model
+    - mouse_in_vitro
+    - mouse_in_vivo
+    - organoid
+    - single_cell_atlas
+    - TCGA_pan_cancer
+    - UK_Biobank
+
+  evidence_type:
+    - ATAC_seq
+    - behavioral_testing
+    - bulk_RNA_seq
+    - ChIP_qPCR
+    - co_culture
+    - cytokine_array
+    - ELISA
+    - epigenetic_clocks
+    - eQTL
+    - frailty_index
+    - genetic_gain_of_function
+    - genetic_KO
+    - GWAS
+    - histology
+    - IHC
+    - immunoblot
+    - immunofluorescence
+    - LC_MS_metabolomics
+    - longitudinal_cohort
+    - multiplex_cytokine_assay
+    - Nanopore_methylation_sequencing
+    - overexpression
+    - pharmacological_inhibition
+    - proteomics
+    - RT_qPCR
+    - shRNA_knockdown
+    - single_cell_RNA_seq
+    - siRNA_knockdown
+    - smiFISH
+    - snRNA_seq
+    - spatial_omics
+    - STED_microscopy
+    - survival_analysis
+
+drift:
+  CCF_formation:
+    replacement: cytoplasmic_chromatin_fragments
+    reason: CCF biology should use the canonical cytoplasmic chromatin fragment node.
+  chromatin_accessibility:
+    replacement: epigenetic_remodeling
+    reason: Accessibility gain and transposon methylation loss should be captured as epigenetic remodeling, with locus details in context.
+  cytosolic_L1_cDNA_accumulation:
+    replacement: cytoplasmic_retroelement_cDNA
+    reason: L1 cDNA accumulation should use the canonical cytoplasmic retroelement cDNA node.
+  L1_de-repression:
+    replacement: retrotransposon_derepression
+    reason: L1 derepression should use the canonical retrotransposon derepression node.

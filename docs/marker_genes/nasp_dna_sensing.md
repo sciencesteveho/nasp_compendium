@@ -1,0 +1,24 @@
+# NASP_DNA_SENSING
+
+![NASP_DNA_SENSING taxonomy](assets/sankey_nasp_dna_sensing.png)
+
+| Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| IFI16 | dna_sensing_alr | ALR | Early | positive | Broad | high | INFLAMMASOME | 10.1038/ni.1932 |  | dna_sensor |  |
+| MNDA | dna_sensing_alr | ALR | Active | positive | Immune-enriched | high |  | 10.3389/fimmu.2024.1395035 |  |  |  |
+| PYHIN1 | dna_sensing_alr | ALR | Early | positive | Broad | medium |  | 10.15252/msb.20145808 | IFIX | dna_sensor |  |
+| LMNB1 | dna_sensing_ccf | cGAS-STING | Early | inverse | Broad | medium | SENESCENCE | 10.1038/nature24050 |  |  |  |
+| CGAS | dna_sensing_core | cGAS-STING | Early | positive | Broad | low |  | 10.1126/science.1229963 | MB21D1 | dna_sensor |  |
+| DDX41 | dna_sensing_core | cGAS-STING | Early | positive | Immune-enriched | low |  | 10.1038/ni.2091 |  | dna_sensor; rna_sensor |  |
+| HNRNPA2B1 | dna_sensing_core |  | Early | positive | Broad | high |  | 10.1126/science.aav0758 |  | dna_sensor; rna_sensor |  |
+| LRRFIP1 | dna_sensing_core | cGAS-STING | Early | positive | Broad | high |  | 10.1038/ni.1876 |  | dna_sensor; rna_sensor |  |
+| MRE11 | dna_sensing_core | cGAS-STING | Early | positive | Broad | low |  | 10.1073/pnas.1222694110 | MRE11A | dna_damage_sensor |  |
+| POLR3A | dna_sensing_core |  | Early | positive | Broad | low |  | 10.1016/j.cell.2009.06.015 | RPC1 |  |  |
+| POLR3B | dna_sensing_core |  | Early | positive | Broad | low |  | 10.1016/j.cell.2009.06.015 | RPC2 |  |  |
+| PRKDC | dna_sensing_core |  | Early | positive | Broad | high |  | 10.7554/eLife.00047 | DNA-PK | dna_sensor |  |
+| STING1 | dna_sensing_core | cGAS-STING | Early | positive | Broad | medium |  | 10.1038/nature07317 | TMEM173 |  |  |
+| ZBP1 | dna_sensing_core | ZBP1 | Early | positive | Broad | low | IFN_I_OUTPUT | 10.1038/nature06013 |  | dna_sensor; rna_sensor |  |
+| LSM14A | dna_sensing_cosensor |  | Early | positive | Broad | high |  | 10.1073/pnas.1203405109 | RAPS5 |  |  |
+| PQBP1 | dna_sensing_cosensor | cGAS-STING | Early | positive | Broad | medium |  | 10.1016/j.cell.2015.04.050 External Link |  | dna_sensor |  |
+| ZCCHC3 | dna_sensing_cosensor | cGAS-STING | Early | positive | Broad | low |  | 10.1038/s41467-018-05559-w |  | dna_sensor |  |
+| TLR9 | dna_sensing_endosomal | TLR | Early | positive | Immune-enriched | low | IFN_I_OUTPUT | 10.1038/35047123 |  | dna_sensor |  |

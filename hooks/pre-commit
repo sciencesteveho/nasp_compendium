@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Regenerate marker-gene docs and module figures, then stage them, whenever the
+# marker-gene source or the rendering code is part of the commit.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "${repo_root}"
+
+marker_tsv="${NASP_MARKER_TSV:-$(git config --get nasp.markerTsv || true)}"
+marker_tsv="${marker_tsv:-data/nasp_gene_modules.tsv}"
+docs_dir="${NASP_DOCS_DIR:-$(git config --get nasp.docsDir || true)}"
+docs_dir="${docs_dir:-docs/marker_genes}"
+
+watch_re='(\.tsv$|render_docs\.py$|visualization/gene_modules\.py$|regenerate\.py$)'
+staged="$(git diff --cached --name-only --diff-filter=ACMR)"
+if ! grep -Eq "${watch_re}" <<<"${staged}"; then
+  exit 0
+fi
+
+if [[ ! -f "${marker_tsv}" ]]; then
+  echo "pre-commit: marker TSV not found at '${marker_tsv}'." >&2
+  echo "  Set it with: git config nasp.markerTsv <path>" >&2
+  exit 1
+fi
+
+echo "pre-commit: regenerating marker-gene docs and figures..."
+python -m nasp_compendium.regenerate --input "${marker_tsv}" --docs-dir "${docs_dir}"
+
+git add "${docs_dir}"

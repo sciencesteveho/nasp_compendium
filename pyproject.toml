@@ -16,7 +16,11 @@ classifiers = [
   "Intended Audience :: Science/Research",
 ]
 
-dependencies = []
+dependencies = [
+  "graphviz==0.21",
+  "pandas==3.0.3",
+  "PyYAML==6.0.3",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -28,9 +32,15 @@ dev = [
   "ipython",
 ]
 
+[project.scripts]
+compendium = "nasp_compendium.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["nasp_compendium*"]
+
+[tool.setuptools.package-data]
+nasp_compendium = ["vocabulary.yaml"]
 
 [tool.ruff]
 target-version = "py311"
@@ -133,7 +143,7 @@ include = [
 
 exclude = [
   "**/node_modules",
-  "**/.*",        
+  "**/.*",
   "build",
   "dist",
   "**/*.egg-info",
