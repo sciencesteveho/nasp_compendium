@@ -94,6 +94,8 @@ class Compendium:
         edges: list[dict[str, Any]] = []
 
         for md_path in sorted(directory.glob("*.md")):
+            if md_path.name.endswith(".gold.md"):
+                continue
             file_papers, file_edges = parse_md(md_path)
             papers |= file_papers
             edges.extend(file_edges)

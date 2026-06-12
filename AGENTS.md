@@ -22,7 +22,10 @@ Before curating, auditing, or backfilling papers, read:
 
 ## Repository layout
 
-- `docs/compendium/`: per-paper mechanistic YAML-in-Markdown files.
+- `docs/compendium/`: per-paper mechanistic YAML-in-Markdown files. Files
+  ending in `.gold.md` are held-out calibration targets: the tooling skips
+  them and the agent must not read them as style examples until they are
+  promoted (renamed to `.md`).
 - `docs/compendium_conventions.md`: naming, edge, and evidence conventions.
 - `docs/marker_genes/`: rendered marker-gene documentation.
 - `data/literature/`: local PDFs for curation. These files are not committed.

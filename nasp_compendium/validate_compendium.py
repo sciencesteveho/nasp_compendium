@@ -17,7 +17,9 @@ from nasp_compendium.vocab_tiers import load_vocabulary
 from nasp_compendium.vocab_tiers import validate_draft_terms
 
 
-VOCABULARY_PATH: Path = Path(__file__).with_name("vocabulary.yaml")
+VOCABULARY_PATH: Path = (
+    Path(__file__).resolve().parent.parent / "agent" / "vocabulary.yaml"
+)
 
 VOCABULARY_FIELDS: tuple[str, ...] = (
     "nucleic_acid_sensors",
@@ -130,6 +132,8 @@ def validate_directory(directory: Path) -> ValidationResult:
         return ValidationResult(errors=errors, warnings=warnings)
 
     for path in sorted(directory.glob("*.md")):
+        if path.name.endswith(".gold.md"):
+            continue
         data = _load_yaml_file(path, errors)
         if data is not None:
             data_by_path[path] = data
