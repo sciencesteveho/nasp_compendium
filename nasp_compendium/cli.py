@@ -13,6 +13,8 @@ import graphviz  # type: ignore
 from nasp_compendium import diff_compendium
 from nasp_compendium import regenerate as regenerate_module
 from nasp_compendium import render_docs as render_docs_module
+from nasp_compendium import review_packet
+from nasp_compendium import score_compendium
 from nasp_compendium import summarize_compendium
 from nasp_compendium import validate_compendium
 
@@ -40,6 +42,8 @@ def _build_parser() -> argparse.ArgumentParser:
     _add_validate_parser(subparsers)
     _add_diff_parser(subparsers)
     _add_regenerate_parser(subparsers)
+    _add_review_packet_parser(subparsers)
+    _add_score_parser(subparsers)
 
     return parser
 
@@ -257,6 +261,87 @@ def _add_regenerate_parser(
     )
 
 
+
+def _add_review_packet_parser(
+    subparsers: argparse._SubParsersAction,
+) -> None:
+    """Register the `review_packet` subcommand."""
+    review_parser = subparsers.add_parser(
+        "review_packet",
+        help="Write a human-review packet for a draft file or directory.",
+    )
+    review_parser.add_argument(
+        "input_path",
+        type=Path,
+        help="Draft file or directory to review.",
+    )
+    review_parser.add_argument(
+        "--out",
+        "--output",
+        dest="output_path",
+        required=True,
+        type=Path,
+        help="Markdown file to write.",
+    )
+    review_parser.add_argument(
+        "--gate",
+        action="store_true",
+        help="Exit nonzero if the review packet has pre-freeze blockers.",
+    )
+
+
+def _add_score_parser(
+    subparsers: argparse._SubParsersAction,
+) -> None:
+    """Register the `score` subcommand."""
+    score_parser = subparsers.add_parser(
+        "score",
+        help="Score draft curation files against gold compendium files.",
+    )
+    score_parser.add_argument(
+        "--draft",
+        dest="draft_path",
+        required=True,
+        type=Path,
+        help="Draft file or directory to score.",
+    )
+    score_parser.add_argument(
+        "--gold",
+        dest="gold_path",
+        required=True,
+        type=Path,
+        help="Gold file or directory to compare against.",
+    )
+    score_parser.add_argument(
+        "--draft-glob",
+        default="*.md",
+        help="Glob used when --draft is a directory.",
+    )
+    score_parser.add_argument(
+        "--gold-glob",
+        default="*.gold.md",
+        help="Glob used when --gold is a directory.",
+    )
+    score_parser.add_argument(
+        "--drop-gold-defects",
+        action="store_true",
+        help="Exclude gold edges annotated as acknowledged defects.",
+    )
+    score_parser.add_argument(
+        "--format",
+        choices=("text", "json"),
+        default="text",
+        help="Output format.",
+    )
+    score_parser.add_argument(
+        "--out",
+        "--output",
+        dest="output_path",
+        type=Path,
+        help="Optional file to write the score report.",
+    )
+
+
 def _run_regenerate(args: argparse.Namespace) -> None:
     """Dispatch the `regenerate` subcommand."""
     regenerate_module.regenerate(input_path=args.input, docs_dir=args.docs_dir)
@@ -325,6 +410,46 @@ def _run_diff(args: argparse.Namespace) -> None:
     print(diff_compendium.format_diff(diff, output_format=args.format))
 
 
+def _run_review_packet(args: argparse.Namespace) -> None:
+    """Dispatch the `review_packet` subcommand."""
+    output_path = review_packet.write_review_packet(
+        input_path=args.input_path,
+        output_path=args.output_path,
+    )
+    print(f"  Wrote {output_path}")
+    if args.gate:
+        blockers = review_packet.gate_blockers(args.input_path)
+        if blockers:
+            print(f"  Pre-freeze gate blocked by {len(blockers)} issue(s).")
+            for blocker in blockers[:20]:
+                print(f"    - {blocker}")
+            sys.exit(1)
+
+
+def _run_score(args: argparse.Namespace) -> None:
+    """Dispatch the `score` subcommand."""
+    report = score_compendium.score_paths(
+        draft_path=args.draft_path,
+        gold_path=args.gold_path,
+        draft_glob=args.draft_glob,
+        gold_glob=args.gold_glob,
+        drop_gold_defects=args.drop_gold_defects,
+    )
+    formatted = score_compendium.format_score_report(
+        report,
+        output_format=args.format,
+    )
+    if args.output_path is not None:
+        score_compendium.write_score_report(
+            report,
+            output_path=args.output_path,
+            output_format=args.format,
+        )
+        print(f"  Wrote {args.output_path}")
+    else:
+        print(formatted, end="")
+
+
 def _print_graphviz_missing_executable() -> None:
     """Print Graphviz installation guidance after a render failure."""
     print(
@@ -382,6 +507,8 @@ def main() -> None:
         "validate": _run_validate,
         "diff": _run_diff,
         "regenerate": _run_regenerate,
+        "review_packet": _run_review_packet,
+        "score": _run_score,
     }
     parser = _build_parser()
     args = parser.parse_args()

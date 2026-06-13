@@ -3,7 +3,7 @@ canonical:
     - AIM2_inflammasome
     - cGAS-STING
     - DNA_damage_response
-    - heterochromatin_maintenance
+    - heterochromatin_organization
     - JAK-STAT
     - L1_retrotransposition
     - NF-kB
@@ -45,6 +45,7 @@ canonical:
 
   mechanisms:
     - aging
+    - accelerated_aging
     - apoptosis
     - BAX/BAK_pore
     - cGAMP_paracrine
@@ -55,13 +56,16 @@ canonical:
     - cytoplasmic_mtDNA
     - cytoplasmic_mt_dsRNA
     - cytoplasmic_retroelement_cDNA
+    - cytoplasmic_retroelement_RNA
     - cytosolic_DNA_sensing
     - cytosolic_RNA_sensing
     - DNA_damage
     - DNA_methylation_loss
+    - early_embryogenesis
     - epigenetic_remodeling
     - fibrosis
     - heterochromatin_disruption
+    - heterochronic_parabiosis
     - hippocampal_neuron_loss
     - immune_cell_recruitment
     - immune_evasion
@@ -73,6 +77,7 @@ canonical:
     - metabolic_reprogramming
     - microglial_activation
     - micronuclei_formation
+    - mortality
     - mitochondrial_dysfunction
     - mtDNA_release
     - mt_dsRNA_release
@@ -142,9 +147,15 @@ drift:
   chromatin_accessibility:
     replacement: epigenetic_remodeling
     reason: Accessibility gain and transposon methylation loss should be captured as epigenetic remodeling, with locus details in context.
+  cytoplasmic_ERV_dsRNA:
+    replacement: cytoplasmic_retroelement_RNA
+    reason: Retroelement-derived cytoplasmic RNA/dsRNA should use the reusable retroelement RNA node, with ERV/L1/source details in context.
   cytosolic_L1_cDNA_accumulation:
     replacement: cytoplasmic_retroelement_cDNA
     reason: L1 cDNA accumulation should use the canonical cytoplasmic retroelement cDNA node.
+  heterochromatin_maintenance:
+    replacement: heterochromatin_organization
+    reason: Use the broader heterochromatin organization node for cGAS/chromatin compendium edges.
   L1_de-repression:
     replacement: retrotransposon_derepression
     reason: L1 derepression should use the canonical retrotransposon derepression node.

@@ -39,8 +39,6 @@ compendium = "nasp_compendium.cli:main"
 where = ["."]
 include = ["nasp_compendium*"]
 
-[tool.setuptools.package-data]
-nasp_compendium = ["agent/vocabulary.yaml"]
 
 [tool.ruff]
 target-version = "py311"

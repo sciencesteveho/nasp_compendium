@@ -56,4 +56,5 @@ venv.bak/
 # Private facing local directories
 development/
 data/literature/
-reports/
+agent/reports/
+figures/

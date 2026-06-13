@@ -1,0 +1,532 @@
+# NASP compendium conventions
+
+`agent/vocabulary.yaml` is the machine-readable source of truth for
+canonical `pathways`, `mechanisms`, `model_systems`, and `evidence_type`
+entries. During curation, do not add terms to that file unilaterally. New
+terms should be warned by validation, documented in the audit report, reviewed
+by a human curator, and then added to `vocabulary.yaml` if accepted.
+
+
+## Paper scope and claim provenance
+
+Add `paper_scope` to each paper metadata block when curating new drafts. Use
+`mechanism_paper` or `perturbation_paper` when the paper directly perturbs and
+measures a mechanism. Use `cohort_correlation_paper`, `atlas_resource`,
+`biomarker_validation_paper`, or `review_or_resource` when the paper mainly
+reports associations, signatures, resources, or literature synthesis. Use
+`mixed_mechanism_and_correlation` when both mechanistic perturbation and
+correlative branches are graph-useful.
+
+For new curation drafts, add a top-level `claims:` block before `edges:`. Each
+claim should be one atomic paper-supported statement with `claim_id`,
+`evidence_location`, `claim`, `assay`, `disposition`, `branch_type`,
+`graph_candidate`, and `support`. Use `disposition: edge` when the claim should
+become a graph edge, `disposition: negative` for explicit negative/specificity
+findings, `disposition: context_only` when the claim explains an edge but
+should not be an endpoint-level relationship, and `disposition: insufficient`
+when the paper mentions a possible mechanism without enough support to encode
+it. Use `branch_type` to classify the claim as `main_spine`, `sensor_branch`,
+`inflammatory_output`, `cohort_association`, `state_reversal`,
+`negative_specificity`, `organismal_outcome`, or `context_only`. Set
+`graph_candidate: true` when the claim should be considered for graph output,
+even if it is later rejected; set it false for assay/background/context claims.
+Each edge may then list `support_claims:` to identify the claim records that
+justify the exact edge. Claims marked `edge` or `negative` should either be
+referenced by an edge or explicitly changed to another disposition before
+finalization. This preserves figure-level provenance and makes audit cheaper.
+Existing compendium files without claim records remain valid; new drafts should
+include them.
+
+Whenever possible, add structured causal-support fields to each claim:
+
+  - `perturbation`: the experimental perturbation, if any (`CGAS KO`,
+    `siRNA SPI1`, `ZCCHC3 loss`, `none`, etc.)
+  - `measured_readout`: the measured molecular/cellular/organismal readout
+    (`phospho-TBK1`, `IFNB1 qPCR`, `L1 cDNA smiFISH`, `survival model`, etc.)
+  - `affected_entities`: candidate graph nodes directly supported by the
+    claim
+
+These fields are not graph nodes; they are audit metadata. They let validation
+distinguish perturbation-supported edges from canonical continuity edges. An
+edge labeled `perturbation_supported` should link to at least one claim with a
+real perturbation and measured readout. A `canonical_inferred` edge linked to a
+claim with both a perturbation and measured readout should be reviewed for
+possible under-calling.
+
+When one claim supports multiple chain edges, or when exact support is
+ambiguous, add a top-level `claim_edge_matrix:` block after `claims:`. Each
+matrix record should name one `claim_id` and list `mapped_edges:` with exact
+`source`, `target`, `rel`, and `evidence_strength`. This turns
+`support_claims` from traceability into a typed support contract: a broad claim
+can no longer silently justify a collapsed branch, skipped intermediate, or
+overconfident evidence label.
+
+Add a top-level `adjudications:` block after the first `review_packet` pass when
+review findings remain. This is the pre-freeze state-machine checkpoint: a draft
+is not final merely because validation passed. Each adjudication should include:
+
+  - `issue_id`: stable local identifier, such as `lian_hidden_inflammatory_output`
+  - `issue_type`: one of `hidden_graph_candidate`, `topology_lint`,
+    `shortcut_warning`, `verb_warning`, `evidence_strength_warning`,
+    `reagent_endpoint_warning`, `broad_claim_reuse`,
+    `gold_or_scope_disagreement`, or `scope_density_warning`
+  - `decision`: one of `emit_edge`, `revise_edges`, `keep_context`,
+    `keep_insufficient`, `keep_as_is`, `needs_human_review`, or
+    `reject_as_gold_defect`
+  - `rationale`: brief explanation of the decision
+  - optional `claim_id`, `edge`, `emitted_edges`, and `remove_edges` fields to
+    tie the decision to exact claims and edges
+
+Adjudications must be specific enough to prevent `keep_as_is` from becoming a
+bypass. A `verb_warning` or `evidence_strength_warning` kept as-is must include
+`rejected_alternative` and `convention_rule`. A high-priority
+`hidden_graph_candidate` kept out of the graph must include
+`nearest_intermediate_search:` with `searched: true` and
+`candidate_edges_considered:`. A `scope_density_warning` must either reduce the
+draft to core edges or explicitly justify `curation_density: expanded`.
+
+Use adjudications to resolve hidden graph candidates, branch omissions, topology
+lints, reagent endpoints, verb-normalization warnings, evidence-strength
+warnings, density warnings, and broad claim reuse before freezing the draft. The
+review packet should report `READY_FOR_FREEZE` only after blocking findings have
+either been fixed or adjudicated with the required metadata.
+
+Use `entity_resolution:` in drafts to document ambiguous naming decisions. Each
+entry should record the raw term, canonical term if used, status, and rationale.
+Keep reagents, doses, cell-line-specific readouts, and assay-only terms in
+context rather than promoting them to graph nodes unless they are reusable
+biological entities.
+
+## Entity naming
+
+**Prefer canonical field terms over descriptive paraphrases.** Before composing
+a multi-word descriptive name for a phenomenon or outcome, check whether a
+one-word noun already exists in the field literature (MeSH, common review
+titles, paper abstracts). Use `tumorigenesis` not `tumor_formation`; use
+`fibrosis` not `fibrotic_tissue_formation`; use `apoptosis` not
+`programmed_cell_death`. Descriptive paraphrases are the main path to
+near-duplicate nodes that should be one node.
+
+**Genes and proteins.** HGNC official symbols, UPPERCASE. No legacy aliases, no
+case variants, no protein-vs-gene split.
+
+  - `CGAS` (not `cGAS`, not `MB21D1`)
+  - `STING1` (not `STING`, not `TMEM173`)
+  - `LMNB1` (not `lamin_b1`, not `Lamin B1`)
+  - `RELA` (not `NF-kB-p65`, not `p65`)
+  - `CXCL8` (not `IL8` — `IL8` only in edge `context` for readability)
+
+A gene and its protein are the same node. Modified forms (phosphorylation,
+dimerization, nuclear translocation) live in the edge `context`, never as
+separate nodes.
+
+**State-as-mechanism vs state-as-modification.** Most activated forms of a
+protein are *state-as-modification* and stay folded into the gene node:
+phospho-RELA, active-STING1, nuclear-NFKB. They mediate the same downstream
+signaling as the parent molecule; the modification is part of the mechanism,
+not a different mechanism.
+
+A small number of cases are *state-as-mechanism* and warrant their own node.
+`oncogenic_RAS` is the canonical example: constitutively-active Ras is
+biologically distinct from WT Ras — different upstream cause (mutation vs
+ligand), different kinetics (constitutive vs transient), different downstream
+consequences (senescence/transformation vs growth-factor signaling). WT RAS
+in normal physiology would not substitute for the `oncogenic_RAS` node in a
+pathway map. Same logic applies to `mutant_TP53` (gain-of-function) vs `TP53`
+(WT loss).
+
+Test: would a knockdown of the gene have *different* consequences depending
+on which state was present? If yes, the states are different mechanisms and
+each can warrant its own node. If no, fold into the gene node with state in
+context.
+
+**Pathways and signaling mechanisms.** Lowercase, hyphenated or
+underscore-joined. Used when the evidence is genuinely set-level or when the
+node represents a generalizable signaling state rather than a gene-specific
+event.
+
+  - `cGAS-STING`, `NF-kB`, `type_I_IFN`, `SASP`, `DNA_damage_response`,
+    `p53_p21`, `p38_MAPK`, `oncogenic_RAS`
+
+A gene-level edge always beats a pathway-level edge when the evidence is gene
+specific. If the paper knocked down CGAS, the edge endpoint is `CGAS`, not
+`cGAS-STING`.
+
+**Phenomena and cellular states.** snake_case, canonical field terms.
+Tissue-agnostic — see anti-pattern below.
+
+  - `cytoplasmic_chromatin_fragments` (canonical CCF node)
+  - `cytoplasmic_retroelement_cDNA`
+  - `senescence_associated_heterochromatin_foci` (SAHF)
+  - `cellular_senescence`
+  - `senescence_evasion`
+  - `DNA_damage`
+  - `immunosurveillance`
+  - `tumorigenesis`
+  - `tissue_inflammation`
+  - `fibrosis`
+  - `apoptosis`
+
+Use `cytoplasmic_chromatin_fragments` as the node name for CCF biology. `CCF`
+is allowed in `context` and `support` text for readability, but not as an edge
+endpoint or paper-block entity. Reserve `cytoplasmic_chromatin_fragments` for
+chromatin- or nuclear-fragment-derived CCF biology; do not use it as a generic
+node for every cytosolic DNA species.
+
+Use `cytoplasmic_retroelement_cDNA` for cytoplasmic reverse-transcribed
+retroelement DNA, including L1/retroelement-derived cytoplasmic cDNA or
+RNA-DNA hybrid intermediates generated by reverse transcription. This node is
+the preferred endpoint for papers where retroelement derepression produces a
+cytoplasmic DNA intermediate that is sensed by cytosolic DNA pathways.
+For L1 biology, `LINE1_transcription`, `cytoplasmic_L1_cDNA`,
+`cytosolic_L1_cDNA_accumulation`, and `L1_de-repression` are drift terms.
+Use `retrotransposon_derepression` for the transcriptional/epigenetic release
+of retroelements and `cytoplasmic_retroelement_cDNA` for the reverse-
+transcribed cytoplasmic DNA intermediate. These same two nodes carry both the
+senescent-cell cGAS-activating L1 biology in De Cecco 2019 and the
+cGAS-loss heterochromatin-failure biology in Martinez 2024.
+
+Use `epigenetic_remodeling` for accessibility gain and transposon
+demethylation caused by senescence or loss of a chromatin-maintaining factor.
+ATAC-seq peaks, Nanopore methylation changes, histone marks, and locus
+identity live in edge context. Reserve `heterochromatin_organization` for the
+intact, factor-maintained heterochromatin compartment physically supported by a
+perturbed gene or protein complex.
+
+**Small molecules.** Lowercase, no underscores unless required.
+
+  - `cGAMP`, `cAMP`
+
+`cGAMP` is a valid edge endpoint when the paper measures or perturbs the
+second messenger directly, such as `CGAS produces cGAMP` or
+`cGAMP activates STING1`.
+
+**Stimuli and treatments.** Specific name as used in the field, *only* when
+the stimulus does not correspond to a named, generalizable signaling
+mechanism.
+
+  - `replicative_exhaustion`, `dsDNA90`
+
+`replicative_exhaustion` is a valid stimulus/trigger node when it is the
+experimental aging or senescence trigger. `dsDNA90` is valid when the paper is
+testing that specific cytosolic-DNA stimulus rather than using it as a proxy for
+a broader mechanism.
+
+Where the stimulus does correspond to a generalizable mechanism, use the
+mechanism — not the reagent. Rule of thumb: if a future paper studying the
+same biology might use a different reagent, the node should be the mechanism
+and the reagent goes in context. Concrete collapses:
+
+  - Constitutively-active Ras alleles regardless of paralog (HRasV12,
+    NRasV12, KRasG12D) → `oncogenic_RAS`. Allele identity and inactive-mutant
+    controls (e.g. NRasV12/D38A) live in edge context.
+  - DNA-damaging agents (etoposide, ionizing radiation, doxorubicin,
+    hydroxyurea, bleomycin) → `DNA_damage`. The agent, dose, and exposure
+    duration live in edge context.
+  - Drugs and inactive analogs used as specificity controls usually stay in
+    context unless the reusable biological entity is the drug mechanism itself.
+    For DeCecco-style L1 reverse-transcriptase-dependence experiments, 3TC and
+    K-9 belong in `context`; the reusable node is the biological mechanism such
+    as `retrotransposon_derepression` or `cytoplasmic_retroelement_cDNA`, not
+    the reagent.
+
+**Cell types.** Standard nomenclature, lowercase for free-form, uppercase for
+acronyms.
+
+  - `IMR90`, `BJ_fibroblasts`, `MEF`, `primary_hepatocytes`, `cancer_cell_lines`
+
+**Cohorts and model systems.** snake_case.
+
+  - `human_in_vitro`, `mouse_in_vivo`, `CCLE_pan_cancer`, `TCGA_pan_cancer`
+
+Small molecules and specific experimental triggers can be valid edge endpoints
+even when they are not listed under `genes`, `pathways`, or `mechanisms` in the
+paper block. The paper block is a curated summary for browsing, not an
+exhaustive endpoint registry. If a new small molecule or trigger is not already
+covered here, record the uncertainty in an audit note rather than silently
+creating a new convention.
+
+## What is NOT a node
+
+- **"X_expression".** Genes/proteins are nodes; expression-level evidence
+  belongs in the edge `context` and `evidence_strength`. There is no
+  `STING1_expression` node — only `STING1` with edges whose context says "in
+  the top STING1 expression quartile of CCLE".
+
+- **"X_in_cell_type_Y".** Phenomena are not duplicated by cell context. CCF
+  in cancer cells is the same node as CCF in senescent cells; the context
+  goes in the edge. The node is `cytoplasmic_chromatin_fragments`, not `CCF`.
+
+- **Tissue-specific outcome nodes.** Don't bake a tissue label into an
+  outcome name. `liver_tumorigenesis`, `lung_inflammation`,
+  `kidney_fibrosis` should be `tumorigenesis`, `tissue_inflammation`,
+  `fibrosis`. Tissue context goes in the edge. Otherwise the same biological
+  outcome gets fragmented into one node per organ and never composes across
+  papers.
+
+- **Locus-, tissue-, condition-, or genotype-suffixed mechanism nodes.** Do not
+  split a chromatin-state or inflammatory-state node by where it was measured
+  or by the genotype in which it appeared. Use `epigenetic_remodeling` with
+  locus context instead of `chromatin_accessibility_inflammatory_loci` or
+  `L1_chromatin_accessibility`. Use `tissue_inflammation` with genotype context
+  instead of `cGAS_KO_inflammation`.
+
+- **Descriptive paraphrase nodes.** If a canonical one-word field term
+  exists, use it. `tumor_formation` is a paraphrase of `tumorigenesis`;
+  picking the paraphrase generates a near-duplicate next time someone uses
+  the canonical term, and the diagram fragments.
+
+- **States of failure.** "Persistence", "retention of X", "failure to clear"
+  are not nodes. They're encoded as the absence of an enabling relationship
+  (`required_for`) under loss-of-function evidence. The story is recoverable
+  from the edges.
+
+- **Specific reagents standing in for a mechanism.** See "Stimuli and
+  treatments" above.
+
+- **Modification-state pseudo-nodes.** Phospho-RELA, active-STING1, and
+  similar PTM forms are not nodes; they're the parent gene with state in
+  context. (See state-as-modification vs state-as-mechanism above for the
+  one case where states do earn their own node.)
+
+- **Non-HGNC gene-family nodes.** Do not create family pseudo-nodes such as
+  `PYHIN_family`. If a paper compares a specific gene knockout with a
+  family-level knockout, encode the specific gene edge and put the family-level
+  result in context when it is a minor or redundant specificity control.
+
+- **Histone-mark or element-product pseudo-nodes.** Histone marks such as
+  `H3K9me3` or `H3K9me3_heterochromatin` are evidence for chromatin state, not
+  graph nodes. LINE1-encoded proteins such as `LINE1_ORF1p` and `LINE1_ORF2p`
+  are evidence for retrotransposon derepression or reverse-transcription
+  activity, not graph nodes. Put these measurements in edge context or the
+  paper-block summary.
+
+- **Per-figure decomposition.** One relationship = one edge, even if the
+  paper shows it across multiple figures and cell systems. Cite all the
+  supporting figures in `support`. Don't fragment `CGAS produces cGAMP` into
+  three edges because the paper measured it in three cell types.
+
+## No shortcut edges across supported intermediates
+
+If the paper supports a multi-step chain — trigger → intermediate → ... →
+outcome — don't write a shortcut edge directly from the trigger to a
+far-downstream outcome that collapses everything in between. Use the chain.
+The shortcut hides the mechanism; the chain shows it.
+
+If a different model system simply re-confirms the spine (e.g., the same
+CGAS-STING dependence holds in cancer cells, or in mouse liver after IR),
+note that confirmation in the spine edges' `context` rather than creating a
+shortcut edge.
+
+Concrete anti-examples (drawn from Dou 2017 curation history):
+
+  - `ionizing_radiation drives tissue_inflammation` collapses
+    IR → DNA_damage → cellular_senescence → CCF → CGAS → cGAMP → STING1 →
+    RELA → SASP → immune_cell_recruitment into one edge. Wrong. The unique
+    claim of the IR experiment was *STING1 in vivo necessity*, which folds
+    into the context of the existing `STING1 required_for immunosurveillance`
+    edge.
+  - `cytoplasmic_chromatin_fragments drives SASP` (in cancer cells) collapses
+    CCF → CGAS → cGAMP → STING1 → RELA → SASP. Wrong. The unique cancer
+    claim is `senescence_evasion retains CCF`; the spine's operation in
+    cancer cells goes in that edge's `context`.
+
+Additional calibration anti-examples:
+
+  - `CGAS activates STING1` collapses the cGAMP second messenger in papers that
+    measure or invoke the canonical CGAS → cGAMP → STING1 chain. Preserve the
+    De Cecco-style `CGAS produces cGAMP` and `cGAMP activates STING1` steps
+    unless the paper only supports a net pathway-level relationship.
+  - `type_I_IFN drives SASP` collapses receptor/JAK-STAT signaling when the
+    paper supports the De Cecco chain `type_I_IFN activates JAK-STAT` and
+    `JAK-STAT drives SASP`.
+  - `mitochondrial_dysfunction produces cytoplasmic_mtDNA` collapses the Gulen
+    VDAC branch. Use `mitochondrial_dysfunction drives VDAC_oligomerization`
+    and `VDAC_oligomerization forms_pore_for cytoplasmic_mtDNA` when that pore
+    mechanism is the supported claim.
+  - `cytoplasmic_mt_dsRNA activates DDX58` collapses the Lopez-Polo
+    pathway-level sensing step. Use
+    `cytoplasmic_mt_dsRNA activates cytosolic_RNA_sensing` followed by
+    `cytosolic_RNA_sensing activates DDX58/IFIH1` when the paper supports the
+    broader RNA-sensing program plus named sensors.
+  - `CGAS drives accelerated_aging`, `CGAS drives inflammaging`, or similar
+    direct gene-to-organism phenotype edges are shortcuts when tissue-level
+    outputs are supported. Route organismal phenotypes through nodes such as
+    `tissue_inflammation`, `fibrosis`, `neurodegeneration`, or
+    `hippocampal_neuron_loss` as appropriate.
+
+When tempted to write a multi-step skip, ask: what is the *unique
+mechanistic claim* this experiment adds beyond the spine? Usually the answer
+is a single atomic edge, with the rest of the experiment described in
+`context`.
+
+The validator includes a warning-only skip-edge heuristic for this rule. Within
+each paper, it checks whether a direct edge `X -> Z` coexists with a supported
+same-paper path `X -> Y -> ... -> Z`. Cross-paper paths do not trigger the
+warning. The check excludes `contains`, `correlates`, `negatively_correlates`,
+`does_not_correlate`, and `does_not_drive` edges because program membership,
+statistical associations, and negative findings are intentionally direct and
+are not causal chain steps. Direct `upregulates` and `downregulates` abundance
+edges are not flagged as shortcut candidates because they may legitimately
+coexist with longer upstream signaling paths. A warning means "review this
+edge"; it is not proof that the edge is wrong.
+
+## Edge relationship vocabulary
+
+Controlled list. Use exactly these:
+
+  - `induces` — trigger-to-state or trigger-to-program transition (e.g.,
+    `oncogenic_RAS induces cellular_senescence`, `IRF3 induces type_I_IFN`)
+  - `causes` — proximal physical/biochemical causation. Avoid `causes` for
+    broad tissue, aging, inflammatory, or transcriptional program outcomes;
+    use `induces`, `drives`, or `activates` when those verbs are more precise.
+  - `activates` — functional activation, typically post-translational
+  - `suppresses` — functional suppression demonstrated by loss/gain of function
+  - `inhibits` — synonym of suppresses; prefer `suppresses`
+  - `downregulates` — transcript/protein abundance decrease
+  - `upregulates` — transcript/protein abundance increase
+  - `drives` — downstream causal regulation of a program, branch, or phenotype
+    after the upstream state is already established. Do not use `drives` as a
+    generic synonym for `induces`.
+  - `required_for` — necessity established by loss-of-function
+  - `binds_recruits` — physical recruitment/binding
+  - `produces` — catalytic product
+  - `contains` — a program/phenotype includes a component (e.g., `SASP contains
+    IL1A`)
+  - `retains` — a state persists across a transition (e.g., `senescence_evasion
+    retains cytoplasmic_chromatin_fragments`)
+  - `correlates` — statistical association without claimed causal direction
+  - `negatively_correlates` — inverse statistical association
+  - `does_not_correlate` — explicit specificity control (e.g., `MAVS
+    does_not_correlate SASP`)
+  - `does_not_drive` — negative perturbation result (e.g., `IFI16 does_not_drive
+    SASP`)
+  - `forms_pore_for` — pore-mediated translocation or release through a tested
+    pore-forming mechanism (e.g., `VDAC1 forms_pore_for cytoplasmic_mtDNA` or
+    `BAX/BAK_pore forms_pore_for cytoplasmic_mt_dsRNA`)
+
+Negative findings are edges, not omissions. They carry mechanistic information
+(specificity controls, sensor disambiguation) that the diagram should reflect.
+Do not use a bare `releases` relationship for pore-mediated translocation; use
+`forms_pore_for` and put the pore evidence in context.
+
+Use `contains` when a paper directly measures that a program or phenotype
+includes a component and that component is reused in another mechanistic edge.
+For example, encode `SASP contains IL1A` before using `IL1A suppresses IFNB1`.
+If a measured component is not reused mechanistically, it can usually remain in
+`context` rather than becoming a graph edge.
+
+`SASP contains X` means X is a measured component of the SASP or related
+program. It does not replace perturbation-supported regulatory edges. Use
+`STING1 upregulates X`, `JAK-STAT upregulates X`, or similar regulatory edges
+when loss- or gain-of-function evidence supports a causal upstream regulator
+for that component. Both edge types can coexist when both meanings are
+graph-useful and directly supported: one edge records program membership, the
+other records causal regulation.
+
+Multiple negative paralog controls should be encoded according to graph value.
+If a negative paralog result is important for disambiguating specificity and is
+likely useful for graph queries, it may be an explicit `does_not_correlate` or
+`does_not_drive` edge. If it is minor or redundant, keep it in the `context` of
+the positive edge. Calibration and audit reports should flag this choice for
+human review rather than silently expanding or compressing paralog controls.
+
+A multi-gene RT-qPCR, RNA-seq, cytokine-array, or ELISA panel that reads out a
+program usually collapses to one program-level edge, such as `X drives SASP`,
+`X drives type_I_IFN`, `X drives tissue_inflammation`, or
+`X drives inflammasome_activation`, with marker names in context. Per-cytokine
+`X upregulates Y` edges are reserved for a mechanistically specific output of
+the immediately upstream sensor or pathway, and only when that cytokine is
+itself reused elsewhere as an edge endpoint. If a canonical output such as
+IL18 is named but not reused, keep it in the program edge context instead of
+creating an `inflammasome_activation -> IL18` edge.
+
+Promote a named regulator to a node when three conditions are met: the paper
+shows motif enrichment or direct regulatory-region evidence, the regulator's
+expression or activity changes concordantly, and the authors invoke that
+regulator as a mediator of the downstream program. De Cecco's FOXA1 and
+Martinez's SPI1/PU.1 are examples. If the authors say a motif's role is unclear
+or do not connect it to the phenotype, keep it in context instead of creating a
+node.
+
+Do an evidence-strength audit after drafting. For each edge, check the exact
+relationship against the exact experiment and the linked claim metadata:
+directly measured activation, binding, product formation, localization, or
+abundance change is `direct_measured`; loss- or gain-of-function support with a
+recorded perturbation is `perturbation_supported`; organism/cohort association
+without direct perturbation of that edge is `strong_correlative` or
+`weak_correlative`; and canonical continuity edges without paper-specific
+testing are `canonical_inferred`. Do not upgrade co-occurrence to perturbation
+support, and do not downgrade a paper-specific phospho/activation/readout that
+changes under upstream perturbation to canonical inference merely because the
+intermediate itself was not separately knocked down.
+
+After evidence labeling, run a claim-disposition checkpoint: every claim must
+be marked `edge`, `negative`, `context_only`, or `insufficient`; every `edge`
+or `negative` claim should be linked by at least one edge; every
+`graph_candidate: true` claim left as `context_only` or `insufficient` should
+have an explicit rejection rationale in support; and every edge should be
+linked to claims that justify the specific source, target, relationship, and
+evidence strength. If one broad claim supports more than three edges, split it
+into separate atomic claims or add a `claim_edge_matrix` entry before
+finalization.
+
+Run a parallel-branch audit before finalizing. For every regulator/motif branch
+and every sensor branch, ask whether it converges directly on the same program
+or supports a distinct molecular route. Do not merge a motif/regulatory arm
+with an inflammasome/sensor arm unless the paper explicitly connects those
+entities by perturbation or direct readout.
+
+Run topology lints before freezing. Do not insert a generic process node between
+a directly measured ligand and the specific sensor proteins that instantiate
+that process; for example, do not make `cytosolic_RNA_sensing` activate `DDX58`
+or `IFIH1` when `cytoplasmic_retroelement_RNA` is the supported ligand. Prefer
+direct ligand-to-sensor edges and keep the broader sensing process in context or
+as a grouping term. Experimental reagents such as `dsDNA90` are context-only
+unless a curator explicitly adjudicates why reagent-as-endpoint is graph useful.
+A broad inflammatory-output claim rejected as a shortcut does not discharge the
+branch audit; search for the nearest supported non-shortcut intermediate edge.
+
+Do not duplicate the same `source`/`rel`/`target` edge across chains or model
+systems. If multiple figures, tissues, or perturbations support the same atomic
+relationship, create one edge and merge the evidence into `context` and
+`support`.
+
+## Evidence strength vocabulary
+
+  - `direct_measured` — the relationship is directly measured in this paper
+    (e.g., cGAMP by LC-MS, colocalization by IF, dimerization by non-reducing
+    blot)
+  - `perturbation_supported` — loss-of-function or gain-of-function evidence
+    (shRNA, KO, overexpression)
+  - `strong_correlative` — large-cohort statistical association (CCLE, TCGA,
+    n≥100)
+  - `weak_correlative` — small-n correlation
+  - `canonical_inferred` — relationship inferred from prior literature, not
+    directly measured here
+
+## Chain organization
+
+`chain_id` groups steps into one mechanistic narrative. Choose chains so the
+backbone of the paper sits in one chain and branches sit in their own. Do not
+split one mechanism into multiple chains by cell type or figure number.
+
+Rough guide for a typical mechanism paper: one spine chain end-to-end, one
+chain per branch (IFN suppression, in vivo readout, cancer/cohort
+associations), one chain for specificity controls. Single-edge chains are
+fine when the unique claim of a sub-experiment reduces to one atomic edge.
+
+## File structure
+
+Each `.md` is plain YAML with two top-level keys, `paper` and `edges`. The
+`paper` block lists the most important entities of each type for browsability
+(`genes`, `pathways`, `cell_types`, `mechanisms`, `model_systems`,
+`evidence_type`). Edge endpoints may include entities not declared in the
+paper block (small molecules, transient states); the paper block is a curated
+summary, not an exhaustive declaration list.
+
+The `evidence_type` field is for what was actually done in the paper
+(experimental methods), not for what kind of edge it produces. Use
+snake_case_consistently: `bulk_RNA_seq`, `single_cell_RNA_seq`, `ChIP_qPCR`,
+`LC_MS_metabolomics`, `immunoblot`, `immunofluorescence`, `RT_qPCR`,
+`shRNA_knockdown`, `genetic_KO`, `overexpression`, `cytokine_array`, `IHC`.
