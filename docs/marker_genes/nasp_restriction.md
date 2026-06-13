@@ -7,6 +7,7 @@
 | ENPP1 | cgamp_hydrolase | cGAS-STING | Active | positive | Broad | low |  | 10.1073/pnas.2119189119 |  |  |  |
 | DNASE1L3 | dna_restriction | cGAS-STING | Active | positive | Liver/Immune-enriched | medium |  | 10.3389/fimmu.2021.629922 |  |  |  |
 | DNASE2 | dna_restriction | cGAS-STING | Early | positive | Broad | low |  | 10.1038/s41467-017-01932-3 |  |  |  |
+| NSUN2 | dna_restriction | cGAS-STING | Active | positive | Broad |  |  | 10.1016/j.cmet.2023.07.009 |  | glucose_sensor |  |
 | PLD3 | dna_restriction | cGAS-STING | Active | positive | Broad | high |  | 10.3389/fimmu.2021.629922 |  |  |  |
 | PLD4 | dna_restriction | cGAS-STING | Active | positive | Broad | medium |  | 10.3389/fimmu.2021.629922 |  |  |  |
 | RNASEH2A | dna_restriction | cGAS-STING | Active | positive | Broad | low |  | 10.1038/s41467-022-30604-0 |  |  |  |
@@ -14,6 +15,23 @@
 | RNASEH2C | dna_restriction | cGAS-STING | Active | positive | Broad | medium |  | 10.1038/s41467-022-30604-0 |  |  |  |
 | SAMHD1 | dna_restriction | cGAS-STING | Early | positive | Broad | high |  | 10.1016/j.celrep.2016.07.002 |  |  |  |
 | TREX1 | dna_restriction | cGAS-STING | Early | positive | Broad | low |  | 10.1016/j.cell.2008.06.032 |  |  |  |
+| C1QBP | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1073/pnas.0811029106 |  |  |  |
+| C1QBP | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1073/pnas.0811029106 |  |  |  |
+| IQGAP1 | induced_negative_regulator | cGAS-STING | Active | positive | Broad |  |  | 10.4049/jimmunol.1601370 |  |  |  |
+| MARCHF8 | induced_negative_regulator | cGAS-STING | Active | positive | Immune-enriched |  |  | 10.1126/scisignal.abk3067 |  |  |  |
+| OTUD3 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.molcel.2020.06.020 |  |  |  |
+| PCBP2 | induced_negative_regulator | cGAS-STING | Active | positive | Broad |  |  | 10.1038/s41467-022-29266-9 |  |  |  |
+| PRKRA | induced_negative_regulator | PKR | Early | positive | Broad |  |  | 10.1038/s41467-025-58433-x | PACT |  |  |
+| PRMT1 | induced_negative_regulator | cGAS-STING | Active | positive | Broad |  |  | 10.1038/s41467-023-38443-3 |  |  |  |
+| PRMT5 | induced_negative_regulator | cGAS-STING | Active | positive | Broad |  |  | 10.1126/sciadv.abc1834 |  |  |  |
+| RIOK3 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.celrep.2015.03.027 |  |  |  |
+| RIOK3 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.celrep.2015.03.027 |  |  |  |
+| SIGLEC10 | induced_negative_regulator | RLR | Active | positive | Immune-enriched |  |  | 10.1093/glycob/cwu068 |  |  |  |
+| TRIM29 | induced_negative_regulator | cGAS-STING | Active | positive | Immune-enriched |  |  | 10.1038/s41467-017-00101-w |  |  |  |
+| TRIM40 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.celrep.2017.10.020 |  |  |  |
+| TRIM40 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.celrep.2017.10.020 |  |  |  |
+| ZNF598 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.celrep.2019.07.081 |  |  |  |
+| ZNF598 | induced_negative_regulator | RLR | Active | positive | Broad |  |  | 10.1016/j.celrep.2019.07.081 |  |  |  |
 | BNIP3 | mitophagy_restraint | cGAS-STING | Active | positive | Broad | high |  | 10.1083/jcb.202408166 |  |  |  |
 | BNIP3L | mitophagy_restraint |  | Active | positive | Broad | high |  | 10.1038/nature07006 | Nix |  |  |
 | PINK1 | mitophagy_restraint | cGAS-STING | Active | positive | Broad | medium |  | 10.1111/acel.13622 |  |  |  |
@@ -23,9 +41,22 @@
 | SUPV3L1 | mt_na_restraint | RLR | Early | positive | Broad | low |  | 10.1038/s41586-018-0363-0 | SUV3 |  |  |
 | TFAM | mt_na_restraint | cGAS-STING | Early | positive | Broad | medium | AGING_HALLMARKS; MITOCHONDRIAL_NA_SENSING | 10.1038/nature14156 |  |  |  |
 | ADAR | rna_restriction | RLR | Early | positive | Broad | high |  | 10.1126/science.aac7049 |  |  |  |
+| DDX46 | rna_restriction | RLR | Active | positive | Broad |  |  | 10.1038/ni.3830 |  |  |  |
 | FARSA | rna_restriction | PKR | Early | positive | Broad | low |  | 10.1016/j.molcel.2026.04.030 |  |  |  |
+| HNRNPC | rna_restriction | RLR | Active | positive | Broad |  |  | 10.15252/embj.201899017 |  |  |  |
 | SKIV2L | rna_restriction |  | Early | positive | Broad | low |  | 10.1038/ni.2948 |  |  |  |
+| AARS1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1038/s41586-024-07992-y |  | l_lactate_sensor |  |
+| AARS2 | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1038/s41586-024-07992-y |  | l_lactate_sensor |  |
+| ATG9A | sensing_checkpoint | cGAS-STING | Early | inverse | Broad |  |  | 10.1073/pnas.0911267106 |  |  |  |
+| AURKA | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1172/JCI161929 |  |  |  |
+| CDK1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1038/s41421-020-0162-2 |  |  |  |
+| CDK1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1038/s41421-020-0162-2 |  |  |  |
+| DDX46 | sensing_checkpoint | RLR | Active | positive | Broad |  |  | 10.1038/ni.3830 |  |  |  |
+| MECP2 | sensing_checkpoint | cGAS-STING | Early | positive | Broad |  |  | 10.1038/s41467-025-65713-z |  |  |  |
 | NLRC3 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | low |  | 10.1016/j.immuni.2014.01.010 |  |  |  |
+| SDCBP | sensing_checkpoint | TLR | Active | positive | Broad |  |  | 10.1038/s41586-019-1612-6 |  |  |  |
+| WWTR1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1038/ncb3496 |  |  |  |
+| YAP1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad |  |  | 10.1038/ncb3496 |  |  |  |
 | APOBEC3A | te_restriction_factor | RLR | Early | positive | Immune-enriched | medium |  | 10.1093/nar/gkj416 |  |  |  |
 | APOBEC3B | te_restriction_factor | RLR | Early | positive | Immune-enriched | low |  | 10.1093/nar/gkj416 |  |  |  |
 | MOV10 | te_restriction_factor | Multi | Early | positive | Broad | low |  | 10.1371/journal.pgen.1002941 |  |  |  |
