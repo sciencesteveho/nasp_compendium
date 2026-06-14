@@ -1,3 +1,4 @@
+
 """Render the NASP mechanistic compendium as a pathway map."""
 
 from __future__ import annotations
@@ -302,13 +303,14 @@ def render(
         "ordering": "out",
         "remincross": "true",
         "outputorder": "edgesfirst",
-        "overlap": "false",
-        "sep": "+4",
-        "esep": "+3",
-        "nodesep": "0.22",
-        "ranksep": "0.35",
+        "overlap": "prism",
+        "sep": "+0.12",
+        "esep": "+0.08",
+        "nodesep": "0.10",
+        "ranksep": "0.18 equally",
         "pack": "true",
         "packmode": "node",
+        "packmargin": "0",
         "concentrate": "false",
         "dpi": "450",
         "margin": "0",
@@ -319,9 +321,9 @@ def render(
         "shape": "box",
         "style": "rounded,filled",
         "fontname": GRAPH_FONT,
-        "fontsize": "4.5",
-        "penwidth": "0.7",
-        "margin": "0.02,0.012",
+        "fontsize": "5",
+        "penwidth": "0.65",
+        "margin": "0.018,0.010",
         "width": "0.01",
         "height": "0.01",
         "fixedsize": "false",
@@ -329,17 +331,18 @@ def render(
     edge_attr = {
         "fontname": GRAPH_FONT,
         "fontsize": "4.5",
-        "penwidth": "0.7",
-        "arrowsize": "0.3",
+        "penwidth": "0.65",
+        "arrowsize": "0.28",
         "minlen": "1",
     }
 
     if compact:
         graph_attr |= {
-            "sep": "+3",
-            "esep": "+2",
-            "nodesep": "0.12",
-            "ranksep": "0.2",
+            "overlap": "prism",
+            "sep": "+0.04",
+            "esep": "+0.03",
+            "nodesep": "0.05",
+            "ranksep": "0.10 equally",
             "margin": "0",
             "pad": "0",
             "concentrate": "false",
@@ -347,17 +350,17 @@ def render(
         }
         node_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "4",
-            "margin": "0.015,0.01",
+            "fontsize": "4.25",
+            "margin": "0.010,0.006",
             "width": "0.01",
             "height": "0.01",
-            "penwidth": "0.6",
+            "penwidth": "0.55",
         }
         edge_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "4",
-            "arrowsize": "0.26",
-            "penwidth": "0.6",
+            "fontsize": "3.75",
+            "arrowsize": "0.22",
+            "penwidth": "0.55",
             "minlen": "1",
         }
 

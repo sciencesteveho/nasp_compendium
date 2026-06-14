@@ -1,11 +1,19 @@
 """Render the NASP marker-genes as readable Markdown files."""
 
+from __future__ import annotations
+
 import argparse
 import os
+import re
 from collections.abc import Iterable
 from pathlib import Path
 
 import pandas as pd
+
+from nasp_compendium.display import humanize_module_name
+
+
+DOI_PATTERN: re.Pattern[str] = re.compile(r"10\.\d{4,9}/[^\s;,|]+")
 
 
 def _read_marker_table(input_path: Path) -> pd.DataFrame:
@@ -72,9 +80,10 @@ def render_module(
     Returns:
       Markdown document text for the module.
     """
-    lines = [f"# {module_id}", ""]
+    module_label = humanize_module_name(module_id)
+    lines = [f"# {module_label}", ""]
     if figure_relpath is not None:
-        lines += [f"![{module_id} taxonomy]({figure_relpath})", ""]
+        lines += [f"![{module_label} taxonomy]({figure_relpath})", ""]
     lines += [
         "| Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |",  # noqa: E501
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",  # noqa: E501
@@ -95,7 +104,10 @@ def render_module(
     ]
     ordered = module_table.sort_values(["module_class", "gene_symbol"])
     for _, row in ordered.iterrows():
-        values = [_escape_chars(str(row[column])) for column in display_columns]
+        values = [
+            _format_table_cell(column, str(row[column]))
+            for column in display_columns
+        ]
         lines.append(f"| {' | '.join(values)} |")
     lines.append("")
     return "\n".join(lines)
@@ -122,11 +134,67 @@ def render_index(
         lines += [f"![Module taxonomy]({figure_relpath})", ""]
     lines += ["## Modules", ""]
     lines.extend(
-        f"- [{module_id}]({module_stem(module_id)}.md)"
+        f"- [{humanize_module_name(module_id)}]({module_stem(module_id)}.md)"
         for module_id in module_ids
     )
     lines.append("")
     return "\n".join(lines)
+
+
+def _format_table_cell(column: str, value: str) -> str:
+    """Return a Markdown-safe table cell for one source-column value."""
+    if column == "doi":
+        return _format_doi_cell(value)
+    return _escape_chars(value)
+
+
+def _format_doi_cell(value: str) -> str:
+    """Return DOI values as Markdown links to doi.org."""
+    cleaned_value = value.strip()
+    if not cleaned_value:
+        return ""
+
+    doi_values = _extract_dois(cleaned_value)
+    if not doi_values:
+        doi_values = [_strip_doi_url(cleaned_value)]
+
+    return "<br>".join(_format_doi_link(doi) for doi in doi_values)
+
+
+def _extract_dois(value: str) -> list[str]:
+    """Extract DOI-like identifiers from a table cell."""
+    doi_values: list[str] = []
+    for match in DOI_PATTERN.findall(value):
+        doi = _strip_trailing_punctuation(_strip_doi_url(match))
+        if doi and doi not in doi_values:
+            doi_values.append(doi)
+    return doi_values
+
+
+def _format_doi_link(doi: str) -> str:
+    """Return one DOI identifier as a Markdown link."""
+    escaped_doi = _escape_chars(doi)
+    return f"[{escaped_doi}](https://doi.org/{doi})"
+
+
+def _strip_doi_url(value: str) -> str:
+    """Remove common DOI URL prefixes from a DOI value."""
+    doi = value.strip()
+    prefixes = (
+        "https://doi.org/",
+        "http://doi.org/",
+        "doi:",
+        "DOI:",
+    )
+    for prefix in prefixes:
+        if doi.startswith(prefix):
+            return doi[len(prefix) :].strip()
+    return doi
+
+
+def _strip_trailing_punctuation(value: str) -> str:
+    """Remove punctuation commonly attached to prose DOI mentions."""
+    return value.rstrip(".,;:")
 
 
 def _escape_chars(value: str) -> str:

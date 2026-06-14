@@ -1,3 +1,4 @@
+
 """Visualization utilities for gene modules and their taxonomy."""
 
 import colorsys
@@ -15,6 +16,8 @@ from matplotlib.patches import PathPatch
 from matplotlib.patches import Rectangle
 from matplotlib.path import Path as MplPath
 from matplotlib.transforms import blended_transform_factory
+
+from nasp_compendium.display import humanize_module_name
 
 
 PANEL_COLUMNS = (
@@ -335,7 +338,10 @@ def _draw_module_sidebar(
     renderer = ax.figure.canvas.get_renderer()  # type: ignore
 
     group_labels = {
-        module_id: f"{module_id} ({int(bars['n_genes'].iloc[start:end].sum())})"
+        module_id: (
+            f"{humanize_module_name(module_id)} "
+            f"({int(bars['n_genes'].iloc[start:end].sum())})"
+        )
         for start, end, module_id in group_boundaries
     }
 
@@ -895,7 +901,7 @@ def _plot_module_sankey(
     ax.text(
         x_module_left,
         module_node["y_top"] - module_node["height"] / 2.0,
-        module_id,
+        humanize_module_name(module_id),
         ha="right",
         va="center",
         fontsize=fontsize,
