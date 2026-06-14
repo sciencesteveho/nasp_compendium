@@ -1,0 +1,52 @@
+--- a/nasp_compendium/summarize_compendium.py
++++ b/nasp_compendium/summarize_compendium.py
+@@ -428,10 +428,10 @@
+         graph_attr |= {
+             "splines": "spline",
+             "overlap": "false",
+-            "sep": "+0.04",
+-            "esep": "+0.02",
+-            "nodesep": "0.065",
+-            "ranksep": "0.18 equally",
++            "sep": "+0.03",
++            "esep": "+0.015",
++            "nodesep": "0.055",
++            "ranksep": "0.12",
+             "pack": "true",
+             "packmode": "node",
+             "concentrate": "false",
+@@ -441,17 +441,17 @@
+         }
+         node_attr |= {
+             "fontname": GRAPH_FONT,
+-            "fontsize": "5.4",
+-            "margin": "0.022,0.013",
++            "fontsize": "5.2",
++            "margin": "0.020,0.012",
+             "width": "0.01",
+             "height": "0.01",
+-            "penwidth": "0.70",
++            "penwidth": "0.68",
+         }
+         edge_attr |= {
+             "fontname": GRAPH_FONT,
+-            "fontsize": "4.6",
+-            "arrowsize": "0.28",
+-            "penwidth": "0.68",
++            "fontsize": "4.4",
++            "arrowsize": "0.26",
++            "penwidth": "0.64",
+             "minlen": "1",
+         }
+ 
+@@ -519,8 +519,8 @@
+             style=EVIDENCE_STYLES.get(evidence, DEFAULT_EVIDENCE_STYLE),
+         )
+ 
+-    if compact:
+-        _add_compact_edge_legend(diagram, _highest_degree_node(edges))
++    # if compact:
++    #     _add_compact_edge_legend(diagram, _highest_degree_node(edges))
+ 
+     rendered_path = Path(
+         diagram.render(filename=str(output_stem), cleanup=True)

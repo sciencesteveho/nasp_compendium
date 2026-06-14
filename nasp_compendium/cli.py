@@ -92,11 +92,11 @@ def _add_render_graph_parser(
     )
     render_graph_parser.add_argument(
         "--layout-engine",
-        default="dot",
+        default=None,
         choices=("dot", "fdp", "sfdp", "neato"),
         help=(
-            "Graphviz layout engine. dot is directional; fdp, sfdp, and "
-            "neato are more organic exploratory layouts."
+            "Graphviz layout engine. Defaults to dot. Use fdp, sfdp, or "
+            "neato only for exploratory network-style layouts."
         ),
     )
     render_graph_parser.add_argument(
@@ -137,7 +137,10 @@ def _add_render_graph_parser(
     render_graph_parser.add_argument(
         "--compact",
         action="store_true",
-        help="Use tighter Graphviz spacing for denser pathway maps.",
+        help=(
+            "Use compact pathway-map mode: left-to-right layout, hidden edge "
+            "labels, and a visual edge legend."
+        ),
     )
 
 

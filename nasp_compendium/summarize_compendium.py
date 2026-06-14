@@ -30,6 +30,8 @@ COMPENDIUM_DIR: Path = (
 
 GRAPH_FONT: str = "Helvetica"
 SVG_FONT_FAMILY: str = "Helvetica, 'Nimbus Sans', Arial, sans-serif"
+DEFAULT_LAYOUT_ENGINE: str = "dot"
+COMPACT_LAYOUT_ENGINE: str = "dot"
 GRAPH_FONT_PATH: str = (
     "/System/Library/Fonts:"
     "/System/Library/Fonts/Supplemental:"
@@ -50,6 +52,16 @@ SVG_DASH_PATTERNS: dict[str, str] = {
     'stroke-dasharray="5,2"': 'stroke-dasharray="2,1.2"',
     'stroke-dasharray="1,5"': 'stroke-dasharray="1,2"',
 }
+COMPACT_EDGE_LEGEND_ROWS: tuple[tuple[str, str, str], ...] = (
+    ("#55A868", "━━▶", "activation / positive output"),
+    ("#C44E52", "━━┤", "inhibition / downregulation"),
+    ("#4C72B0", "━━▶", "requirement / production"),
+    ("#8172B3", "━━▶", "binding / recruitment"),
+    ("#999999", "···○", "correlation / no effect"),
+    (DEFAULT_REL_COLOR, "━━━━", "direct or perturbation-supported"),
+    (DEFAULT_REL_COLOR, "╍╍╍▶", "canonical inferred"),
+    (DEFAULT_REL_COLOR, "···▶", "correlative"),
+)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -254,12 +266,84 @@ def aggregate_duplicate_edges(
     return aggregated
 
 
+def _select_layout_engine(
+    layout_engine: str | None,
+    compact: bool,
+) -> str:
+    """Return the Graphviz engine for the requested rendering mode."""
+    if layout_engine:
+        return layout_engine
+    return COMPACT_LAYOUT_ENGINE if compact else DEFAULT_LAYOUT_ENGINE
+
+
+def _highest_degree_node(edges: list[dict[str, Any]]) -> str | None:
+    """Return the node with the most incident rendered edges."""
+    degree_by_node: dict[str, int] = {}
+    for edge in edges:
+        for endpoint in ("source", "target"):
+            node = str(edge.get(endpoint, ""))
+            if node:
+                degree_by_node[node] = degree_by_node.get(node, 0) + 1
+
+    if not degree_by_node:
+        return None
+    return max(degree_by_node, key=lambda node: (degree_by_node[node], node))
+
+
+def _compact_edge_legend_label() -> str:
+    """Return a Graphviz HTML label for the compact edge legend."""
+    rows = [
+        (
+            f'<TR><TD ALIGN="RIGHT"><FONT FACE="{GRAPH_FONT}" '
+            f'POINT-SIZE="7" COLOR="{color}">{symbol}</FONT></TD>'
+            f'<TD ALIGN="LEFT"><FONT FACE="{GRAPH_FONT}" '
+            f'POINT-SIZE="7">{label}</FONT></TD></TR>'
+        )
+        for color, symbol, label in COMPACT_EDGE_LEGEND_ROWS
+    ]
+    rows_text = "\n".join(rows)
+    return (
+        '<\n'
+        '<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="1">\n'
+        f'{rows_text}\n'
+        '</TABLE>\n'
+        '>'
+    )
+
+
+def _add_compact_edge_legend(
+    diagram: graphviz.Digraph,
+    anchor_node: str | None,
+) -> None:
+    """Add a visual compact-mode legend for edge encodings."""
+    legend_node = "__edge_legend__"
+    diagram.node(
+        legend_node,
+        label=_compact_edge_legend_label(),
+        shape="box",
+        style="filled",
+        fillcolor="#FFFFFF",
+        color="#BBBBBB",
+        fontname=GRAPH_FONT,
+        margin="0.03,0.025",
+    )
+    if anchor_node is not None:
+        diagram.edge(
+            legend_node,
+            anchor_node,
+            style="invis",
+            arrowhead="none",
+            constraint="false",
+            weight="0",
+            minlen="0",
+        )
+
 def render(
     compendium: Compendium,
     output_stem: Path,
     output_format: str = "png",
     rankdir: str = "LR",
-    layout_engine: str = "dot",
+    layout_engine: str | None = None,
     annotate_papers: bool = False,
     aggregate_edges: bool = True,
     compact: bool = False,
@@ -275,12 +359,13 @@ def render(
       output_format: Graphviz output format.
       rankdir: Graphviz rank direction. `"TB"` is top-to-bottom; `"LR"` is
         left-to-right.
-      layout_engine: Graphviz layout engine. `dot` is directional; `fdp`,
-        `sfdp`, and `neato` are more organic exploratory layouts.
+      layout_engine: Optional Graphviz layout engine. Defaults to `dot`.
+        `sfdp`, `fdp`, and `neato` are exploratory alternatives.
       annotate_papers: If True, append a short paper citation to each edge
         label.
       aggregate_edges: If True, merge duplicate source-target-rel edges.
-      compact: If True, reduce Graphviz spacing, node margins, and label size.
+      compact: If True, keep a left-to-right pathway layout while hiding
+        edge labels and adding a visual edge legend.
     """
     if not compendium.edges:
         print("  No edges recorded. Add an 'edges:' block to a paper file.")
@@ -292,6 +377,10 @@ def render(
         else compendium.edges
     )
     entity_types = node_entity_types(compendium)
+    selected_layout_engine = _select_layout_engine(
+        layout_engine,
+        compact=compact,
+    )
 
     graph_attr = {
         "rankdir": rankdir,
@@ -337,29 +426,32 @@ def render(
 
     if compact:
         graph_attr |= {
-            "overlap": "prism",
-            "sep": "+0.04",
-            "esep": "+0.03",
-            "nodesep": "0.05",
-            "ranksep": "0.10 equally",
-            "margin": "0",
-            "pad": "0",
+            "splines": "spline",
+            "overlap": "false",
+            "sep": "+0.03",
+            "esep": "+0.015",
+            "nodesep": "0.055",
+            "ranksep": "0.12",
+            "pack": "true",
+            "packmode": "node",
             "concentrate": "false",
             "ratio": "compress",
+            "margin": "0",
+            "pad": "0",
         }
         node_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "4.25",
-            "margin": "0.010,0.006",
+            "fontsize": "5.2",
+            "margin": "0.020,0.012",
             "width": "0.01",
             "height": "0.01",
-            "penwidth": "0.55",
+            "penwidth": "0.68",
         }
         edge_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "3.75",
-            "arrowsize": "0.22",
-            "penwidth": "0.55",
+            "fontsize": "4.4",
+            "arrowsize": "0.26",
+            "penwidth": "0.64",
             "minlen": "1",
         }
 
@@ -372,7 +464,7 @@ def render(
     diagram = graphviz.Digraph(
         name="nasp_compendium",
         format=render_format,
-        engine=layout_engine,
+        engine=selected_layout_engine,
         graph_attr=graph_attr,
         node_attr=node_attr,
         edge_attr=edge_attr,
@@ -411,17 +503,24 @@ def render(
                 citations = ", ".join(format_citation(pid) for pid in paper_ids)
                 edge_label = f"{edge_label}\n[{citations}]"
 
+        visible_edge_label = "" if compact else edge_label
+        edge_constraint = str(rel not in NON_CONSTRAINING_RELS).lower()
+
         diagram.edge(
             str(edge["source"]),
             str(edge["target"]),
-            label=edge_label,
+            label=visible_edge_label,
+            tooltip=edge_label,
             color=color,
             fontcolor=color,
             fontname=GRAPH_FONT,
-            constraint=str(rel not in NON_CONSTRAINING_RELS).lower(),
+            constraint=edge_constraint,
             arrowhead=REL_ARROWHEAD.get(rel, DEFAULT_ARROWHEAD),
             style=EVIDENCE_STYLES.get(evidence, DEFAULT_EVIDENCE_STYLE),
         )
+
+    # if compact:
+    #     _add_compact_edge_legend(diagram, _highest_degree_node(edges))
 
     rendered_path = Path(
         diagram.render(filename=str(output_stem), cleanup=True)

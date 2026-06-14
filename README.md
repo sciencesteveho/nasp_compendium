@@ -17,6 +17,12 @@ Follow the linked `README.md` files for detailed usage.
 
 </br>
 
+![](docs/_static/nasp_pathway_map_compact.png)
+
+
+
+</br>
+
 ## Installation
 
 This repository is under *active development* and `pyproject.toml` may not be fully up to date.
