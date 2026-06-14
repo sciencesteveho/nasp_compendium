@@ -143,9 +143,7 @@ def render_index(
 
 def _format_table_cell(column: str, value: str) -> str:
     """Return a Markdown-safe table cell for one source-column value."""
-    if column == "doi":
-        return _format_doi_cell(value)
-    return _escape_chars(value)
+    return _format_doi_cell(value) if column == "doi" else _escape_chars(value)
 
 
 def _format_doi_cell(value: str) -> str:
@@ -154,9 +152,7 @@ def _format_doi_cell(value: str) -> str:
     if not cleaned_value:
         return ""
 
-    doi_values = _extract_dois(cleaned_value)
-    if not doi_values:
-        doi_values = [_strip_doi_url(cleaned_value)]
+    doi_values = _extract_dois(cleaned_value) or [_strip_doi_url(cleaned_value)]
 
     return "<br>".join(_format_doi_link(doi) for doi in doi_values)
 
@@ -186,10 +182,14 @@ def _strip_doi_url(value: str) -> str:
         "doi:",
         "DOI:",
     )
-    for prefix in prefixes:
-        if doi.startswith(prefix):
-            return doi[len(prefix) :].strip()
-    return doi
+    return next(
+        (
+            doi[len(prefix) :].strip()
+            for prefix in prefixes
+            if doi.startswith(prefix)
+        ),
+        doi,
+    )
 
 
 def _strip_trailing_punctuation(value: str) -> str:

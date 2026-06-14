@@ -37,7 +37,12 @@ BRANCHES_REQUIRING_ADJUDICATION: frozenset[str] = frozenset(
     }
 )
 REAGENT_ONLY_ENDPOINTS: frozenset[str] = frozenset({"dsDNA90"})
-REAGENT_ENDPOINT_PREFIXES: tuple[str, ...] = ("dsDNA", "ssDNA", "polyIC", "poly_I:C")
+REAGENT_ENDPOINT_PREFIXES: tuple[str, ...] = (
+    "dsDNA",
+    "ssDNA",
+    "polyIC",
+    "poly_I:C",
+)
 GENERIC_PROCESS_NODES: frozenset[str] = frozenset({"cytosolic_RNA_sensing"})
 SENSING_PROCESS_SUFFIX: str = "_sensing"
 SENSOR_COMPONENT_NODES: frozenset[str] = frozenset({"DDX58", "IFIH1"})
@@ -104,17 +109,25 @@ def gate_blockers(input_path: Path) -> list[str]:
         for issue in _validate_input(input_path).errors
     ]
     for path, data in sorted(_load_review_data(input_path).items()):
-        for blocker in _pre_freeze_blockers(data):
-            blockers.append(f"{path.name}: {blocker}")
+        blockers.extend(
+            f"{path.name}: {blocker}" for blocker in _pre_freeze_blockers(data)
+        )
     return blockers
 
 
 def _load_review_data(input_path: Path) -> dict[Path, dict[str, Any]]:
     """Load reviewable YAML files from a file or directory."""
-    paths = [input_path] if input_path.is_file() else sorted(input_path.glob("*.md"))
+    paths = (
+        [input_path]
+        if input_path.is_file()
+        else sorted(input_path.glob("*.md"))
+    )
     data_by_path: dict[Path, dict[str, Any]] = {}
     for path in paths:
-        if path.name.endswith(".gold.md") or path.suffix not in REVIEWABLE_SUFFIXES:
+        if (
+            path.name.endswith(".gold.md")
+            or path.suffix not in REVIEWABLE_SUFFIXES
+        ):
             continue
         data = yaml.safe_load(path.read_text())
         if isinstance(data, dict):
@@ -138,23 +151,25 @@ def _format_validation_summary(
     result: validate_compendium.ValidationResult,
 ) -> list[str]:
     """Format validation errors and warnings as Markdown."""
-    lines = ["## Validation", ""]
-    lines.append(f"- Errors: {len(result.errors)}")
-    lines.append(f"- Warnings: {len(result.warnings)}")
-    lines.append("")
-
+    lines = [
+        "## Validation",
+        "",
+        f"- Errors: {len(result.errors)}",
+        f"- Warnings: {len(result.warnings)}",
+        "",
+    ]
     if result.errors:
-        lines.append("### Errors")
-        lines.append("")
-        for issue in result.errors:
-            lines.append(f"- `{issue.path}`: {issue.message}")
+        lines.extend(("### Errors", ""))
+        lines.extend(
+            f"- `{issue.path}`: {issue.message}" for issue in result.errors
+        )
         lines.append("")
 
     if result.warnings:
-        lines.append("### Warnings")
-        lines.append("")
-        for issue in result.warnings:
-            lines.append(f"- `{issue.path}`: {issue.message}")
+        lines.extend(("### Warnings", ""))
+        lines.extend(
+            f"- `{issue.path}`: {issue.message}" for issue in result.warnings
+        )
         lines.append("")
 
     return lines
@@ -193,20 +208,17 @@ def _format_paper_scopes(data: dict[str, Any]) -> list[str]:
     return lines
 
 
-
 def _format_pre_freeze_status(data: dict[str, Any]) -> list[str]:
     """Format a blocking pre-freeze status from review findings."""
     blockers = _pre_freeze_blockers(data)
     lines = ["### Pre-freeze status", ""]
     if blockers:
-        lines.append("- Status: `BLOCKED`")
-        lines.append(f"- Blocking issues: {len(blockers)}")
-        lines.append("")
-        for blocker in blockers[:15]:
-            lines.append(f"- {blocker}")
+        lines.extend(
+            ("- Status: `BLOCKED`", f"- Blocking issues: {len(blockers)}", "")
+        )
+        lines.extend(f"- {blocker}" for blocker in blockers[:15])
     else:
-        lines.append("- Status: `READY_FOR_FREEZE`")
-        lines.append("- Blocking issues: 0")
+        lines.extend(("- Status: `READY_FOR_FREEZE`", "- Blocking issues: 0"))
     lines.append("")
     return lines
 
@@ -235,17 +247,20 @@ def _format_adjudication_summary(data: dict[str, Any]) -> list[str]:
 
     lines = ["### Adjudications", "", f"- Records: {len(adjudications)}"]
     if issue_counts:
-        lines.append("")
-        lines.append("Issue types:")
-        for issue_type, count in sorted(issue_counts.items()):
-            lines.append(f"- `{issue_type}`: {count}")
+        lines.extend(("", "Issue types:"))
+        lines.extend(
+            f"- `{issue_type}`: {count}"
+            for issue_type, count in sorted(issue_counts.items())
+        )
     if decision_counts:
-        lines.append("")
-        lines.append("Decisions:")
-        for decision, count in sorted(decision_counts.items()):
-            lines.append(f"- `{decision}`: {count}")
+        lines.extend(("", "Decisions:"))
+        lines.extend(
+            f"- `{decision}`: {count}"
+            for decision, count in sorted(decision_counts.items())
+        )
     lines.append("")
     return lines
+
 
 def _format_claim_summary(data: dict[str, Any]) -> list[str]:
     """Format raw-claim provenance coverage."""
@@ -254,48 +269,46 @@ def _format_claim_summary(data: dict[str, Any]) -> list[str]:
         return ["### Claims", "", "- No `claims` block present.", ""]
 
     lines = ["### Claims", "", f"- Claim records: {len(claims)}"]
-    disposition_counts = collections.Counter(
+    if disposition_counts := collections.Counter(
         str(claim.get("disposition", "not_set"))
         for claim in claims
         if isinstance(claim, dict)
-    )
-    if disposition_counts:
-        lines.append("")
-        lines.append("Claim dispositions:")
-        for disposition, count in sorted(disposition_counts.items()):
-            lines.append(f"- `{disposition}`: {count}")
-
-    branch_counts = collections.Counter(
+    ):
+        lines.extend(("", "Claim dispositions:"))
+        lines.extend(
+            f"- `{disposition}`: {count}"
+            for disposition, count in sorted(disposition_counts.items())
+        )
+    if branch_counts := collections.Counter(
         str(claim.get(BRANCH_TYPE_KEY, "not_set"))
         for claim in claims
         if isinstance(claim, dict)
-    )
-    if branch_counts:
-        lines.append("")
-        lines.append("Claim branch types:")
-        for branch_type, count in sorted(branch_counts.items()):
-            lines.append(f"- `{branch_type}`: {count}")
-
-    graph_candidate_counts = collections.Counter(
+    ):
+        lines.extend(("", "Claim branch types:"))
+        lines.extend(
+            f"- `{branch_type}`: {count}"
+            for branch_type, count in sorted(branch_counts.items())
+        )
+    if graph_candidate_counts := collections.Counter(
         str(_claim_graph_candidate(claim))
         for claim in claims
         if isinstance(claim, dict)
-    )
-    if graph_candidate_counts:
-        lines.append("")
-        lines.append("Graph candidates:")
-        for graph_candidate, count in sorted(graph_candidate_counts.items()):
-            lines.append(f"- `{graph_candidate}`: {count}")
-
+    ):
+        lines.extend(("", "Graph candidates:"))
+        lines.extend(
+            f"- `{graph_candidate}`: {count}"
+            for graph_candidate, count in sorted(graph_candidate_counts.items())
+        )
     claim_locations = collections.Counter(
         str(claim.get("evidence_location", "not_set"))
         for claim in claims
         if isinstance(claim, dict)
     )
-    lines.append("")
-    lines.append("Evidence locations:")
-    for location, count in claim_locations.most_common(8):
-        lines.append(f"- `{location}`: {count}")
+    lines.extend(("", "Evidence locations:"))
+    lines.extend(
+        f"- `{location}`: {count}"
+        for location, count in claim_locations.most_common(8)
+    )
     lines.append("")
     return lines
 
@@ -317,8 +330,10 @@ def _format_entity_resolution_summary(data: dict[str, Any]) -> list[str]:
         if isinstance(record, dict)
     )
     lines = ["### Entity resolution", ""]
-    for status, count in sorted(status_counts.items()):
-        lines.append(f"- `{status}`: {count}")
+    lines.extend(
+        f"- `{status}`: {count}"
+        for status, count in sorted(status_counts.items())
+    )
     lines.append("")
     return lines
 
@@ -330,7 +345,9 @@ def _format_edge_summary(data: dict[str, Any]) -> list[str]:
         return ["### Edges", "", "- No `edges` list present.", ""]
 
     rel_counts = collections.Counter(
-        str(edge.get("rel", "not_set")) for edge in edges if isinstance(edge, dict)
+        str(edge.get("rel", "not_set"))
+        for edge in edges
+        if isinstance(edge, dict)
     )
     evidence_counts = collections.Counter(
         str(edge.get("evidence_strength", "not_set"))
@@ -338,14 +355,21 @@ def _format_edge_summary(data: dict[str, Any]) -> list[str]:
         if isinstance(edge, dict)
     )
 
-    lines = ["### Edges", "", f"- Edge records: {len(edges)}", ""]
-    lines.append("Relationship counts:")
-    for rel, count in sorted(rel_counts.items()):
-        lines.append(f"- `{rel}`: {count}")
-    lines.append("")
-    lines.append("Evidence-strength counts:")
-    for evidence_strength, count in sorted(evidence_counts.items()):
-        lines.append(f"- `{evidence_strength}`: {count}")
+    lines = [
+        "### Edges",
+        "",
+        f"- Edge records: {len(edges)}",
+        "",
+        "Relationship counts:",
+    ]
+    lines.extend(
+        f"- `{rel}`: {count}" for rel, count in sorted(rel_counts.items())
+    )
+    lines.extend(("", "Evidence-strength counts:"))
+    lines.extend(
+        f"- `{evidence_strength}`: {count}"
+        for evidence_strength, count in sorted(evidence_counts.items())
+    )
     lines.append("")
     return lines
 
@@ -358,7 +382,9 @@ def _format_branch_coverage(data: dict[str, Any]) -> list[str]:
         return []
 
     referenced_claim_ids = _referenced_claim_ids(edges)
-    branch_claims: dict[str, list[tuple[str, dict[str, Any]]]] = collections.defaultdict(list)
+    branch_claims: dict[str, list[tuple[str, dict[str, Any]]]] = (
+        collections.defaultdict(list)
+    )
     for claim_id, claim in claims_by_id.items():
         branch_type = str(claim.get(BRANCH_TYPE_KEY, "not_set"))
         branch_claims[branch_type].append((claim_id, claim))
@@ -372,7 +398,9 @@ def _format_branch_coverage(data: dict[str, Any]) -> list[str]:
             if _claim_graph_candidate(claim)
         ]
         represented = [
-            claim_id for claim_id in graph_candidates if claim_id in referenced_claim_ids
+            claim_id
+            for claim_id in graph_candidates
+            if claim_id in referenced_claim_ids
         ]
         hidden = [
             claim_id
@@ -388,10 +416,8 @@ def _format_branch_coverage(data: dict[str, Any]) -> list[str]:
             f"{len(hidden)} hidden/rejected candidates"
         )
 
-    hidden_candidates = _hidden_graph_candidate_claims(claims_by_id)
-    if hidden_candidates:
-        lines.append("")
-        lines.append("Graph-candidate claims not emitted as edges:")
+    if hidden_candidates := _hidden_graph_candidate_claims(claims_by_id):
+        lines.extend(("", "Graph-candidate claims not emitted as edges:"))
         for claim_id in sorted(hidden_candidates)[:10]:
             claim = claims_by_id[claim_id]
             lines.append(
@@ -403,7 +429,6 @@ def _format_branch_coverage(data: dict[str, Any]) -> list[str]:
     return lines
 
 
-
 def _format_topology_lints(data: dict[str, Any]) -> list[str]:
     """Format topology lints derived from edge patterns."""
     lints = _topology_lints(data)
@@ -411,10 +436,10 @@ def _format_topology_lints(data: dict[str, Any]) -> list[str]:
     if not lints:
         lines.append("- None detected.")
     else:
-        for lint in lints:
-            lines.append(f"- {lint}")
+        lines.extend(f"- {lint}" for lint in lints)
     lines.append("")
     return lines
+
 
 def _format_review_hotspots(data: dict[str, Any]) -> list[str]:
     """Format edge records most likely to need human review."""
@@ -424,7 +449,6 @@ def _format_review_hotspots(data: dict[str, Any]) -> list[str]:
 
     claims_by_id = _claims_by_id(data)
     referenced_claim_ids = _referenced_claim_ids(edges)
-    lines = ["### Review hotspots", ""]
     missing_claim_links = (
         [
             edge
@@ -448,48 +472,33 @@ def _format_review_hotspots(data: dict[str, Any]) -> list[str]:
     overconfident_edges = _overconfident_edges(edges, claims_by_id)
     undercalled_edges = _undercalled_canonical_edges(edges, claims_by_id)
     verb_review_edges = _verb_review_edges(edges)
-    matrix_support_gaps = _edges_without_matrix_support(data, edges, claims_by_id)
+    matrix_support_gaps = _edges_without_matrix_support(
+        data, edges, claims_by_id
+    )
     broad_claim_reuse = _broadly_reused_claims(edges, data)
     hidden_graph_candidates = _hidden_graph_candidate_claims(claims_by_id)
     topology_lints = _topology_lints(data)
     unadjudicated_hidden = _unadjudicated_hidden_graph_candidates(data)
     blockers = _pre_freeze_blockers(data)
 
-    lines.append(f"- Edges missing `support_claims`: {len(missing_claim_links)}")
-    lines.append(f"- Weak/canonical-inferred edges: {len(weak_support)}")
-    lines.append(
-        "- Edge/negative claims not referenced by any edge: "
-        f"{len(unreferenced_edge_claims)}"
-    )
-    lines.append(
-        "- Overconfident evidence-risk edges: "
-        f"{len(overconfident_edges)}"
-    )
-    lines.append(
-        "- Possibly under-called canonical edges: "
-        f"{len(undercalled_edges)}"
-    )
-    lines.append(f"- Verb-review edges: {len(verb_review_edges)}")
-    lines.append(
-        f"- Edges without matching claim-edge matrix support: "
-        f"{len(matrix_support_gaps)}"
-    )
-    lines.append(
-        f"- Broadly reused claims without matrix support: "
-        f"{len(broad_claim_reuse)}"
-    )
-    lines.append(
-        f"- Hidden graph-candidate claims: {len(hidden_graph_candidates)}"
-    )
-    lines.append(
-        f"- Unadjudicated hidden graph-candidate claims: {len(unadjudicated_hidden)}"
-    )
-    lines.append(f"- Topology lints: {len(topology_lints)}")
-    lines.append(f"- Pre-freeze blockers: {len(blockers)}")
-
+    lines = [
+        "### Review hotspots",
+        "",
+        f"- Edges missing `support_claims`: {len(missing_claim_links)}",
+        f"- Weak/canonical-inferred edges: {len(weak_support)}",
+        f"- Edge/negative claims not referenced by any edge: {len(unreferenced_edge_claims)}",  # noqa: E501
+        f"- Overconfident evidence-risk edges: {len(overconfident_edges)}",
+        f"- Possibly under-called canonical edges: {len(undercalled_edges)}",
+        f"- Verb-review edges: {len(verb_review_edges)}",
+        f"- Edges without matching claim-edge matrix support: {len(matrix_support_gaps)}",  # noqa: E501
+        f"- Broadly reused claims without matrix support: {len(broad_claim_reuse)}",  # noqa: E501
+        f"- Hidden graph-candidate claims: {len(hidden_graph_candidates)}",
+        f"- Unadjudicated hidden graph-candidate claims: {len(unadjudicated_hidden)}",  # noqa: E501
+        f"- Topology lints: {len(topology_lints)}",
+        f"- Pre-freeze blockers: {len(blockers)}",
+    ]
     if weak_support:
-        lines.append("")
-        lines.append("Weak/canonical-inferred edge examples:")
+        lines.extend(("", "Weak/canonical-inferred edge examples:"))
         for edge in weak_support[:10]:
             source = edge.get("source", "?")
             rel = edge.get("rel", "?")
@@ -500,38 +509,35 @@ def _format_review_hotspots(data: dict[str, Any]) -> list[str]:
             )
 
     if overconfident_edges:
-        lines.append("")
-        lines.append("Overconfident evidence-risk examples:")
-        for edge in overconfident_edges[:10]:
-            lines.append(f"- {_format_edge_inline(edge)}")
-
+        lines.extend(("", "Overconfident evidence-risk examples:"))
+        lines.extend(
+            f"- {_format_edge_inline(edge)}"
+            for edge in overconfident_edges[:10]
+        )
     if undercalled_edges:
-        lines.append("")
-        lines.append("Possibly under-called canonical examples:")
-        for edge in undercalled_edges[:10]:
-            lines.append(f"- {_format_edge_inline(edge)}")
-
+        lines.extend(("", "Possibly under-called canonical examples:"))
+        lines.extend(
+            f"- {_format_edge_inline(edge)}" for edge in undercalled_edges[:10]
+        )
     if verb_review_edges:
-        lines.append("")
-        lines.append("Verb-review examples:")
-        for edge in verb_review_edges[:10]:
-            lines.append(f"- {_format_edge_inline(edge)}")
-
+        lines.extend(("", "Verb-review examples:"))
+        lines.extend(
+            f"- {_format_edge_inline(edge)}" for edge in verb_review_edges[:10]
+        )
     if matrix_support_gaps:
-        lines.append("")
-        lines.append("Claim-edge matrix support gaps:")
-        for edge in matrix_support_gaps[:10]:
-            lines.append(f"- {_format_edge_inline(edge)}")
-
+        lines.extend(("", "Claim-edge matrix support gaps:"))
+        lines.extend(
+            f"- {_format_edge_inline(edge)}"
+            for edge in matrix_support_gaps[:10]
+        )
     if broad_claim_reuse:
-        lines.append("")
-        lines.append("Broadly reused claims without matrix support:")
-        for claim_id, count in broad_claim_reuse[:10]:
-            lines.append(f"- `{claim_id}`: {count} linked edges")
-
+        lines.extend(("", "Broadly reused claims without matrix support:"))
+        lines.extend(
+            f"- `{claim_id}`: {count} linked edges"
+            for claim_id, count in broad_claim_reuse[:10]
+        )
     if hidden_graph_candidates:
-        lines.append("")
-        lines.append("Hidden graph-candidate claims:")
+        lines.extend(("", "Hidden graph-candidate claims:"))
         for claim_id in sorted(hidden_graph_candidates)[:10]:
             claim = claims_by_id[claim_id]
             lines.append(
@@ -540,8 +546,7 @@ def _format_review_hotspots(data: dict[str, Any]) -> list[str]:
             )
 
     if unadjudicated_hidden:
-        lines.append("")
-        lines.append("Unadjudicated hidden graph-candidate claims:")
+        lines.extend(("", "Unadjudicated hidden graph-candidate claims:"))
         for claim_id in sorted(unadjudicated_hidden)[:10]:
             claim = claims_by_id[claim_id]
             lines.append(
@@ -550,23 +555,17 @@ def _format_review_hotspots(data: dict[str, Any]) -> list[str]:
             )
 
     if topology_lints:
-        lines.append("")
-        lines.append("Topology lint examples:")
-        for lint in topology_lints[:10]:
-            lines.append(f"- {lint}")
-
+        lines.extend(("", "Topology lint examples:"))
+        lines.extend(f"- {lint}" for lint in topology_lints[:10])
     if blockers:
-        lines.append("")
-        lines.append("Pre-freeze blockers:")
-        for blocker in blockers[:10]:
-            lines.append(f"- {blocker}")
-
+        lines.extend(("", "Pre-freeze blockers:"))
+        lines.extend(f"- {blocker}" for blocker in blockers[:10])
     if unreferenced_edge_claims:
-        lines.append("")
-        lines.append("Unreferenced edge/negative claims:")
-        for claim_id in sorted(unreferenced_edge_claims)[:10]:
-            lines.append(f"- `{claim_id}`")
-
+        lines.extend(("", "Unreferenced edge/negative claims:"))
+        lines.extend(
+            f"- `{claim_id}`"
+            for claim_id in sorted(unreferenced_edge_claims)[:10]
+        )
     lines.append("")
     return lines
 
@@ -576,11 +575,11 @@ def _claims_by_id(data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     claims = data.get("claims")
     if not isinstance(claims, list):
         return {}
-    records: dict[str, dict[str, Any]] = {}
-    for claim in claims:
-        if not isinstance(claim, dict) or claim.get("claim_id") is None:
-            continue
-        records[str(claim["claim_id"])] = claim
+    records: dict[str, dict[str, Any]] = {
+        str(claim["claim_id"]): claim
+        for claim in claims
+        if isinstance(claim, dict) and claim.get("claim_id") is not None
+    }
     return records
 
 
@@ -637,7 +636,10 @@ def _overconfident_edges(
         if not isinstance(edge, dict):
             continue
         evidence_strength = str(edge.get("evidence_strength", ""))
-        if evidence_strength not in {"direct_measured", "perturbation_supported"}:
+        if evidence_strength not in {
+            "direct_measured",
+            "perturbation_supported",
+        }:
             continue
         claims = _linked_claims(edge, claims_by_id)
         lacks_required_metadata = (
@@ -647,7 +649,9 @@ def _overconfident_edges(
             evidence_strength == "direct_measured"
             and not _claims_have_field(claims, "measured_readout")
         )
-        if lacks_required_metadata or _contains_uncertainty_language(edge, claims):
+        if lacks_required_metadata or _contains_uncertainty_language(
+            edge, claims
+        ):
             risky_edges.append(edge)
     return risky_edges
 
@@ -675,7 +679,9 @@ def _undercalled_canonical_edges(
     return undercalled_edges
 
 
-def _evidence_strength_warning_edges(data: dict[str, Any]) -> list[dict[str, Any]]:
+def _evidence_strength_warning_edges(
+    data: dict[str, Any],
+) -> list[dict[str, Any]]:
     """Return edges that need evidence-class adjudication before freeze."""
     claims_by_id = _claims_by_id(data)
     if not claims_by_id:
@@ -729,10 +735,14 @@ def _verb_review_edges(edges: list[Any]) -> list[dict[str, Any]]:
         for edge in edges
         if isinstance(edge, dict)
         and (
-            str(edge.get("rel")) == "causes"
-            and str(edge.get("target")) in broad_causal_targets
-            or str(edge.get("rel")) == "drives"
-            and str(edge.get("target")) in review_targets
+            (
+                str(edge.get("rel")) == "causes"
+                and str(edge.get("target")) in broad_causal_targets
+            )
+            or (
+                str(edge.get("rel")) == "drives"
+                and str(edge.get("target")) in review_targets
+            )
         )
     ]
 
@@ -752,7 +762,9 @@ def _claim_graph_candidate(claim: dict[str, Any]) -> bool:
     if isinstance(value, bool):
         return value
     if value is None:
-        return str(claim.get(BRANCH_TYPE_KEY, "")) in GRAPH_CANDIDATE_BRANCH_TYPES
+        return (
+            str(claim.get(BRANCH_TYPE_KEY, "")) in GRAPH_CANDIDATE_BRANCH_TYPES
+        )
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
 
 
@@ -775,7 +787,9 @@ def _claim_edge_matrix(data: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
     if not isinstance(matrix, list):
         return {}
 
-    mapped_by_claim: dict[str, list[dict[str, Any]]] = collections.defaultdict(list)
+    mapped_by_claim: dict[str, list[dict[str, Any]]] = collections.defaultdict(
+        list
+    )
     for record in matrix:
         if not isinstance(record, dict) or record.get("claim_id") is None:
             continue
@@ -881,7 +895,6 @@ def _contains_uncertainty_language(
     return any(phrase in text for phrase in phrases)
 
 
-
 def _pre_freeze_blockers(data: dict[str, Any]) -> list[str]:
     """Return blocking issues that must be adjudicated before finalization."""
     blockers: list[str] = []
@@ -895,9 +908,7 @@ def _pre_freeze_blockers(data: dict[str, Any]) -> list[str]:
                 f"{claim.get('disposition', 'not_set')}) lacks adjudication"
             )
 
-    for lint in _topology_lints(data):
-        blockers.append(f"topology_lint: {lint}")
-
+    blockers.extend(f"topology_lint: {lint}" for lint in _topology_lints(data))
     for edge in _verb_review_edges(_edges_list(data)):
         if not _adjudications_cover_edge(data, edge, "verb_warning"):
             blockers.append(f"verb_warning: {_format_edge_inline(edge)}")
@@ -908,7 +919,9 @@ def _pre_freeze_blockers(data: dict[str, Any]) -> list[str]:
             )
 
     for edge in _evidence_strength_warning_edges(data):
-        if not _adjudications_cover_edge(data, edge, "evidence_strength_warning"):
+        if not _adjudications_cover_edge(
+            data, edge, "evidence_strength_warning"
+        ):
             blockers.append(
                 f"evidence_strength_warning: {_format_edge_inline(edge)}"
             )
@@ -920,24 +933,26 @@ def _pre_freeze_blockers(data: dict[str, Any]) -> list[str]:
                 f"{_format_edge_inline(edge)}"
             )
 
-    for claim_id in sorted(_incomplete_hidden_graph_adjudications(data)):
-        blockers.append(
-            "incomplete hidden_graph_candidate adjudication: "
-            f"`{claim_id}` needs nearest_intermediate_search"
+    blockers.extend(
+        f"incomplete hidden_graph_candidate adjudication: `{claim_id}` "
+        "needs nearest_intermediate_search"
+        for claim_id in sorted(_incomplete_hidden_graph_adjudications(data))
+    )
+    blockers.extend(
+        f"scope_density_warning: {warning}"
+        for warning in _density_warnings(data)
+        if not _adjudications_have_issue_type(data, "scope_density_warning")
+    )
+    blockers.extend(
+        f"broad_claim_reuse: `{claim_id}` supports {count} edges without matrix"
+        for claim_id, count in _broadly_reused_claims(_edges_list(data), data)
+    )
+    blockers.extend(
+        f"claim_edge_matrix_gap: {_format_edge_inline(edge)}"
+        for edge in _edges_without_matrix_support(
+            data, _edges_list(data), claims_by_id
         )
-
-    for warning in _density_warnings(data):
-        if not _adjudications_have_issue_type(data, "scope_density_warning"):
-            blockers.append(f"scope_density_warning: {warning}")
-
-    for claim_id, count in _broadly_reused_claims(_edges_list(data), data):
-        blockers.append(
-            f"broad_claim_reuse: `{claim_id}` supports {count} edges without matrix"
-        )
-
-    for edge in _edges_without_matrix_support(data, _edges_list(data), claims_by_id):
-        blockers.append(f"claim_edge_matrix_gap: {_format_edge_inline(edge)}")
-
+    )
     return blockers
 
 
@@ -960,9 +975,14 @@ def _incomplete_hidden_graph_adjudications(data: dict[str, Any]) -> set[str]:
     incomplete: set[str] = set()
     for claim_id in hidden:
         claim = claims_by_id[claim_id]
-        if str(claim.get(BRANCH_TYPE_KEY, "")) not in BRANCHES_REQUIRING_ADJUDICATION:
+        if (
+            str(claim.get(BRANCH_TYPE_KEY, ""))
+            not in BRANCHES_REQUIRING_ADJUDICATION
+        ):
             continue
-        record = _claim_adjudication_record(data, claim_id, "hidden_graph_candidate")
+        record = _claim_adjudication_record(
+            data, claim_id, "hidden_graph_candidate"
+        )
         if record is None:
             continue
         if str(record.get(DECISION_KEY, "")) not in {
@@ -1005,50 +1025,66 @@ def _topology_lints(data: dict[str, Any]) -> list[str]:
     """Return lightweight topology lints for repeated NASP failure modes."""
     edges = _edges_list(data)
     triples = {
-        (str(edge.get("source", "")), str(edge.get("rel", "")), str(edge.get("target", "")))
+        (
+            str(edge.get("source", "")),
+            str(edge.get("rel", "")),
+            str(edge.get("target", "")),
+        )
         for edge in edges
     }
     lints: list[str] = []
 
     generic_routes: list[tuple[str, str, list[str]]] = []
     for ligand, rel, sensing_process in sorted(triples):
-        if rel != "activates" or not _is_generic_sensing_process(sensing_process):
+        if rel != "activates" or not _is_generic_sensing_process(
+            sensing_process
+        ):
             continue
-        components = sorted(
+        if components := sorted(
             target
             for source, process_rel, target in triples
             if source == sensing_process
             and process_rel == "activates"
             and _is_specific_component_node(target)
-        )
-        if components:
+        ):
             generic_routes.append((ligand, sensing_process, components))
 
-    if generic_routes and not _adjudications_have_issue_type(data, "topology_lint"):
-        for ligand, sensing_process, components in generic_routes:
-            lints.append(
-                f"{ligand} is routed through generic process {sensing_process} "
-                f"before {', '.join(components)}; review direct ligand-to-component edges."
-            )
-
+    if generic_routes and not _adjudications_have_issue_type(
+        data, "topology_lint"
+    ):
+        lints.extend(
+            f"{ligand} is routed through generic process {sensing_process} "
+            f"before {', '.join(components)}; review"
+            " direct ligand-to-component edges."
+            for ligand, sensing_process, components in generic_routes
+        )
     for edge in edges:
         source = str(edge.get("source", ""))
         target = str(edge.get("target", ""))
         rel = str(edge.get("rel", ""))
-        if _is_reagent_only_endpoint(source) or _is_reagent_only_endpoint(target):
-            if not _adjudications_cover_edge(data, edge, "reagent_endpoint_warning"):
-                reagent = source if _is_reagent_only_endpoint(source) else target
-                lints.append(
-                    f"reagent-only endpoint `{reagent}` appears in {_format_edge_inline(edge)}"
-                )
-        if _is_generic_sensing_process(source) and _is_specific_component_node(target):
-            if not _adjudications_cover_edge(data, edge, "topology_lint"):
-                lints.append(
-                    f"generic process-to-component edge {_format_edge_inline(edge)}"
-                )
+        if (
+            _is_reagent_only_endpoint(source)
+            or _is_reagent_only_endpoint(target)
+        ) and not _adjudications_cover_edge(
+            data, edge, "reagent_endpoint_warning"
+        ):
+            reagent = source if _is_reagent_only_endpoint(source) else target
+            lints.append(
+                f"reagent-only endpoint `{reagent}` appears"
+                f" in {_format_edge_inline(edge)}"
+            )
+        if (
+            _is_generic_sensing_process(source)
+            and _is_specific_component_node(target)
+            and not _adjudications_cover_edge(data, edge, "topology_lint")
+        ):
+            lints.append(
+                f"generic process-to-component edge {_format_edge_inline(edge)}"
+            )
         if rel == "activates" and target in {"SPI1"}:
             lints.append(
-                f"verb normalization: {_format_edge_inline(edge)} may need `upregulates`"
+                f"verb normalization: {_format_edge_inline(edge)}"
+                " may need `upregulates`"
             )
         if (
             source == "epigenetic_remodeling"
@@ -1056,7 +1092,8 @@ def _topology_lints(data: dict[str, Any]) -> list[str]:
             and rel == "induces"
         ):
             lints.append(
-                f"verb normalization: {_format_edge_inline(edge)} may need `drives`"
+                f"verb normalization: {_format_edge_inline(edge)}"
+                " may need `drives`"
             )
     return lints
 
@@ -1066,8 +1103,7 @@ def _format_association_balance(data: dict[str, Any]) -> list[str]:
     warnings = _association_balance_warnings(data)
     lines = ["### Association balance", ""]
     if warnings:
-        for warning in warnings:
-            lines.append(f"- {warning}")
+        lines.extend(f"- {warning}" for warning in warnings)
     else:
         lines.append("- No association-balance warnings.")
     lines.append("")
@@ -1077,11 +1113,13 @@ def _format_association_balance(data: dict[str, Any]) -> list[str]:
 def _format_density_review(data: dict[str, Any]) -> list[str]:
     """Format core/expanded density warnings for resource papers."""
     warnings = _density_warnings(data)
-    lines = ["### Curation density", ""]
-    lines.append(f"- Density: `{_curation_density(data)}`")
+    lines = [
+        "### Curation density",
+        "",
+        f"- Density: `{_curation_density(data)}`",
+    ]
     if warnings:
-        for warning in warnings:
-            lines.append(f"- {warning}")
+        lines.extend(f"- {warning}" for warning in warnings)
     else:
         lines.append("- No curation-density warnings.")
     lines.append("")
@@ -1109,9 +1147,9 @@ def _association_balance_warnings(data: dict[str, Any]) -> list[str]:
     if positive_outcome_edges and not protective_edges:
         return [
             "correlative/resource draft has risk-increasing aging/mortality "
-            "associations but no protective negatively_correlates edges; verify "
-            "IGF1, parabiosis, embryogenesis, or other state-reversal branches "
-            "were not dropped."
+            "associations but no protective negatively_correlates edges; verify"
+            " IGF1, parabiosis, embryogenesis, or other state-reversal branches"
+            " were not dropped."
         ]
     return []
 
@@ -1143,9 +1181,7 @@ def _curation_density(data: dict[str, Any]) -> str:
         for paper in paper_block.values()
         if isinstance(paper, dict)
     }
-    if "expanded" in densities:
-        return "expanded"
-    return "core"
+    return "expanded" if "expanded" in densities else "core"
 
 
 def _is_correlative_or_resource_scope(data: dict[str, Any]) -> bool:
@@ -1170,7 +1206,9 @@ def _is_correlative_or_resource_scope(data: dict[str, Any]) -> bool:
 
 
 def _is_reagent_only_endpoint(node: str) -> bool:
-    """Return whether a node looks like an assay reagent rather than a graph node."""
+    """Return whether a node looks like an assay reagent rather than a graph
+    node.
+    """
     return node in REAGENT_ONLY_ENDPOINTS or any(
         node.startswith(prefix) for prefix in REAGENT_ENDPOINT_PREFIXES
     )
@@ -1178,7 +1216,9 @@ def _is_reagent_only_endpoint(node: str) -> bool:
 
 def _is_generic_sensing_process(node: str) -> bool:
     """Return whether a node is a generic sensing process."""
-    return node in GENERIC_PROCESS_NODES or node.endswith(SENSING_PROCESS_SUFFIX)
+    return node in GENERIC_PROCESS_NODES or node.endswith(
+        SENSING_PROCESS_SUFFIX
+    )
 
 
 def _is_specific_component_node(node: str) -> bool:
@@ -1191,6 +1231,7 @@ def _is_specific_component_node(node: str) -> bool:
         and node not in {"DNA", "RNA"}
         and not _is_generic_sensing_process(node)
     )
+
 
 def _edges_list(data: dict[str, Any]) -> list[dict[str, Any]]:
     """Return well-formed edge records from a draft."""
@@ -1240,7 +1281,9 @@ def _edge_adjudication_record(
             value = record.get(field)
             candidates = value if isinstance(value, list) else [value]
             for candidate in candidates:
-                if isinstance(candidate, dict) and _edge_identity_matches(edge, candidate):
+                if isinstance(candidate, dict) and _edge_identity_matches(
+                    edge, candidate
+                ):
                     return record
     return None
 
@@ -1254,7 +1297,9 @@ def _edge_identity_tuple(edge: dict[str, Any]) -> tuple[str, str, str]:
     )
 
 
-def _adjudications_have_issue_type(data: dict[str, Any], issue_type: str) -> bool:
+def _adjudications_have_issue_type(
+    data: dict[str, Any], issue_type: str
+) -> bool:
     """Return whether any adjudication has the requested issue type."""
     return any(
         str(record.get(ISSUE_TYPE_KEY, "")) == issue_type
@@ -1267,7 +1312,9 @@ def _adjudications_cover_edge(
     edge: dict[str, Any],
     issue_type: str,
 ) -> bool:
-    """Return whether an adjudication references an edge by source/target/rel."""
+    """Return whether an adjudication references an edge by
+    source/target/rel.
+    """
     for record in _adjudications_list(data):
         if str(record.get(ISSUE_TYPE_KEY, "")) != issue_type:
             continue
@@ -1275,17 +1322,22 @@ def _adjudications_cover_edge(
             value = record.get(field)
             candidates = value if isinstance(value, list) else [value]
             for candidate in candidates:
-                if isinstance(candidate, dict) and _edge_identity_matches(edge, candidate):
+                if isinstance(candidate, dict) and _edge_identity_matches(
+                    edge, candidate
+                ):
                     return True
     return False
 
 
-def _edge_identity_matches(edge: dict[str, Any], candidate: dict[str, Any]) -> bool:
+def _edge_identity_matches(
+    edge: dict[str, Any], candidate: dict[str, Any]
+) -> bool:
     """Return whether source/target/rel identify the same edge."""
     return all(
         str(edge.get(field, "")) == str(candidate.get(field, ""))
         for field in ("source", "target", "rel")
     )
+
 
 def _format_edge_inline(edge: dict[str, Any]) -> str:
     """Format a compact edge description."""

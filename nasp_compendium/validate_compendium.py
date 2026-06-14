@@ -511,15 +511,14 @@ def _load_vocabulary(
         )
         return None
 
-    for field in VOCABULARY_FIELDS:
-        if field not in vocabulary.canonical:
-            errors.append(
-                ValidationIssue(
-                    VOCABULARY_PATH,
-                    f"vocabulary.yaml canonical field {field!r} is missing.",
-                )
-            )
-
+    errors.extend(
+        ValidationIssue(
+            VOCABULARY_PATH,
+            f"vocabulary.yaml canonical field {field!r} is missing.",
+        )
+        for field in VOCABULARY_FIELDS
+        if field not in vocabulary.canonical
+    )
     return vocabulary
 
 
@@ -549,14 +548,18 @@ def _validate_tiered_vocabulary(
         compendium_nodes=declared_entities | ALLOWED_FREE_ENDPOINTS,
     )
 
-    for message in _unique_verdict_messages(
-        [*controlled_errors, *endpoint_errors]
-    ):
-        errors.append(ValidationIssue(path, message))
-    for message in _unique_verdict_messages(
-        [*controlled_warnings, *endpoint_warnings]
-    ):
-        warnings.append(ValidationIssue(path, message))
+    errors.extend(
+        ValidationIssue(path, message)
+        for message in _unique_verdict_messages(
+            [*controlled_errors, *endpoint_errors]
+        )
+    )
+    warnings.extend(
+        ValidationIssue(path, message)
+        for message in _unique_verdict_messages(
+            [*controlled_warnings, *endpoint_warnings]
+        )
+    )
 
 
 def _unique_verdict_messages(verdicts: list[Any]) -> list[str]:
@@ -613,7 +616,10 @@ def _validate_claims(
         claim_records[claim_id_text] = claim
 
         disposition = claim.get("disposition")
-        if disposition is not None and disposition not in ALLOWED_CLAIM_DISPOSITIONS:
+        if (
+            disposition is not None
+            and disposition not in ALLOWED_CLAIM_DISPOSITIONS
+        ):
             errors.append(
                 ValidationIssue(
                     path,
@@ -622,7 +628,9 @@ def _validate_claims(
             )
 
         if not str(claim.get("support", "")).strip():
-            warnings.append(ValidationIssue(path, f"{label} has empty support."))
+            warnings.append(
+                ValidationIssue(path, f"{label} has empty support.")
+            )
 
         branch_type = claim.get(BRANCH_TYPE_KEY)
         if branch_type is None:
@@ -637,8 +645,7 @@ def _validate_claims(
             errors.append(
                 ValidationIssue(
                     path,
-                    f"{label} has unknown {BRANCH_TYPE_KEY}: "
-                    f"{branch_type!r}.",
+                    f"{label} has unknown {BRANCH_TYPE_KEY}: {branch_type!r}.",
                 )
             )
 
@@ -712,7 +719,9 @@ def _validate_claim_edge_matrix(
 
         claim_id = record.get("claim_id")
         if claim_id is None:
-            errors.append(ValidationIssue(path, f"{label} is missing 'claim_id'."))
+            errors.append(
+                ValidationIssue(path, f"{label} is missing 'claim_id'.")
+            )
             continue
         claim_id_text = str(claim_id)
         if claim_id_text not in claim_records:
@@ -788,7 +797,6 @@ def _validate_claim_edge_matrix(
     return edges_by_claim
 
 
-
 def _validate_adjudications(
     path: Path,
     data: dict[str, Any],
@@ -834,7 +842,10 @@ def _validate_adjudications(
             seen_issue_ids.add(issue_id_text)
 
         issue_type = record.get(ISSUE_TYPE_KEY)
-        if issue_type is not None and str(issue_type) not in ALLOWED_ADJUDICATION_ISSUE_TYPES:
+        if (
+            issue_type is not None
+            and str(issue_type) not in ALLOWED_ADJUDICATION_ISSUE_TYPES
+        ):
             errors.append(
                 ValidationIssue(
                     path,
@@ -843,7 +854,10 @@ def _validate_adjudications(
             )
 
         decision = record.get(DECISION_KEY)
-        if decision is not None and str(decision) not in ALLOWED_ADJUDICATION_DECISIONS:
+        if (
+            decision is not None
+            and str(decision) not in ALLOWED_ADJUDICATION_DECISIONS
+        ):
             errors.append(
                 ValidationIssue(
                     path,
@@ -920,18 +934,20 @@ def _validate_adjudication_resolution_metadata(
     issue_type = str(record.get(ISSUE_TYPE_KEY, ""))
     decision = str(record.get(DECISION_KEY, ""))
 
-    if issue_type in {"verb_warning", "evidence_strength_warning"}:
-        if decision == "keep_as_is":
-            for field in (REJECTED_ALTERNATIVE_KEY, CONVENTION_RULE_KEY):
-                if not str(record.get(field, "")).strip():
-                    warnings.append(
-                        ValidationIssue(
-                            path,
-                            f"{label} keeps a {issue_type} as-is but lacks "
-                            f"{field!r}; record the rejected alternative and "
-                            "the convention/rule used for the decision.",
-                        )
+    if (
+        issue_type in {"verb_warning", "evidence_strength_warning"}
+        and decision == "keep_as_is"
+    ):
+        for field in (REJECTED_ALTERNATIVE_KEY, CONVENTION_RULE_KEY):
+            if not str(record.get(field, "")).strip():
+                warnings.append(
+                    ValidationIssue(
+                        path,
+                        f"{label} keeps a {issue_type} as-is but lacks "
+                        f"{field!r}; record the rejected alternative and "
+                        "the convention/rule used for the decision.",
                     )
+                )
 
     if issue_type != "hidden_graph_candidate":
         return
@@ -949,15 +965,20 @@ def _validate_adjudication_resolution_metadata(
         warnings.append(
             ValidationIssue(
                 path,
-                f"{label} keeps high-priority hidden branch {branch_type!r} "
-                f"out of the graph but lacks {NEAREST_INTERMEDIATE_SEARCH_KEY!r}; "
-                "record whether the nearest supported intermediate edge was searched.",
+                f"{label} keeps high-priority hidden branch {branch_type!r} out"
+                f" of the graph but lacks {NEAREST_INTERMEDIATE_SEARCH_KEY!r}"
+                "; record whether the nearest supported"
+                " intermediate edge was searched.",
             )
         )
         return
 
     searched = nearest_search.get("searched")
-    searched_bool = searched is True or str(searched).lower() in {"true", "1", "yes"}
+    searched_bool = searched is True or str(searched).lower() in {
+        "true",
+        "1",
+        "yes",
+    }
     candidates = nearest_search.get(CANDIDATE_EDGES_CONSIDERED_KEY)
     if not searched_bool or not isinstance(candidates, list):
         warnings.append(
@@ -990,7 +1011,9 @@ def _validate_adjudication_edge_list(
     for edge_index, edge in enumerate(edge_list, start=1):
         edge_label = f"{label} {field} edge {edge_index}"
         if not isinstance(edge, dict):
-            errors.append(ValidationIssue(path, f"{edge_label} is not a mapping."))
+            errors.append(
+                ValidationIssue(path, f"{edge_label} is not a mapping.")
+            )
             continue
         for edge_field in ADJUDICATION_EDGE_FIELDS:
             if edge_field not in edge:
@@ -1010,7 +1033,8 @@ def _validate_adjudication_edge_list(
             warnings.append(
                 ValidationIssue(
                     path,
-                    f"{edge_label} has unknown evidence_strength: {evidence!r}.",
+                    f"{edge_label} has unknown "
+                    f"evidence_strength: {evidence!r}.",
                 )
             )
 
@@ -1034,7 +1058,10 @@ def _warn_unadjudicated_hidden_candidates(
         branch_type = str(claim.get(BRANCH_TYPE_KEY, ""))
         if not _claim_graph_candidate(claim):
             continue
-        if str(claim.get("disposition", "")) not in {"context_only", "insufficient"}:
+        if str(claim.get("disposition", "")) not in {
+            "context_only",
+            "insufficient",
+        }:
             continue
         if claim_id in adjudicated_claim_ids:
             continue
@@ -1046,6 +1073,7 @@ def _warn_unadjudicated_hidden_candidates(
         if branch_type in BRANCHES_REQUIRING_ADJUDICATION:
             message += f" Branch {branch_type!r} is high priority for review."
         warnings.append(ValidationIssue(path, message))
+
 
 def _validate_paper_scopes(
     path: Path,
@@ -1153,24 +1181,23 @@ def _warn_scope_edge_mismatches(
     if not isinstance(papers, list):
         return
 
-    flagged_scopes = sorted(
+    if flagged_scopes := sorted(
         {
             paper_scopes.get(str(paper_id))
             for paper_id in papers
-            if paper_scopes.get(str(paper_id)) in CORRELATIVE_PAPER_SCOPES
+            if paper_scopes.get(str(paper_id)) in CORRELATIVE_PAPER_SCOPES  # type: ignore
         }
-    )
-    if not flagged_scopes:
-        return
-
-    warnings.append(
-        ValidationIssue(
-            path,
-            f"{label} uses causal rel {rel!r} for paper_scope(s) "
-            f"{', '.join(flagged_scopes)}; verify direct perturbation "
-            "support or downgrade to a correlative/negative relation.",
+    ):
+        warnings.append(
+            ValidationIssue(
+                path,
+                f"{label} uses causal rel {rel!r} for paper_scope(s) "
+                f"{', '.join(flagged_scopes)}; verify direct perturbation "  # type: ignore
+                "support or downgrade to a correlative/negative relation.",
+            )
         )
-    )
+    else:
+        return
 
 
 def _warn_claim_evidence_mismatches(
@@ -1211,7 +1238,10 @@ def _warn_claim_evidence_mismatches(
             )
         )
 
-    if evidence_strength == "perturbation_supported" and not has_measured_readout:
+    if (
+        evidence_strength == "perturbation_supported"
+        and not has_measured_readout
+    ):
         warnings.append(
             ValidationIssue(
                 path,
@@ -1303,10 +1333,11 @@ def _warn_claim_edge_semantic_support(
         for claim_id in sorted(linked_claim_ids)
         if claim_id in claim_records
     ]
-    matrix_claim_ids = [
-        claim_id for claim_id in linked_claim_ids if claim_edge_matrix.get(claim_id)
-    ]
-    if matrix_claim_ids:
+    if matrix_claim_ids := [
+        claim_id
+        for claim_id in linked_claim_ids
+        if claim_edge_matrix.get(claim_id)
+    ]:
         if not any(
             _mapped_edge_matches(edge, mapped_edge)
             for claim_id in matrix_claim_ids
@@ -1323,7 +1354,9 @@ def _warn_claim_edge_semantic_support(
         return
 
     affected_entity_claims = [
-        claim for claim in claims if _claim_list_values(claim, "affected_entities")
+        claim
+        for claim in claims
+        if _claim_list_values(claim, "affected_entities")
     ]
     if not affected_entity_claims:
         return
@@ -1331,7 +1364,9 @@ def _warn_claim_edge_semantic_support(
     source = str(edge.get("source", ""))
     target = str(edge.get("target", ""))
     if any(
-        {source, target}.issubset(_claim_list_values(claim, "affected_entities"))
+        {source, target}.issubset(
+            _claim_list_values(claim, "affected_entities")
+        )
         for claim in affected_entity_claims
     ):
         return
@@ -1393,9 +1428,7 @@ def _claim_list_values(claim: dict[str, Any], field: str) -> set[str]:
     values = claim.get(field)
     if isinstance(values, list):
         return {str(value) for value in values}
-    if values is None:
-        return set()
-    return {str(values)}
+    return set() if values is None else {str(values)}
 
 
 def _claim_graph_candidate(claim: dict[str, Any]) -> bool:
@@ -1404,7 +1437,9 @@ def _claim_graph_candidate(claim: dict[str, Any]) -> bool:
     if isinstance(value, bool):
         return value
     if value is None:
-        return str(claim.get(BRANCH_TYPE_KEY, "")) in GRAPH_CANDIDATE_BRANCH_TYPES
+        return (
+            str(claim.get(BRANCH_TYPE_KEY, "")) in GRAPH_CANDIDATE_BRANCH_TYPES
+        )
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
 
 
@@ -1441,7 +1476,6 @@ def _warn_relationship_review_patterns(
         )
 
 
-
 def _warn_topology_review_patterns(
     path: Path,
     label: str,
@@ -1456,26 +1490,35 @@ def _warn_topology_review_patterns(
     target = str(edge.get("target", ""))
     rel = str(edge.get("rel", ""))
 
-    if _is_reagent_only_endpoint(source) or _is_reagent_only_endpoint(target):
-        if not _has_edge_adjudication(adjudications, edge, "reagent_endpoint_warning"):
-            reagent = source if _is_reagent_only_endpoint(source) else target
-            warnings.append(
-                ValidationIssue(
-                    path,
-                    f"{label} uses reagent-only node {reagent!r} "
-                    "as a graph endpoint; keep experimental reagents in context unless an adjudication overrides this.",
-                )
+    if (
+        _is_reagent_only_endpoint(source) or _is_reagent_only_endpoint(target)
+    ) and not _has_edge_adjudication(
+        adjudications, edge, "reagent_endpoint_warning"
+    ):
+        reagent = source if _is_reagent_only_endpoint(source) else target
+        warnings.append(
+            ValidationIssue(
+                path,
+                f"{label} uses reagent-only node {reagent!r} "
+                "as a graph endpoint; keep experimental reagents "
+                "in context unless an adjudication overrides this.",
             )
+        )
 
-    if _is_generic_sensing_process(source) and _is_specific_component_node(target):
-        if not _has_edge_adjudication(adjudications, edge, "topology_lint"):
-            warnings.append(
-                ValidationIssue(
-                    path,
-                    f"{label} makes generic process {source!r} activate specific component {target!r}; "
-                    "prefer ligand-to-component edges when specific receptors/adaptors are implicated.",
-                )
+    if (
+        _is_generic_sensing_process(source)
+        and _is_specific_component_node(target)
+        and not _has_edge_adjudication(adjudications, edge, "topology_lint")
+    ):
+        warnings.append(
+            ValidationIssue(
+                path,
+                f"{label} makes generic process {source!r} "
+                f"activate specific component {target!r}; "
+                "prefer ligand-to-component edges when "
+                "specific receptors/adaptors are implicated.",
             )
+        )
 
     if (
         rel == "activates"
@@ -1485,7 +1528,8 @@ def _warn_topology_review_patterns(
         warnings.append(
             ValidationIssue(
                 path,
-                f"{label} uses 'activates' for gene/program abundance target {target!r}; "
+                f"{label} uses 'activates' for gene/program "
+                f"abundance target {target!r}; "
                 "review whether 'upregulates' is the normalized relation.",
             )
         )
@@ -1499,20 +1543,30 @@ def _warn_topology_review_patterns(
         warnings.append(
             ValidationIssue(
                 path,
-                f"{label} uses 'induces' for epigenetic_remodeling -> retrotransposon_derepression; "
-                "review whether 'drives' is the normalized relation for this chromatin-program edge.",
+                f"{label} uses 'induces' for "
+                "epigenetic_remodeling -> retrotransposon_derepression; "
+                "review whether 'drives' is the normalized "
+                "relation for this chromatin-program edge.",
             )
         )
 
-    if linked_claim_ids and _edge_links_hidden_warning_claim(edge, claim_records, linked_claim_ids):
-        if not _has_edge_adjudication(adjudications, edge, "evidence_strength_warning"):
-            warnings.append(
-                ValidationIssue(
-                    path,
-                    f"{label} links to claims whose branch/disposition suggests a hidden or uncertain branch; "
-                    f"add {ADJUDICATIONS_KEY} if keeping the edge unchanged.",
-                )
+    if (
+        linked_claim_ids
+        and _edge_links_hidden_warning_claim(
+            edge, claim_records, linked_claim_ids
+        )
+        and not _has_edge_adjudication(
+            adjudications, edge, "evidence_strength_warning"
+        )
+    ):
+        warnings.append(
+            ValidationIssue(
+                path,
+                f"{label} links to claims whose branch/disposition suggests"
+                " a hidden or uncertain branch; "
+                f"add {ADJUDICATIONS_KEY} if keeping the edge unchanged.",
             )
+        )
 
 
 def _warn_cross_edge_topology_patterns(
@@ -1525,7 +1579,11 @@ def _warn_cross_edge_topology_patterns(
     if not isinstance(edges, list):
         return
     triples = {
-        (str(edge.get("source", "")), str(edge.get("rel", "")), str(edge.get("target", "")))
+        (
+            str(edge.get("source", "")),
+            str(edge.get("rel", "")),
+            str(edge.get("target", "")),
+        )
         for edge in edges
         if isinstance(edge, dict)
     }
@@ -1533,30 +1591,34 @@ def _warn_cross_edge_topology_patterns(
         return
 
     for ligand, rel, sensing_process in sorted(triples):
-        if rel != "activates" or not _is_generic_sensing_process(sensing_process):
+        if rel != "activates" or not _is_generic_sensing_process(
+            sensing_process
+        ):
             continue
-        generic_to_components = [
+        if generic_to_components := [
             target
             for source, process_rel, target in sorted(triples)
             if source == sensing_process
             and process_rel == "activates"
             and _is_specific_component_node(target)
-        ]
-        if not generic_to_components:
-            continue
-        warnings.append(
-            ValidationIssue(
-                path,
-                "topology_lint: "
-                f"{ligand} is routed through generic process {sensing_process} "
-                f"before {', '.join(generic_to_components)}; adjudicate whether "
-                "to replace this with direct ligand-to-component edges.",
+        ]:
+            warnings.append(
+                ValidationIssue(
+                    path,
+                    "topology_lint: "
+                    f"{ligand} is routed through "
+                    f"generic process {sensing_process} "
+                    f"before {', '.join(generic_to_components)}; adjudicate "
+                    "whether to replace this with direct "
+                    "ligand-to-component edges.",
+                )
             )
-        )
 
 
 def _is_reagent_only_endpoint(node: str) -> bool:
-    """Return whether a node looks like an assay reagent rather than a graph node."""
+    """Return whether a node looks like an assay reagent rather than a graph
+    node.
+    """
     return node in REAGENT_ONLY_ENDPOINTS or any(
         node.startswith(prefix) for prefix in REAGENT_ENDPOINT_PREFIXES
     )
@@ -1564,7 +1626,9 @@ def _is_reagent_only_endpoint(node: str) -> bool:
 
 def _is_generic_sensing_process(node: str) -> bool:
     """Return whether a node is a generic sensing process."""
-    return node in GENERIC_PROCESS_NODES or node.endswith(SENSING_PROCESS_SUFFIX)
+    return node in GENERIC_PROCESS_NODES or node.endswith(
+        SENSING_PROCESS_SUFFIX
+    )
 
 
 def _is_specific_component_node(node: str) -> bool:
@@ -1578,6 +1642,7 @@ def _is_specific_component_node(node: str) -> bool:
         and not _is_generic_sensing_process(node)
     )
 
+
 def _edge_links_hidden_warning_claim(
     edge: dict[Any, Any],
     claim_records: dict[str, dict[str, Any]],
@@ -1588,7 +1653,10 @@ def _edge_links_hidden_warning_claim(
         claim = claim_records.get(claim_id)
         if claim is None:
             continue
-        if str(claim.get("disposition", "")) in {"context_only", "insufficient"}:
+        if str(claim.get("disposition", "")) in {
+            "context_only",
+            "insufficient",
+        }:
             return True
     return False
 
@@ -1606,7 +1674,9 @@ def _has_edge_adjudication(
             value = record.get(field)
             records = value if isinstance(value, list) else [value]
             for candidate in records:
-                if isinstance(candidate, dict) and _edge_identity_matches(edge, candidate):
+                if isinstance(candidate, dict) and _edge_identity_matches(
+                    edge, candidate
+                ):
                     return True
     return False
 
@@ -1616,15 +1686,21 @@ def _has_issue_type_adjudication(
     issue_type: str,
 ) -> bool:
     """Return whether any adjudication records this issue type."""
-    return any(str(record.get(ISSUE_TYPE_KEY, "")) == issue_type for record in adjudications)
+    return any(
+        str(record.get(ISSUE_TYPE_KEY, "")) == issue_type
+        for record in adjudications
+    )
 
 
-def _edge_identity_matches(edge: dict[Any, Any], candidate: dict[str, Any]) -> bool:
+def _edge_identity_matches(
+    edge: dict[Any, Any], candidate: dict[str, Any]
+) -> bool:
     """Return whether source/target/rel identify the same edge."""
     return all(
         str(edge.get(field, "")) == str(candidate.get(field, ""))
         for field in ("source", "target", "rel")
     )
+
 
 def _warn_unreferenced_edge_claims(
     path: Path,

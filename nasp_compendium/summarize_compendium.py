@@ -1,4 +1,3 @@
-
 """Render the NASP mechanistic compendium as a pathway map."""
 
 from __future__ import annotations

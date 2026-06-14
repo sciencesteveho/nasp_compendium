@@ -85,7 +85,9 @@ class CompendiumDiff:
 
 
 def load_compendium_path(path: Path) -> summarize_compendium.Compendium:
-    """Load either a compendium directory or a single compendium Markdown file."""
+    """Load either a compendium directory or a single compendium Markdown
+    file.
+    """
     if path.is_dir():
         return summarize_compendium.Compendium.from_dir(path)
     if path.is_file():
@@ -145,7 +147,9 @@ def _diff_entities(
         for field in ENTITY_FIELDS:
             old_values = _paper_values(old_paper, field)
             new_values = _paper_values(new_paper, field)
-            values = new_values - old_values if added else old_values - new_values
+            values = (
+                new_values - old_values if added else old_values - new_values
+            )
             if values:
                 field_changes[field] = tuple(sorted(values))
         if field_changes:
@@ -156,7 +160,9 @@ def _diff_entities(
 def _diff_edges(
     old_edges: list[dict[str, Any]],
     new_edges: list[dict[str, Any]],
-) -> tuple[tuple[EdgeChange, ...], tuple[EdgeChange, ...], tuple[ModifiedEdge, ...]]:
+) -> tuple[
+    tuple[EdgeChange, ...], tuple[EdgeChange, ...], tuple[ModifiedEdge, ...]
+]:
     """Diff edge lists by stable identity and comparable fields."""
     old_by_key = _edges_by_key(old_edges)
     new_by_key = _edges_by_key(new_edges)
@@ -173,13 +179,12 @@ def _diff_edges(
     )
     modified = []
     for key in sorted(old_keys & new_keys, key=_edge_sort_key):
-        changed_fields = tuple(
+        if changed_fields := tuple(
             field
             for field in EDGE_COMPARE_FIELDS
             if _normalize_value(old_by_key[key].get(field))
             != _normalize_value(new_by_key[key].get(field))
-        )
-        if changed_fields:
+        ):
             modified.append(
                 ModifiedEdge(
                     key=key,
@@ -203,7 +208,9 @@ def _edges_by_key(edges: list[dict[str, Any]]) -> dict[EdgeKey, dict[str, Any]]:
 
 
 def _edge_key(edge: dict[str, Any]) -> EdgeKey | None:
-    """Return a stable edge identity key if all required identity fields exist."""
+    """Return a stable edge identity key if all required identity fields
+    exist.
+    """
     papers = edge.get("papers")
     if not isinstance(papers, list) or not papers:
         return None
@@ -231,7 +238,9 @@ def _format_text(diff: CompendiumDiff) -> str:
         return "\n".join(lines)
 
     _append_papers(lines, diff, markdown=False)
-    _append_entities(lines, "Entities added", diff.entities_added, markdown=False)
+    _append_entities(
+        lines, "Entities added", diff.entities_added, markdown=False
+    )
     _append_entities(
         lines, "Entities removed", diff.entities_removed, markdown=False
     )
@@ -251,12 +260,13 @@ def _format_markdown(diff: CompendiumDiff) -> str:
         f"**Summary:** {_summary_line(diff)}",
     ]
     if not diff.has_changes:
-        lines.append("")
-        lines.append("No compendium differences.")
+        lines.extend(("", "No compendium differences."))
         return "\n".join(lines)
 
     _append_papers(lines, diff, markdown=True)
-    _append_entities(lines, "Entities Added", diff.entities_added, markdown=True)
+    _append_entities(
+        lines, "Entities Added", diff.entities_added, markdown=True
+    )
     _append_entities(
         lines, "Entities Removed", diff.entities_removed, markdown=True
     )
@@ -347,8 +357,7 @@ def _append_heading(
     markdown: bool,
 ) -> None:
     """Append a section heading in the requested output style."""
-    lines.append("")
-    lines.append(f"## {title}" if markdown else title)
+    lines.extend(("", f"## {title}" if markdown else title))
 
 
 def _group_edge_changes(
@@ -395,9 +404,9 @@ def _summary_line(diff: CompendiumDiff) -> str:
 def _paper_values(paper: dict[str, Any], field: str) -> set[str]:
     """Return normalized string values from one paper metadata field."""
     values = paper.get(field)
-    if not isinstance(values, list):
-        return set()
-    return {str(value) for value in values}
+    return (
+        {str(value) for value in values} if isinstance(values, list) else set()
+    )
 
 
 def _count_entities(entities: dict[str, dict[str, tuple[str, ...]]]) -> int:
@@ -421,6 +430,4 @@ def _normalize_identity(value: object) -> str:
 
 def _normalize_value(value: object) -> str:
     """Normalize comparable fields so whitespace-only changes are ignored."""
-    if value is None:
-        return ""
-    return re.sub(r"\s+", " ", str(value)).strip()
+    return "" if value is None else re.sub(r"\s+", " ", str(value)).strip()

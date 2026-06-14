@@ -212,9 +212,9 @@ def score_pair(
         else:
             gold_edges.append(edge)
 
-    recovered_keys = {
-        edge.triple for edge in draft_edges
-    } & {edge.triple for edge in gold_edges}
+    recovered_keys = {edge.triple for edge in draft_edges} & {
+        edge.triple for edge in gold_edges
+    }
     missed = [edge for edge in gold_edges if edge.triple not in recovered_keys]
     extra = [edge for edge in draft_edges if edge.triple not in recovered_keys]
 
@@ -236,7 +236,9 @@ def score_pair(
     )
 
 
-def format_score_report(report: ScoreReport, output_format: str = "text") -> str:
+def format_score_report(
+    report: ScoreReport, output_format: str = "text"
+) -> str:
     """Format a ScoreReport as text or JSON."""
     if output_format == "json":
         return json.dumps(_report_to_dict(report), indent=2, sort_keys=True)
@@ -275,7 +277,9 @@ def write_score_report(
 ) -> Path:
     """Write a formatted score report to disk."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(format_score_report(report, output_format=output_format))
+    output_path.write_text(
+        format_score_report(report, output_format=output_format)
+    )
     return output_path
 
 
@@ -295,7 +299,9 @@ def _resolve_pairs(
     if not gold_path.exists():
         raise FileNotFoundError(f"Gold path not found: {gold_path}")
     if not draft_path.is_dir() or not gold_path.is_dir():
-        raise ValueError("Draft and gold inputs must both be files or both be directories.")
+        raise ValueError(
+            "Draft and gold inputs must both be files or both be directories."
+        )
 
     drafts = {
         _paper_key_from_path(path): path
@@ -391,9 +397,14 @@ def _relationship_mismatches(
     """Return same-endpoint draft/gold pairs with different relations."""
     mismatches: list[EdgeMismatch] = []
     for gold_edge in missed:
-        for draft_edge in extra:
-            if gold_edge.endpoints == draft_edge.endpoints and gold_edge.rel != draft_edge.rel:
-                mismatches.append(EdgeMismatch(gold=gold_edge, draft=draft_edge))
+        mismatches.extend(
+            EdgeMismatch(gold=gold_edge, draft=draft_edge)
+            for draft_edge in extra
+            if (
+                gold_edge.endpoints == draft_edge.endpoints
+                and gold_edge.rel != draft_edge.rel
+            )
+        )
     return mismatches
 
 
@@ -429,7 +440,9 @@ def _symmetric_correlation_differences(
                 gold_edge.source == draft_edge.target
                 and gold_edge.target == draft_edge.source
             ):
-                differences.append(EdgeMismatch(gold=gold_edge, draft=draft_edge))
+                differences.append(
+                    EdgeMismatch(gold=gold_edge, draft=draft_edge)
+                )
     return differences
 
 
@@ -440,12 +453,12 @@ def _report_to_dict(report: ScoreReport) -> dict[str, Any]:
             "gold_total": report.gold_total,
             "draft_total": report.draft_total,
             "recovered_total": report.recovered_total,
-            "evidence_exact_recovered_total": report.evidence_exact_recovered_total,
+            "evidence_exact_recovered_total": report.evidence_exact_recovered_total,  # noqa: E501
             "missed_total": report.missed_total,
             "extra_total": report.extra_total,
             "ordinary_missed_total": report.ordinary_missed_total,
             "ordinary_extra_total": report.ordinary_extra_total,
-            "relationship_mismatches_total": report.relationship_mismatches_total,
+            "relationship_mismatches_total": report.relationship_mismatches_total,  # noqa: E501
             "evidence_mismatches_total": report.evidence_mismatches_total,
             "symmetric_correlation_differences_total": (
                 report.symmetric_correlation_differences_total
@@ -477,10 +490,12 @@ def _paper_to_dict(paper: PaperScore) -> dict[str, Any]:
         "missed": [_edge_to_dict(edge) for edge in paper.missed],
         "extra": [_edge_to_dict(edge) for edge in paper.extra],
         "relationship_mismatches": [
-            _mismatch_to_dict(mismatch) for mismatch in paper.relationship_mismatches
+            _mismatch_to_dict(mismatch)
+            for mismatch in paper.relationship_mismatches
         ],
         "evidence_mismatches": [
-            _mismatch_to_dict(mismatch) for mismatch in paper.evidence_mismatches
+            _mismatch_to_dict(mismatch)
+            for mismatch in paper.evidence_mismatches
         ],
         "symmetric_correlation_differences": [
             _mismatch_to_dict(mismatch)
@@ -563,4 +578,4 @@ def _format_paper_score(paper: PaperScore) -> list[str]:
 
 def _format_edge(edge: EdgeRecord) -> str:
     """Format one edge for human-readable output."""
-    return f"{edge.source} --[{edge.rel}/{edge.evidence_strength}]--> {edge.target}"
+    return f"{edge.source} --[{edge.rel}/{edge.evidence_strength}]--> {edge.target}"  # noqa: E501

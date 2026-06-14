@@ -257,9 +257,9 @@ def _add_regenerate_parser(
         "--docs-dir",
         default=MARKER_DOCS_DIR,
         type=Path,
-        help=f"Directory to write docs and assets into (default: {MARKER_DOCS_DIR}).",
+        help="Directory to write docs and assets into "
+        f"(default: {MARKER_DOCS_DIR}).",
     )
-
 
 
 def _add_review_packet_parser(
@@ -418,8 +418,7 @@ def _run_review_packet(args: argparse.Namespace) -> None:
     )
     print(f"  Wrote {output_path}")
     if args.gate:
-        blockers = review_packet.gate_blockers(args.input_path)
-        if blockers:
+        if blockers := review_packet.gate_blockers(args.input_path):
             print(f"  Pre-freeze gate blocked by {len(blockers)} issue(s).")
             for blocker in blockers[:20]:
                 print(f"    - {blocker}")

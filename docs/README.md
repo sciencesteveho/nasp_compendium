@@ -11,7 +11,7 @@ inflammation, senescence, and aging-related biology.
 
 * [`docs/compendium/ `](compendium/): Paper mechanism records.
 * [`docs/marker_genes/ `](marker_genes/): Rendered marker-gene modules, with visualizations for each module class.
-* [`data/marker_genes.tsv `](marker_genes.tsv): Raw marker gene .tsv.
+* [`data/marker_genes.tsv `](../data/marker_genes.tsv): Raw marker gene .tsv.
 
 </br>
 

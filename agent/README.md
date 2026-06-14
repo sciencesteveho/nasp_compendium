@@ -4,9 +4,6 @@ The agentic curation tool helps convert NASP-related papers into structured
 mechanism records. The output is a YAML-in-Markdown draft that can be validated,
 reviewed, adjudicated, scored, and added to the shared compendium.
 
-The goal is not to replace human judgment. The goal is to make mechanistic
-curation faster, more consistent, and easier to audit.
-
 ## Architecture
 
 ```mermaid
