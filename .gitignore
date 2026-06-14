@@ -58,3 +58,18 @@ development/
 data/literature/
 agent/reports/
 figures/
+
+# Agent generated artifacts
+nasp_compendium.egg-info/
+agent/reports/audits/*
+!agent/reports/audits/.gitkeep
+agent/reports/curation_runs/*
+!agent/reports/curation_runs/.gitkeep
+
+# Python/local caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
