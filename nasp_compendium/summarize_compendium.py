@@ -229,6 +229,24 @@ def citation_sort_key(paper_id: str) -> tuple[int, str]:
     return year, format_citation(paper_id).lower()
 
 
+def format_edge_annotation(
+    paper_ids: list[str],
+    *,
+    max_visible: int = 1,
+) -> str:
+    """Return a compact visible annotation string for an edge."""
+    if not paper_ids:
+        return ""
+
+    citations = [format_citation(paper_id) for paper_id in paper_ids]
+    if len(citations) <= max_visible:
+        return ", ".join(citations)
+
+    visible = ", ".join(citations[:max_visible])
+    remaining = len(citations) - max_visible
+    return f"{visible} +{remaining}"
+
+
 def node_entity_types(compendium: Compendium) -> dict[str, str]:
     """Map every declared entity name to the field in which it appears.
 
@@ -559,10 +577,10 @@ def render(
         graph_attr |= {
             "splines": "spline",
             "overlap": "false",
-            "sep": "+0.03",
-            "esep": "+0.015",
-            "nodesep": "0.055",
-            "ranksep": "0.12",
+            "sep": "+0.022",
+            "esep": "+0.010",
+            "nodesep": "0.045",
+            "ranksep": "0.10",
             "pack": "true",
             "packmode": "node",
             "concentrate": "false",
@@ -572,17 +590,43 @@ def render(
         }
         node_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "5.2",
-            "margin": "0.020,0.012",
+            "fontsize": "5.0",
+            "margin": "0.018,0.010",
             "width": "0.01",
             "height": "0.01",
             "penwidth": "0.68",
         }
         edge_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "4.4",
-            "arrowsize": "0.26",
-            "penwidth": "0.64",
+            "fontsize": "4.2",
+            "arrowsize": "0.24",
+            "penwidth": "0.60",
+            "minlen": "1",
+        }
+    elif annotate_papers:
+        graph_attr |= {
+            "splines": "spline",
+            "overlap": "false",
+            "sep": "+0.028",
+            "esep": "+0.014",
+            "nodesep": "0.050",
+            "ranksep": "0.105",
+            "pack": "true",
+            "packmode": "node",
+            "concentrate": "false",
+            "ratio": "compress",
+            "margin": "0",
+            "pad": "0",
+        }
+        node_attr |= {
+            "fontsize": "4.8",
+            "margin": "0.017,0.010",
+            "penwidth": "0.62",
+        }
+        edge_attr |= {
+            "fontsize": "3.2",
+            "arrowsize": "0.24",
+            "penwidth": "0.58",
             "minlen": "1",
         }
 
@@ -623,7 +667,7 @@ def render(
             fontname=GRAPH_FONT,
         )
 
-    if compact:
+    if compact or annotate_papers:
         _add_compact_leaf_rank_groups(
             diagram,
             _compact_leaf_rank_groups(edges),
@@ -635,46 +679,68 @@ def render(
         source = str(edge["source"])
         target = str(edge["target"])
         color = REL_COLOR.get(rel, DEFAULT_REL_COLOR)
-        edge_label = rel.replace("_", " ")
+        relation_label = rel.replace("_", " ")
+        edge_label = relation_label
+        edge_annotation = ""
 
         if annotate_papers:
-            if paper_ids := edge.get("papers") or []:
-                citations = ", ".join(format_citation(pid) for pid in paper_ids)
-                edge_label = f"{edge_label}\n[{citations}]"
+            paper_ids = [str(paper_id) for paper_id in edge.get("papers") or []]
+            if paper_ids:
+                citations = ", ".join(
+                    format_citation(paper_id) for paper_id in paper_ids
+                )
+                edge_label = f"{relation_label}\n[{citations}]"
+                edge_annotation = format_edge_annotation(paper_ids)
 
-        visible_edge_label = "" if compact else edge_label
+        if compact:
+            visible_edge_label = ""
+        elif annotate_papers:
+            visible_edge_label = ""
+        else:
+            visible_edge_label = edge_label
+
+        use_backbone_layout = compact or annotate_papers
         edge_constraint = _edge_constraint(
             rel=rel,
             source=source,
             target=target,
-            compact=compact,
+            compact=use_backbone_layout,
         )
         edge_weight = _edge_weight(
             rel=rel,
             source=source,
             target=target,
-            compact=compact,
+            compact=use_backbone_layout,
         )
         edge_minlen = _edge_minlen(
             rel=rel,
             source=source,
             target=target,
-            compact=compact,
+            compact=use_backbone_layout,
         )
+
+        edge_kwargs: dict[str, str] = {
+            "label": visible_edge_label,
+            "tooltip": edge_label,
+            "color": color,
+            "fontcolor": color,
+            "fontname": GRAPH_FONT,
+            "constraint": edge_constraint,
+            "arrowhead": REL_ARROWHEAD.get(rel, DEFAULT_ARROWHEAD),
+            "weight": edge_weight,
+            "minlen": edge_minlen,
+            "style": EVIDENCE_STYLES.get(
+                evidence,
+                DEFAULT_EVIDENCE_STYLE,
+            ),
+        }
+        if annotate_papers and edge_annotation:
+            edge_kwargs["xlabel"] = edge_annotation
 
         diagram.edge(
             source,
             target,
-            label=visible_edge_label,
-            tooltip=edge_label,
-            color=color,
-            fontcolor=color,
-            fontname=GRAPH_FONT,
-            constraint=edge_constraint,
-            arrowhead=REL_ARROWHEAD.get(rel, DEFAULT_ARROWHEAD),
-            weight=edge_weight,
-            minlen=edge_minlen,
-            style=EVIDENCE_STYLES.get(evidence, DEFAULT_EVIDENCE_STYLE),
+            **edge_kwargs,
         )
 
     # if compact:

@@ -1,0 +1,122 @@
+--- a/nasp_compendium/summarize_compendium.py
++++ b/nasp_compendium/summarize_compendium.py
+@@ -229,6 +229,24 @@
+     return year, format_citation(paper_id).lower()
+ 
+ 
++def format_edge_annotation(
++    paper_ids: list[str],
++    *,
++    max_visible: int = 1,
++) -> str:
++    """Return a compact visible annotation string for an edge."""
++    if not paper_ids:
++        return ""
++
++    citations = [format_citation(paper_id) for paper_id in paper_ids]
++    if len(citations) <= max_visible:
++        return ", ".join(citations)
++
++    visible = ", ".join(citations[:max_visible])
++    remaining = len(citations) - max_visible
++    return f"{visible} +{remaining}"
++
++
+ def node_entity_types(compendium: Compendium) -> dict[str, str]:
+     """Map every declared entity name to the field in which it appears.
+ 
+@@ -589,10 +607,10 @@
+         graph_attr |= {
+             "splines": "spline",
+             "overlap": "false",
+-            "sep": "+0.035",
+-            "esep": "+0.018",
+-            "nodesep": "0.055",
+-            "ranksep": "0.115",
++            "sep": "+0.028",
++            "esep": "+0.014",
++            "nodesep": "0.050",
++            "ranksep": "0.105",
+             "pack": "true",
+             "packmode": "node",
+             "concentrate": "false",
+@@ -606,7 +624,7 @@
+             "penwidth": "0.62",
+         }
+         edge_attr |= {
+-            "fontsize": "3.6",
++            "fontsize": "3.2",
+             "arrowsize": "0.24",
+             "penwidth": "0.58",
+             "minlen": "1",
+@@ -661,14 +679,26 @@
+         source = str(edge["source"])
+         target = str(edge["target"])
+         color = REL_COLOR.get(rel, DEFAULT_REL_COLOR)
+-        edge_label = rel.replace("_", " ")
++        relation_label = rel.replace("_", " ")
++        edge_label = relation_label
++        edge_annotation = ""
+ 
+         if annotate_papers:
+-            if paper_ids := edge.get("papers") or []:
+-                citations = ", ".join(format_citation(pid) for pid in paper_ids)
+-                edge_label = f"{edge_label}\n[{citations}]"
++            paper_ids = [str(paper_id) for paper_id in edge.get("papers") or []]
++            if paper_ids:
++                citations = ", ".join(
++                    format_citation(paper_id) for paper_id in paper_ids
++                )
++                edge_label = f"{relation_label}\n[{citations}]"
++                edge_annotation = format_edge_annotation(paper_ids)
++
++        if compact:
++            visible_edge_label = ""
++        elif annotate_papers:
++            visible_edge_label = ""
++        else:
++            visible_edge_label = edge_label
+ 
+-        visible_edge_label = "" if compact else edge_label
+         use_backbone_layout = compact or annotate_papers
+         edge_constraint = _edge_constraint(
+             rel=rel,
+@@ -689,19 +719,28 @@
+             compact=use_backbone_layout,
+         )
+ 
++        edge_kwargs: dict[str, str] = {
++            "label": visible_edge_label,
++            "tooltip": edge_label,
++            "color": color,
++            "fontcolor": color,
++            "fontname": GRAPH_FONT,
++            "constraint": edge_constraint,
++            "arrowhead": REL_ARROWHEAD.get(rel, DEFAULT_ARROWHEAD),
++            "weight": edge_weight,
++            "minlen": edge_minlen,
++            "style": EVIDENCE_STYLES.get(
++                evidence,
++                DEFAULT_EVIDENCE_STYLE,
++            ),
++        }
++        if annotate_papers and edge_annotation:
++            edge_kwargs["xlabel"] = edge_annotation
++
+         diagram.edge(
+             source,
+             target,
+-            label=visible_edge_label,
+-            tooltip=edge_label,
+-            color=color,
+-            fontcolor=color,
+-            fontname=GRAPH_FONT,
+-            constraint=edge_constraint,
+-            arrowhead=REL_ARROWHEAD.get(rel, DEFAULT_ARROWHEAD),
+-            weight=edge_weight,
+-            minlen=edge_minlen,
+-            style=EVIDENCE_STYLES.get(evidence, DEFAULT_EVIDENCE_STYLE),
++            **edge_kwargs,
+         )
+ 
+     # if compact:
