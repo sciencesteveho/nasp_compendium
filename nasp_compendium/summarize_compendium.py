@@ -48,6 +48,32 @@ NON_CONSTRAINING_RELS: frozenset[str] = frozenset(
         "does_not_drive",
     }
 )
+COMPACT_BACKBONE_RELS: frozenset[str] = frozenset(
+    {
+        "activates",
+        "causes",
+        "drives",
+        "induces",
+        "required_for",
+        "produces",
+        "forms_pore_for",
+        "suppresses",
+        "inhibits",
+        "downregulates",
+        "upregulates",
+    }
+)
+COMPACT_NONCONSTRAINING_RELS: frozenset[str] = frozenset(
+    {
+        "contains",
+        "correlates",
+        "negatively_correlates",
+        "does_not_correlate",
+        "does_not_drive",
+        "binds_recruits",
+        "retains",
+    }
+)
 SVG_DASH_PATTERNS: dict[str, str] = {
     'stroke-dasharray="5,2"': 'stroke-dasharray="2,1.2"',
     'stroke-dasharray="1,5"': 'stroke-dasharray="1,2"',
@@ -338,6 +364,111 @@ def _add_compact_edge_legend(
             minlen="0",
         )
 
+def _compact_edge_is_backbone(
+    rel: str,
+    source: str,
+    target: str,
+) -> bool:
+    """Return whether an edge should define compact-mode LR flow."""
+    del source, target
+    return rel in COMPACT_BACKBONE_RELS
+
+
+def _edge_constraint(
+    rel: str,
+    source: str,
+    target: str,
+    compact: bool,
+) -> str:
+    """Return the Graphviz constraint flag for an edge."""
+    if not compact:
+        return str(rel not in NON_CONSTRAINING_RELS).lower()
+    if rel in COMPACT_NONCONSTRAINING_RELS:
+        return "false"
+    return str(_compact_edge_is_backbone(rel, source, target)).lower()
+
+
+def _edge_weight(
+    rel: str,
+    source: str,
+    target: str,
+    compact: bool,
+) -> str:
+    """Return the Graphviz weight for an edge."""
+    if not compact:
+        return "1.0"
+    if _compact_edge_is_backbone(rel, source, target):
+        return "2.0"
+    return "0.1"
+
+
+def _edge_minlen(
+    rel: str,
+    source: str,
+    target: str,
+    compact: bool,
+) -> str:
+    """Return the Graphviz minlen for an edge."""
+    if not compact:
+        return "1"
+    if _compact_edge_is_backbone(rel, source, target):
+        return "1"
+    return "0"
+
+
+def _node_degrees(edges: list[dict[str, Any]]) -> dict[str, int]:
+    """Return incident edge counts for each rendered node."""
+    degrees: dict[str, int] = {}
+    for edge in edges:
+        for endpoint in ("source", "target"):
+            node = str(edge.get(endpoint, ""))
+            if node:
+                degrees[node] = degrees.get(node, 0) + 1
+    return degrees
+
+
+def _compact_leaf_rank_groups(
+    edges: list[dict[str, Any]],
+) -> dict[str, list[str]]:
+    """Return weak leaf nodes to keep beside their target in compact mode."""
+    degrees = _node_degrees(edges)
+    groups: dict[str, set[str]] = {}
+
+    for edge in edges:
+        rel = str(edge.get("rel", ""))
+        if rel not in COMPACT_NONCONSTRAINING_RELS:
+            continue
+
+        source = str(edge.get("source", ""))
+        target = str(edge.get("target", ""))
+        if not source or not target:
+            continue
+
+        if degrees.get(source, 0) == 1 and degrees.get(target, 0) > 1:
+            groups.setdefault(target, set()).add(source)
+        elif degrees.get(target, 0) == 1 and degrees.get(source, 0) > 1:
+            groups.setdefault(source, set()).add(target)
+
+    return {
+        anchor: sorted(leaves)
+        for anchor, leaves in groups.items()
+        if leaves
+    }
+
+
+def _add_compact_leaf_rank_groups(
+    diagram: graphviz.Digraph,
+    rank_groups: dict[str, list[str]],
+) -> None:
+    """Keep weak leaf nodes in the same compact LR rank as their anchor."""
+    for group_index, (anchor, leaves) in enumerate(sorted(rank_groups.items())):
+        with diagram.subgraph(name=f"compact_leaf_rank_{group_index}") as group:
+            group.attr(rank="same")
+            group.node(anchor)
+            for leaf in leaves:
+                group.node(leaf)
+
+
 def render(
     compendium: Compendium,
     output_stem: Path,
@@ -492,9 +623,17 @@ def render(
             fontname=GRAPH_FONT,
         )
 
+    if compact:
+        _add_compact_leaf_rank_groups(
+            diagram,
+            _compact_leaf_rank_groups(edges),
+        )
+
     for edge in edges:
         rel = str(edge.get("rel", ""))
         evidence = str(edge.get("evidence_strength", ""))
+        source = str(edge["source"])
+        target = str(edge["target"])
         color = REL_COLOR.get(rel, DEFAULT_REL_COLOR)
         edge_label = rel.replace("_", " ")
 
@@ -504,11 +643,28 @@ def render(
                 edge_label = f"{edge_label}\n[{citations}]"
 
         visible_edge_label = "" if compact else edge_label
-        edge_constraint = str(rel not in NON_CONSTRAINING_RELS).lower()
+        edge_constraint = _edge_constraint(
+            rel=rel,
+            source=source,
+            target=target,
+            compact=compact,
+        )
+        edge_weight = _edge_weight(
+            rel=rel,
+            source=source,
+            target=target,
+            compact=compact,
+        )
+        edge_minlen = _edge_minlen(
+            rel=rel,
+            source=source,
+            target=target,
+            compact=compact,
+        )
 
         diagram.edge(
-            str(edge["source"]),
-            str(edge["target"]),
+            source,
+            target,
             label=visible_edge_label,
             tooltip=edge_label,
             color=color,
@@ -516,6 +672,8 @@ def render(
             fontname=GRAPH_FONT,
             constraint=edge_constraint,
             arrowhead=REL_ARROWHEAD.get(rel, DEFAULT_ARROWHEAD),
+            weight=edge_weight,
+            minlen=edge_minlen,
             style=EVIDENCE_STYLES.get(evidence, DEFAULT_EVIDENCE_STYLE),
         )
 

@@ -1,0 +1,84 @@
+--- a/nasp_compendium/summarize_compendium.py
++++ b/nasp_compendium/summarize_compendium.py
+@@ -416,6 +416,59 @@
+     return "0"
+ 
+ 
++def _node_degrees(edges: list[dict[str, Any]]) -> dict[str, int]:
++    """Return incident edge counts for each rendered node."""
++    degrees: dict[str, int] = {}
++    for edge in edges:
++        for endpoint in ("source", "target"):
++            node = str(edge.get(endpoint, ""))
++            if node:
++                degrees[node] = degrees.get(node, 0) + 1
++    return degrees
++
++
++def _compact_leaf_rank_groups(
++    edges: list[dict[str, Any]],
++) -> dict[str, list[str]]:
++    """Return weak leaf nodes to keep beside their target in compact mode."""
++    degrees = _node_degrees(edges)
++    groups: dict[str, set[str]] = {}
++
++    for edge in edges:
++        rel = str(edge.get("rel", ""))
++        if rel not in COMPACT_NONCONSTRAINING_RELS:
++            continue
++
++        source = str(edge.get("source", ""))
++        target = str(edge.get("target", ""))
++        if not source or not target:
++            continue
++
++        if degrees.get(source, 0) == 1 and degrees.get(target, 0) > 1:
++            groups.setdefault(target, set()).add(source)
++        elif degrees.get(target, 0) == 1 and degrees.get(source, 0) > 1:
++            groups.setdefault(source, set()).add(target)
++
++    return {
++        anchor: sorted(leaves)
++        for anchor, leaves in groups.items()
++        if leaves
++    }
++
++
++def _add_compact_leaf_rank_groups(
++    diagram: graphviz.Digraph,
++    rank_groups: dict[str, list[str]],
++) -> None:
++    """Keep weak leaf nodes in the same compact LR rank as their anchor."""
++    for group_index, (anchor, leaves) in enumerate(sorted(rank_groups.items())):
++        with diagram.subgraph(name=f"compact_leaf_rank_{group_index}") as group:
++            group.attr(rank="same")
++            group.node(anchor)
++            for leaf in leaves:
++                group.node(leaf)
++
++
+ def render(
+     compendium: Compendium,
+     output_stem: Path,
+@@ -504,7 +557,7 @@
+ 
+     if compact:
+         graph_attr |= {
+-            "splines": "polyline",
++            "splines": "spline",
+             "overlap": "false",
+             "sep": "+0.03",
+             "esep": "+0.015",
+@@ -570,6 +623,12 @@
+             fontname=GRAPH_FONT,
+         )
+ 
++    if compact:
++        _add_compact_leaf_rank_groups(
++            diagram,
++            _compact_leaf_rank_groups(edges),
++        )
++
+     for edge in edges:
+         rel = str(edge.get("rel", ""))
+         evidence = str(edge.get("evidence_strength", ""))
