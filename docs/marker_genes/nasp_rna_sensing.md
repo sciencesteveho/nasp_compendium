@@ -1,6 +1,6 @@
-# NASP RNA sensing
+# RNA sensing
 
-![NASP RNA sensing taxonomy](assets/sankey_nasp_rna_sensing.png)
+![RNA sensing taxonomy](assets/sankey_nasp_rna_sensing.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

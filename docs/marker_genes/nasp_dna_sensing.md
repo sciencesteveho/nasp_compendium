@@ -1,6 +1,6 @@
-# NASP DNA sensing
+# DNA sensing
 
-![NASP DNA sensing taxonomy](assets/sankey_nasp_dna_sensing.png)
+![DNA sensing taxonomy](assets/sankey_nasp_dna_sensing.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

@@ -1,6 +1,6 @@
-# ISR
+# Integrated stress response
 
-![ISR taxonomy](assets/sankey_isr.png)
+![Integrated stress response taxonomy](assets/sankey_isr.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

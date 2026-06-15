@@ -1,6 +1,6 @@
-# CGAMP transport
+# cGAMP transport
 
-![CGAMP transport taxonomy](assets/sankey_cgamp_transport.png)
+![cGAMP transport taxonomy](assets/sankey_cgamp_transport.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

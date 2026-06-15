@@ -1,6 +1,6 @@
-# Signaling context tlr
+# Signaling context TLR
 
-![Signaling context tlr taxonomy](assets/sankey_signaling_context_tlr.png)
+![Signaling context TLR taxonomy](assets/sankey_signaling_context_tlr.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

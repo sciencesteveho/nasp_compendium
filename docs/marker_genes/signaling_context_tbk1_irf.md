@@ -1,6 +1,6 @@
-# Signaling context tbk1 irf
+# Signaling context TBK1-IRF
 
-![Signaling context tbk1 irf taxonomy](assets/sankey_signaling_context_tbk1_irf.png)
+![Signaling context TBK1-IRF taxonomy](assets/sankey_signaling_context_tbk1_irf.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

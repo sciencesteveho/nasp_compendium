@@ -1,6 +1,6 @@
-# Signaling context IFN jak stat
+# Signaling context IFN JAK/STAT
 
-![Signaling context IFN jak stat taxonomy](assets/sankey_signaling_context_ifn_jak_stat.png)
+![Signaling context IFN JAK/STAT taxonomy](assets/sankey_signaling_context_ifn_jak_stat.png)
 
 | Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

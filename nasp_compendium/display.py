@@ -3,6 +3,16 @@
 from __future__ import annotations
 
 
+MODULE_NAME_DISPLAY: dict[str, str] = {
+    "CGAMP_TRANSPORT": "cGAMP transport",
+    "ISR": "Integrated stress response",
+    "NASP_DNA_SENSING": "DNA sensing",
+    "NASP_RNA_SENSING": "RNA sensing",
+    "SIGNALING_CONTEXT_IFN_JAK_STAT": "Signaling context IFN JAK/STAT",
+    "SIGNALING_CONTEXT_TBK1_IRF": "Signaling context TBK1-IRF",
+    "SIGNALING_CONTEXT_TLR": "Signaling context TLR",
+}
+
 MODULE_TOKEN_DISPLAY: dict[str, str] = {
     "CGAMP": "cGAMP",
     "DNA": "DNA",
@@ -29,9 +39,13 @@ MODULE_PHRASE_DISPLAY: tuple[tuple[str, str], ...] = (
 
 def humanize_module_name(module_id: str) -> str:
     """Return a human-readable label for a marker-gene module id."""
+    normalized_module_id = module_id.strip().replace("-", "_").upper()
+    if normalized_module_id in MODULE_NAME_DISPLAY:
+        return MODULE_NAME_DISPLAY[normalized_module_id]
+
     tokens = [
         token
-        for token in module_id.strip().replace("-", "_").split("_")
+        for token in normalized_module_id.split("_")
         if token
     ]
     if not tokens:
