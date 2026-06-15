@@ -33,7 +33,6 @@
 | CST4 | sasp_output |  | Post-NASP | positive | Salivary-enriched | medium |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | CTSB | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | CXCL1 | sasp_output |  | Post-NASP | positive | Broad | high | NFKB_CYTOKINE_OUTPUT | [10.1038/s41580-024-00738-8](https://doi.org/10.1038/s41580-024-00738-8) |  |  | SenNet |
-| CXCL1 | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41580-024-00738-8](https://doi.org/10.1038/s41580-024-00738-8) |  |  | SenNet |
 | CXCL10 | sasp_output |  | Post-NASP | positive | Broad | medium |  | [10.1038/s41580-024-00738-8](https://doi.org/10.1038/s41580-024-00738-8) |  |  | SenNet |
 | CXCL12 | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | CXCL16 | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41580-024-00738-8](https://doi.org/10.1038/s41580-024-00738-8) |  |  | SenNet |
@@ -94,7 +93,6 @@
 | NRG1 | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | PAPPA | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | PGF | sasp_output |  | Post-NASP | positive | Endothelial-enriched | medium |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
-| PIGF | sasp_output |  | Post-NASP | positive | Broad | low |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | PLAT | sasp_output |  | Post-NASP | positive | Broad | medium |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | PLAU | sasp_output |  | Post-NASP | positive | Broad | high |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | PTGES | sasp_output |  | Post-NASP | positive | Broad | low |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
@@ -119,6 +117,7 @@
 | CXCR2 | sasp_receptor |  | Post-NASP | positive | Immune-enriched | medium |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | EGFR | sasp_receptor |  | Post-NASP | positive | Broad | high |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | IL11RA | sasp_receptor |  | Post-NASP | positive | Broad | high |  | [10.1038/s12276-019-0371-7](https://doi.org/10.1038/s12276-019-0371-7) |  |  |  |
+| IL6R | sasp_receptor |  | Post-NASP | positive | Broad | medium |  | [10.1126/science.3136546](https://doi.org/10.1126/science.3136546) |  |  |  |
 | IL6ST | sasp_receptor |  | Post-NASP | positive | Broad | high |  | [10.1111/acel.14258](https://doi.org/10.1111/acel.14258) |  |  |  |
 | ITGA2 | sasp_receptor |  | Post-NASP | positive | Broad | medium |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |
 | PECAM1 | sasp_receptor |  | Post-NASP | positive | Endothelial-enriched | medium |  | [10.1038/s41467-022-32552-1](https://doi.org/10.1038/s41467-022-32552-1) |  |  | SenMayo |

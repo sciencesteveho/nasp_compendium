@@ -10,6 +10,7 @@
 | TAP1 | ifn_antigen_presentation |  | Active | positive | Broad | high |  | [10.1371/journal.pone.0180958](https://doi.org/10.1371/journal.pone.0180958) |  |  |  |
 | GBP1 | ifn_antiviral_effector |  | Active | positive | Immune-enriched | medium |  | [10.1084/jem.20182031](https://doi.org/10.1084/jem.20182031) |  |  |  |
 | GBP5 | ifn_antiviral_effector |  | Active | positive | Immune-enriched | high |  | [10.1084/jem.20182031](https://doi.org/10.1084/jem.20182031) |  |  |  |
+| ISG20 | ifn_antiviral_effector |  | Active | positive | Broad | high |  | [10.1128/mSphere.00209-18](https://doi.org/10.1128/mSphere.00209-18) |  |  |  |
 | RSAD2 | ifn_antiviral_effector |  | Active | positive | Broad | medium |  | [10.3390/pathogens14050510](https://doi.org/10.3390/pathogens14050510) |  |  |  |
 | SAMD9 | ifn_antiviral_effector |  | Active | positive | Broad | medium |  | [10.1128/mBio.00385-13](https://doi.org/10.1128/mBio.00385-13) |  |  |  |
 | SAMD9L | ifn_antiviral_effector |  | Active | positive | Broad | medium |  | [10.1128/mBio.00385-13](https://doi.org/10.1128/mBio.00385-13) |  |  |  |
@@ -39,11 +40,9 @@
 | MX1 | ifn_i_isg |  | Active | positive | Broad | high |  | [10.1016/j.micinf.2007.09.010](https://doi.org/10.1016/j.micinf.2007.09.010) |  |  |  |
 | MX2 | ifn_i_isg |  | Active | positive | Broad | medium |  | [10.1038/nature12542](https://doi.org/10.1038/nature12542) |  |  |  |
 | OASL | ifn_i_isg | RLR | Active | positive | Broad | low |  | [10.1016/j.coviro.2023.101329](https://doi.org/10.1016/j.coviro.2023.101329) |  |  |  |
+| RTP4 | ifn_i_isg |  | Active | positive | Broad | low |  | [10.1038/nature09907](https://doi.org/10.1038/nature09907) |  |  |  |
 | SIGLEC1 | ifn_i_isg |  | Active | positive | Myeloid-enriched | low |  | [10.3389/fmed.2022.979373](https://doi.org/10.3389/fmed.2022.979373) |  |  |  |
 | XAF1 | ifn_i_isg |  | Active | positive | Broad | high |  | [10.1074/jbc.M204851200](https://doi.org/10.1074/jbc.M204851200) |  |  |  |
 | IFNA1 | ifn_i_ligand |  | Active | positive | Broad | low |  | [10.1016/j.gene.2007.03.018](https://doi.org/10.1016/j.gene.2007.03.018) |  |  |  |
 | IFNB1 | ifn_i_ligand |  | Active | positive | Broad | low |  | [10.1007/s12026-012-8293-7](https://doi.org/10.1007/s12026-012-8293-7) |  |  |  |
-| OAS1 | oas_rnase_effector | OAS | Active | positive | Broad | medium | NASP_RNA_SENSING | [10.1089/jir.2023.0098](https://doi.org/10.1089/jir.2023.0098) |  | rna_sensor |  |
-| OAS2 | oas_rnase_effector | OAS | Active | positive | Broad | medium | NASP_RNA_SENSING | [10.1089/jir.2023.0098](https://doi.org/10.1089/jir.2023.0098) |  | rna_sensor |  |
-| OAS3 | oas_rnase_effector | OAS | Active | positive | Broad | low | NASP_RNA_SENSING | [10.1089/jir.2023.0098](https://doi.org/10.1089/jir.2023.0098) |  | rna_sensor |  |
 | RNASEL | oas_rnase_effector |  | Active | positive | Broad | low |  | [10.1128/jvi.01471-07](https://doi.org/10.1128/jvi.01471-07) |  |  |  |

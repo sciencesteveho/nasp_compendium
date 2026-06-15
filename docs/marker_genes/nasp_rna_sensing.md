@@ -11,7 +11,6 @@
 | DDX41 | rna_sensing_core | cGAS-STING | Early | positive | Immune-enriched | low |  | [10.1038/ni.2091](https://doi.org/10.1038/ni.2091) |  | dna_sensor; rna_sensor |  |
 | DDX58 | rna_sensing_core | RLR | Early | positive | Broad | high |  | [10.1038/ni1087](https://doi.org/10.1038/ni1087) | RIGI; RIG-I | rna_sensor |  |
 | DDX6 | rna_sensing_core | RLR | Active | positive | Broad | high |  | [10.3390/ijms19071877](https://doi.org/10.3390/ijms19071877) |  | rna_sensor |  |
-| DDX60 | rna_sensing_core | RLR | Active | positive | Broad | medium | IFN_I_OUTPUT | [10.1128/MCB.01368-10](https://doi.org/10.1128/MCB.01368-10) |  | rna_sensor |  |
 | DDX60 | rna_sensing_core | RLR | Active | positive | Broad | medium | IFN_I_OUTPUT | [10.1128/MCB.01368-10](https://doi.org/10.1128/MCB.01368-10) |  |  |  |
 | DDX60L | rna_sensing_core | RLR | Active | positive | Broad | high |  | [10.1128/JVI.01297-15](https://doi.org/10.1128/JVI.01297-15) |  | rna_sensor |  |
 | DHX16 | rna_sensing_core | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2022.110434](https://doi.org/10.1016/j.celrep.2022.110434) |  | rna_sensor |  |
@@ -19,13 +18,18 @@
 | DHX36 | rna_sensing_core | RLR | Early | positive | Immune-enriched | medium | NASP_RNA_SENSING | [10.1038/s41467-019-10432-5](https://doi.org/10.1038/s41467-019-10432-5) |  | dna_sensor; rna_sensor |  |
 | DHX58 | rna_sensing_core | RLR | Early | positive | Broad | low |  | [10.1073/pnas.0606699104](https://doi.org/10.1073/pnas.0606699104) | LGP2 | rna_sensor |  |
 | DHX9 | rna_sensing_core | RLR | Early | positive | Immune-enriched | medium |  | [10.4049/jimmunol.1101307](https://doi.org/10.4049/jimmunol.1101307) |  | dna_sensor; rna_sensor |  |
+| EIF2AK2 | rna_sensing_core | PKR | Early | positive | Broad | high | NASP_RNA_SENSING | [10.1073/pnas.75.3.1121](https://doi.org/10.1073/pnas.75.3.1121) |  | rna_sensor |  |
 | HNRNPA2B1 | rna_sensing_core |  | Early | positive | Broad | high |  | [10.1126/science.aav0758](https://doi.org/10.1126/science.aav0758) |  | dna_sensor; rna_sensor |  |
 | IFIH1 | rna_sensing_core | RLR | Early | positive | Broad | medium |  | [10.1038/nature04734](https://doi.org/10.1038/nature04734) | MDA5 | rna_sensor |  |
 | KDM1A | rna_sensing_core | RLR | Active | positive | Broad | medium |  | [10.1371/journal.ppat.1009918](https://doi.org/10.1371/journal.ppat.1009918) | LSD1 |  |  |
 | LRRFIP1 | rna_sensing_core | cGAS-STING | Early | positive | Broad | high |  | [10.1038/ni.1876](https://doi.org/10.1038/ni.1876) |  | dna_sensor; rna_sensor |  |
 | MAVS | rna_sensing_core | RLR | Early | positive | Broad | low |  | [10.1016/j.cell.2005.08.012](https://doi.org/10.1016/j.cell.2005.08.012) |  |  |  |
 | MEX3C | rna_sensing_core | RLR | Active | positive | Broad | medium |  | [10.1073/pnas.1401674111](https://doi.org/10.1073/pnas.1401674111) |  |  |  |
+| NLRP1 | rna_sensing_core | NLR | Early | positive | Immune-enriched | medium | NASP_RNA_SENSING | [10.1126/science.abd0811](https://doi.org/10.1126/science.abd0811) |  | rna_sensor |  |
 | NOD2 | rna_sensing_core | NLR | Active | positive | Immune-enriched | low |  | [10.1038/mi.2011.29](https://doi.org/10.1038/mi.2011.29) |  | rna_sensor |  |
+| OAS1 | rna_sensing_core | OAS | Early | positive | Broad | medium | NASP_RNA_SENSING | [10.1073/pnas.1218528110](https://doi.org/10.1073/pnas.1218528110) |  | rna_sensor |  |
+| OAS2 | rna_sensing_core | OAS | Early | positive | Broad | medium | NASP_RNA_SENSING | [10.1089/jir.2023.0098](https://doi.org/10.1089/jir.2023.0098) |  | rna_sensor |  |
+| OAS3 | rna_sensing_core | OAS | Early | positive | Broad | low | NASP_RNA_SENSING | [10.1089/jir.2023.0098](https://doi.org/10.1089/jir.2023.0098) |  | rna_sensor |  |
 | PARP9 | rna_sensing_core | Noncanonical_RNA | Active | positive | Immune-enriched | medium |  | [10.1038/s41467-021-23003-4](https://doi.org/10.1038/s41467-021-23003-4) |  |  |  |
 | RNF135 | rna_sensing_core | RLR | Early | positive | Broad | low |  | [10.1074/jbc.M804259200](https://doi.org/10.1074/jbc.M804259200) |  |  |  |
 | RPSA | rna_sensing_core |  | Early | positive | Broad | high |  | [10.1038/s41467-023-43784-0](https://doi.org/10.1038/s41467-023-43784-0) |  | dna_sensor; rna_sensor |  |

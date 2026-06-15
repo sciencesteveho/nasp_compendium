@@ -16,7 +16,6 @@
 | SAMHD1 | dna_restriction | cGAS-STING | Early | positive | Broad | high |  | [10.1016/j.celrep.2016.07.002](https://doi.org/10.1016/j.celrep.2016.07.002) |  |  |  |
 | TREX1 | dna_restriction | cGAS-STING | Early | positive | Broad | low |  | [10.1016/j.cell.2008.06.032](https://doi.org/10.1016/j.cell.2008.06.032) |  |  |  |
 | C1QBP | induced_negative_regulator | RLR | Active | positive | Broad | high |  | [10.1073/pnas.0811029106](https://doi.org/10.1073/pnas.0811029106) |  |  |  |
-| C1QBP | induced_negative_regulator | RLR | Active | positive | Broad | high |  | [10.1073/pnas.0811029106](https://doi.org/10.1073/pnas.0811029106) |  |  |  |
 | IQGAP1 | induced_negative_regulator | cGAS-STING | Active | positive | Broad | high |  | [10.4049/jimmunol.1601370](https://doi.org/10.4049/jimmunol.1601370) |  |  |  |
 | MARCHF8 | induced_negative_regulator | cGAS-STING | Active | positive | Immune-enriched | medium |  | [10.1126/scisignal.abk3067](https://doi.org/10.1126/scisignal.abk3067) |  |  |  |
 | OTUD3 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.molcel.2020.06.020](https://doi.org/10.1016/j.molcel.2020.06.020) |  |  |  |
@@ -25,10 +24,8 @@
 | PRMT1 | induced_negative_regulator | cGAS-STING | Active | positive | Broad | high |  | [10.1038/s41467-023-38443-3](https://doi.org/10.1038/s41467-023-38443-3) |  |  |  |
 | PRMT5 | induced_negative_regulator | cGAS-STING | Active | positive | Broad | low |  | [10.1126/sciadv.abc1834](https://doi.org/10.1126/sciadv.abc1834) |  |  |  |
 | RIOK3 | induced_negative_regulator | RLR | Active | positive | Broad | high |  | [10.1016/j.celrep.2015.03.027](https://doi.org/10.1016/j.celrep.2015.03.027) |  |  |  |
-| RIOK3 | induced_negative_regulator | RLR | Active | positive | Broad | high |  | [10.1016/j.celrep.2015.03.027](https://doi.org/10.1016/j.celrep.2015.03.027) |  |  |  |
 | SIGLEC10 | induced_negative_regulator | RLR | Active | positive | Immune-enriched | low |  | [10.1093/glycob/cwu068](https://doi.org/10.1093/glycob/cwu068) |  |  |  |
 | TRIM29 | induced_negative_regulator | cGAS-STING | Active | positive | Immune-enriched | high |  | [10.1038/s41467-017-00101-w](https://doi.org/10.1038/s41467-017-00101-w) |  |  |  |
-| TRIM40 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2017.10.020](https://doi.org/10.1016/j.celrep.2017.10.020) |  |  |  |
 | TRIM40 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2017.10.020](https://doi.org/10.1016/j.celrep.2017.10.020) |  |  |  |
 | ZNF598 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2019.07.081](https://doi.org/10.1016/j.celrep.2019.07.081) |  |  |  |
 | ZNF598 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2019.07.081](https://doi.org/10.1016/j.celrep.2019.07.081) |  |  |  |
@@ -49,7 +46,6 @@
 | AARS2 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | low |  | [10.1038/s41586-024-07992-y](https://doi.org/10.1038/s41586-024-07992-y) |  | l_lactate_sensor |  |
 | ATG9A | sensing_checkpoint | cGAS-STING | Early | inverse | Broad | low |  | [10.1073/pnas.0911267106](https://doi.org/10.1073/pnas.0911267106) |  |  |  |
 | AURKA | sensing_checkpoint | cGAS-STING | Active | positive | Broad | low |  | [10.1172/JCI161929](https://doi.org/10.1172/JCI161929) |  |  |  |
-| CDK1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | medium |  | [10.1038/s41421-020-0162-2](https://doi.org/10.1038/s41421-020-0162-2) |  |  |  |
 | CDK1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | medium |  | [10.1038/s41421-020-0162-2](https://doi.org/10.1038/s41421-020-0162-2) |  |  |  |
 | DDX46 | sensing_checkpoint | RLR | Active | positive | Broad | medium |  | [10.1038/ni.3830](https://doi.org/10.1038/ni.3830) |  |  |  |
 | MECP2 | sensing_checkpoint | cGAS-STING | Early | positive | Broad | high |  | [10.1038/s41467-025-65713-z](https://doi.org/10.1038/s41467-025-65713-z) |  |  |  |

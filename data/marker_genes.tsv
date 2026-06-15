@@ -1,4 +1,5 @@
 gene_symbol	module_id	module_class	sensor_family	activation_tier	scoring_direction	cell_type_breadth	detectability	also_in_module	doi	aliases	sensor	panel_source
+AIM2	NASP_DNA_SENSING	dna_sensing_core	ALR	Early	positive	Immune-enriched	low		10.1038/ni.1702		dna_sensor	
 CGAS	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Broad	low		10.1126/science.1229963	MB21D1	dna_sensor	
 DDX41	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Immune-enriched	low		10.1038/ni.2091		dna_sensor; rna_sensor	
 DHX36	NASP_DNA_SENSING	dna_sensing_core	RLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1038/s41467-019-10432-5		dna_sensor; rna_sensor	
@@ -33,11 +34,76 @@ YTHDF1	NASP_DNA_SENSING	dna_sensing_endosomal	TLR	Active	positive	Immune-enriche
 ZBP1	NASP_DNA_SENSING	dna_sensing_core	ZBP1	Early	positive	Broad	low	IFN_I_OUTPUT	10.1038/nature06013		dna_sensor; rna_sensor	
 ZCCHC3	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	low		10.1038/s41467-018-05559-w		dna_sensor	
 ZYG11B	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	high		10.1016/j.celrep.2023.112278			
+DDX1	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1016/j.immuni.2011.03.027	 	rna_sensor	
+DDX21	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	high		10.1016/j.bbrc.2016.03.120		rna_sensor	
+DDX41	NASP_RNA_SENSING	rna_sensing_core	cGAS-STING	Early	positive	Immune-enriched	low		10.1038/ni.2091		dna_sensor; rna_sensor	
+DDX58	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	high		10.1038/ni1087	RIGI; RIG-I	rna_sensor	
+DDX6	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.3390/ijms19071877		rna_sensor	
+DDX60	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium	IFN_I_OUTPUT	10.1128/MCB.01368-10			
+DDX60L	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1128/JVI.01297-15		rna_sensor	
+DHX16	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	low		10.1016/j.celrep.2022.110434		rna_sensor	
+DHX33	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	low		10.1016/j.immuni.2013.07.001		rna_sensor	
+DHX36	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1038/s41467-019-10432-5		dna_sensor; rna_sensor	
+DHX58	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1073/pnas.0606699104	LGP2	rna_sensor	
+DHX9	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Immune-enriched	medium		10.4049/jimmunol.1101307		dna_sensor; rna_sensor	
+EIF2AK2	NASP_RNA_SENSING	rna_sensing_core	PKR	Early	positive	Broad	high	NASP_RNA_SENSING	10.1073/pnas.75.3.1121		rna_sensor	
+HNRNPA2B1	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1126/science.aav0758		dna_sensor; rna_sensor	
+IFIH1	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1038/nature04734	MDA5	rna_sensor	
+ITPRIP	NASP_RNA_SENSING	sensing_checkpoint	RLR	Active	positive	Broad	medium		10.1128/jvi.00507-18			
+KDM1A	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1371/journal.ppat.1009918	LSD1		
+LRRFIP1	NASP_RNA_SENSING	rna_sensing_core	cGAS-STING	Early	positive	Broad	high		10.1038/ni.1876		dna_sensor; rna_sensor	
+LYST	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Active	positive	Broad	high		10.1084/jem.20141461			
+MAVS	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1016/j.cell.2005.08.012			
+MEX3C	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1073/pnas.1401674111			
+NLRP1	NASP_RNA_SENSING	rna_sensing_core	NLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1126/science.abd0811		rna_sensor	
+NOD2	NASP_RNA_SENSING	rna_sensing_core	NLR	Active	positive	Immune-enriched	low		10.1038/mi.2011.29		rna_sensor	
+OAS1	NASP_RNA_SENSING	rna_sensing_core	OAS	Early	positive	Broad	medium	NASP_RNA_SENSING	10.1073/pnas.1218528110		rna_sensor	
+OAS2	NASP_RNA_SENSING	rna_sensing_core	OAS	Early	positive	Broad	medium	NASP_RNA_SENSING	10.1089/jir.2023.0098		rna_sensor	
+OAS3	NASP_RNA_SENSING	rna_sensing_core	OAS	Early	positive	Broad	low	NASP_RNA_SENSING	10.1089/jir.2023.0098		rna_sensor	
+PARP9	NASP_RNA_SENSING	rna_sensing_core	Noncanonical_RNA	Active	positive	Immune-enriched	medium		10.1038/s41467-021-23003-4			
+PPP1CA	NASP_RNA_SENSING	sensing_checkpoint	RLR	Early	positive	Broad	high		10.1016/j.immuni.2012.11.018	PP1α		
+PPP1CC	NASP_RNA_SENSING	sensing_checkpoint	RLR	Early	positive	Broad	high		10.1016/j.immuni.2012.11.018	PP1γ		
+PPP1R12C	NASP_RNA_SENSING	sensing_checkpoint	RLR	Active	positive	Broad	medium		10.1016/j.cell.2022.08.011	AAVS1		
+RNASE2	NASP_RNA_SENSING	rna_restriction	TLR	Early	positive	Immune-enriched	low		10.1016/j.immuni.2020.03.009			
+RNASET2	NASP_RNA_SENSING	rna_restriction	TLR	Early	positive	Broad	high		10.1016/j.cell.2019.11.001			
+RNF135	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1074/jbc.M804259200			
+RPSA	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1038/s41467-023-43784-0		dna_sensor; rna_sensor	
+SIDT1	NASP_RNA_SENSING	rna_sensing_endosomal	RLR	Active	positive	Broad	medium		10.4049/jimmunol.1801369			
+SIDT2	NASP_RNA_SENSING	rna_sensing_endosomal	RLR	Active	positive	Broad	low		10.1016/j.immuni.2017.08.007			
+SLC15A4	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low		10.1073/pnas.1014051107			
+TASL	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low		10.1016/j.celrep.2023.112916			
+TLR3	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1038/35099560		rna_sensor	
+TLR7	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
+TLR8	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	NFKB_CYTOKINE_OUTPUT|IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
+TRIM25	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1126/science.ads4539			
+TRIM4	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1093/jmcb/mju005			
+XIST	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	Positive	Broad	high		10.1172/jci.insight.169344			
+YWHAE	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1016/j.chom.2012.04.006	14-3-3ε		
+YWHAH	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1371/journal.ppat.1007582	14-3-3η		
+ZBP1	NASP_RNA_SENSING	rna_sensing_core	ZBP1	Early	positive	Broad	low	IFN_I_OUTPUT	10.1038/nature06013		dna_sensor; rna_sensor	
+ZC3HAV1	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1038/s42003-024-07116-2	ZAP; PARP13	rna_sensor	
+BAK1	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	low		10.1038/s41586-023-06621-4			
+BAX	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	high		10.1038/s41586-023-06621-4			
+CMPK2	MITOCHONDRIAL_NA_SENSING	mt_na_biogenesis	cGAS-STING	Active	positive	Broad	low	IFN_I_OUTPUT	10.1038/s41586-018-0372-z			
+MT-ATP8	MITOCHONDRIAL_NA_SENSING	mt_na_substrate	cGAS-STING	Active	positive	Broad	high		10.1038/s41467-024-51363-0			
+MT-ND1	MITOCHONDRIAL_NA_SENSING	mt_na_substrate	RLR	Active	positive	Broad	high		10.1038/s41467-024-51363-0			
+MT-ND6	MITOCHONDRIAL_NA_SENSING	mt_na_substrate	RLR	Active	positive	Broad	high		10.1038/s41467-024-51363-0			
+PNPT1	MITOCHONDRIAL_NA_SENSING	mt_na_restraint	cGAS-STING	Early	inverse	Broad	medium		10.1038/s41586-018-0363-0			
+POLRMT	MITOCHONDRIAL_NA_SENSING	mt_na_biogenesis	cGAS-STING	Active	positive	Broad	low		10.1016/j.celrep.2022.111178			
+PPIF	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	high		10.1038/s41580-021-00433-y			
+REXO2	MITOCHONDRIAL_NA_SENSING	mt_na_restraint	cGAS-STING	Early	inverse	Broad	medium		10.1093/nar/gkaa302			
+TFAM	MITOCHONDRIAL_NA_SENSING	mt_na_restraint	cGAS-STING	Early	inverse	Broad	medium	AGING_HALLMARKS	10.1038/nature14156			
+VDAC1	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	high		10.1126/science.aav4011			
+VDAC2	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	high		10.1126/science.aav4011			
+VDAC3	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	medium		10.1126/science.aav4011			
+YME1L1	MITOCHONDRIAL_NA_SENSING	mt_na_restraint	cGAS-STING	Early	inverse	Broad	high		10.1038/s42255-021-00385-9			
+DUSP1	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	high		10.1042/BST0341018			
 NFKBIA	NASP_FEEDBACK	induced_negative_regulator		Early	positive	Broad	high	SENESCENCE|SASP|SIGNALING_CONTEXT | NFKB_CYTOKINE_OUTPUT	10.1101/cshperspect.a000034			
 SOCS1	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Immune-enriched	medium		10.1038/s41467-018-04013-1			
 SOCS3	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	high		10.1161/ATVBAHA.110.207464			
 TNFAIP3	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	high	NFKB_CYTOKINE_OUTPUT	10.1182/blood-2008-08-174110			
 USP18	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	low		10.1042/BSR20180250			
+ZFP36	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	high		10.1126/science.281.5379.1001			
 AARS1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	medium		10.1038/s41586-024-07992-y		l_lactate_sensor	
 AARS2	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	low		10.1038/s41586-024-07992-y		l_lactate_sensor	
 ADAR	NASP_RESTRICTION	rna_restriction	RLR	Early	positive	Broad	high		10.1126/science.aac7049			
@@ -49,8 +115,6 @@ AURKA	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	low		
 BNIP3	NASP_RESTRICTION	mitophagy_restraint	cGAS-STING	Active	positive	Broad	high		10.1083/jcb.202408166			
 BNIP3L	NASP_RESTRICTION	mitophagy_restraint		Active	positive	Broad	high		10.1038/nature07006	Nix		
 C1QBP	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	high		10.1073/pnas.0811029106			
-C1QBP	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	high		10.1073/pnas.0811029106			
-CDK1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	medium		10.1038/s41421-020-0162-2			
 CDK1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	medium		10.1038/s41421-020-0162-2			
 DDX46	NASP_RESTRICTION	sensing_checkpoint	RLR	Active	positive	Broad	medium		10.1038/ni.3830			
 DDX46	NASP_RESTRICTION	rna_restriction	RLR	Active	positive	Broad	medium		10.1038/ni.3830			
@@ -83,7 +147,6 @@ PRKRA	NASP_RESTRICTION	induced_negative_regulator	PKR	Early	positive	Broad	mediu
 PRMT1	NASP_RESTRICTION	induced_negative_regulator	cGAS-STING	Active	positive	Broad	high		10.1038/s41467-023-38443-3			
 PRMT5	NASP_RESTRICTION	induced_negative_regulator	cGAS-STING	Active	positive	Broad	low		10.1126/sciadv.abc1834			
 RIOK3	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	high		10.1016/j.celrep.2015.03.027			
-RIOK3	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	high		10.1016/j.celrep.2015.03.027			
 RNASEH2A	NASP_RESTRICTION	dna_restriction	cGAS-STING	Active	positive	Broad	low		10.1038/s41467-022-30604-0			
 RNASEH2B	NASP_RESTRICTION	dna_restriction	cGAS-STING	Active	positive	Broad	high		10.1038/s41467-022-30604-0			
 RNASEH2C	NASP_RESTRICTION	dna_restriction	cGAS-STING	Active	positive	Broad	medium		10.1038/s41467-022-30604-0			
@@ -102,57 +165,12 @@ TREX1	NASP_RESTRICTION	dna_restriction	cGAS-STING	Early	positive	Broad	low		10.1
 TRIM28	NASP_RESTRICTION	te_silencing	Multi	Early	positive	Broad	medium		10.1038/nature08674	KAP1		
 TRIM29	NASP_RESTRICTION	induced_negative_regulator	cGAS-STING	Active	positive	Immune-enriched	high		10.1038/s41467-017-00101-w			
 TRIM40	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low		10.1016/j.celrep.2017.10.020			
-TRIM40	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low		10.1016/j.celrep.2017.10.020			
 WWTR1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	high		10.1038/ncb3496			
 YAP1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	high		10.1038/ncb3496			
 ZNF598	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low		10.1016/j.celrep.2019.07.081			
 ZNF598	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low		10.1016/j.celrep.2019.07.081			
 ZNF91	NASP_RESTRICTION	te_restriction_factor	Multi	Early	positive	Broad	high		10.1038/nature13760			
 ZNF93	NASP_RESTRICTION	te_silencing	Multi	Early	positive	Broad	low		10.1038/nature13760			
-DDX1	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1016/j.immuni.2011.03.027	 	rna_sensor	
-DDX21	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	high		10.1016/j.bbrc.2016.03.120		rna_sensor	
-DDX41	NASP_RNA_SENSING	rna_sensing_core	cGAS-STING	Early	positive	Immune-enriched	low		10.1038/ni.2091		dna_sensor; rna_sensor	
-DDX58	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	high		10.1038/ni1087	RIGI; RIG-I	rna_sensor	
-DDX6	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.3390/ijms19071877		rna_sensor	
-DDX60	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium	IFN_I_OUTPUT	10.1128/MCB.01368-10		rna_sensor	
-DDX60	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium	IFN_I_OUTPUT	10.1128/MCB.01368-10			
-DDX60L	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1128/JVI.01297-15		rna_sensor	
-DHX16	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	low		10.1016/j.celrep.2022.110434		rna_sensor	
-DHX33	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	low		10.1016/j.immuni.2013.07.001		rna_sensor	
-DHX36	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1038/s41467-019-10432-5		dna_sensor; rna_sensor	
-DHX58	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1073/pnas.0606699104	LGP2	rna_sensor	
-DHX9	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Immune-enriched	medium		10.4049/jimmunol.1101307		dna_sensor; rna_sensor	
-HNRNPA2B1	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1126/science.aav0758		dna_sensor; rna_sensor	
-IFIH1	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1038/nature04734	MDA5	rna_sensor	
-ITPRIP	NASP_RNA_SENSING	sensing_checkpoint	RLR	Active	positive	Broad	medium		10.1128/jvi.00507-18			
-KDM1A	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1371/journal.ppat.1009918	LSD1		
-LRRFIP1	NASP_RNA_SENSING	rna_sensing_core	cGAS-STING	Early	positive	Broad	high		10.1038/ni.1876		dna_sensor; rna_sensor	
-LYST	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Active	positive	Broad	high		10.1084/jem.20141461			
-MAVS	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1016/j.cell.2005.08.012			
-MEX3C	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1073/pnas.1401674111			
-NOD2	NASP_RNA_SENSING	rna_sensing_core	NLR	Active	positive	Immune-enriched	low		10.1038/mi.2011.29		rna_sensor	
-PARP9	NASP_RNA_SENSING	rna_sensing_core	Noncanonical_RNA	Active	positive	Immune-enriched	medium		10.1038/s41467-021-23003-4			
-PPP1CA	NASP_RNA_SENSING	sensing_checkpoint	RLR	Early	positive	Broad	high		10.1016/j.immuni.2012.11.018	PP1α		
-PPP1CC	NASP_RNA_SENSING	sensing_checkpoint	RLR	Early	positive	Broad	high		10.1016/j.immuni.2012.11.018	PP1γ		
-PPP1R12C	NASP_RNA_SENSING	sensing_checkpoint	RLR	Active	positive	Broad	medium		10.1016/j.cell.2022.08.011	AAVS1		
-RNASE2	NASP_RNA_SENSING	rna_restriction	TLR	Early	positive	Immune-enriched	low		10.1016/j.immuni.2020.03.009			
-RNASET2	NASP_RNA_SENSING	rna_restriction	TLR	Early	positive	Broad	high		10.1016/j.cell.2019.11.001			
-RNF135	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1074/jbc.M804259200			
-RPSA	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1038/s41467-023-43784-0		dna_sensor; rna_sensor	
-SIDT1	NASP_RNA_SENSING	rna_sensing_endosomal	RLR	Active	positive	Broad	medium		10.4049/jimmunol.1801369			
-SIDT2	NASP_RNA_SENSING	rna_sensing_endosomal	RLR	Active	positive	Broad	low		10.1016/j.immuni.2017.08.007			
-SLC15A4	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low		10.1073/pnas.1014051107			
-TASL	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low		10.1016/j.celrep.2023.112916			
-TLR3	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1038/35099560		rna_sensor	
-TLR7	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
-TLR8	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	NFKB_CYTOKINE_OUTPUT|IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
-TRIM25	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1126/science.ads4539			
-TRIM4	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1093/jmcb/mju005			
-XIST	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	Positive	Broad	high		10.1172/jci.insight.169344			
-YWHAE	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1016/j.chom.2012.04.006	14-3-3ε		
-YWHAH	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1371/journal.ppat.1007582	14-3-3η		
-ZBP1	NASP_RNA_SENSING	rna_sensing_core	ZBP1	Early	positive	Broad	low	IFN_I_OUTPUT	10.1038/nature06013		dna_sensor; rna_sensor	
-ZC3HAV1	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1038/s42003-024-07116-2	ZAP; PARP13	rna_sensor	
 MECP2	TE_DEREPRESSION	te_activator	cGAS-STING	Early	positive	Broad	high		10.1038/s41467-025-65713-z			
 ATF3	TE_DEREPRESSION	te_activator	RLR	Active	positive	Broad	high		10.1038/s43587-024-00745-6			
 FOXA1	TE_DEREPRESSION	te_activator	cGAS-STING	Early	positive	Liver-enriched	medium		10.1038/s41586-018-0784-9			
@@ -222,18 +240,17 @@ IFNA1	IFN_I_OUTPUT	ifn_i_ligand		Active	positive	Broad	low		10.1016/j.gene.2007.
 IFNB1	IFN_I_OUTPUT	ifn_i_ligand		Active	positive	Broad	low		10.1007/s12026-012-8293-7			
 IFNG	IFN_I_OUTPUT	ifn_gamma_ligand		Active	positive	Immune-enriched	medium	SASP	10.1002/j.1460-2075.1982.tb01277.x			
 ISG15	IFN_I_OUTPUT	ifn_i_isg		Active	positive	Broad	high	SASP	10.1038/s41579-018-0020-5			
+ISG20	IFN_I_OUTPUT	ifn_antiviral_effector		Active	positive	Broad	high		10.1128/mSphere.00209-18			
 LY6E	IFN_I_OUTPUT	ifn_i_isg		Active	positive	Broad	high		10.1038/s41467-018-06000-y			
 MX1	IFN_I_OUTPUT	ifn_i_isg		Active	positive	Broad	high		10.1016/j.micinf.2007.09.010			
 MX2	IFN_I_OUTPUT	ifn_i_isg		Active	positive	Broad	medium		10.1038/nature12542			
 NLRC5	IFN_I_OUTPUT	ifn_antigen_presentation		Active	positive	Broad	medium		10.1073/pnas.1008684107			
-OAS1	IFN_I_OUTPUT	oas_rnase_effector	OAS	Active	positive	Broad	medium	NASP_RNA_SENSING	10.1089/jir.2023.0098		rna_sensor	
-OAS2	IFN_I_OUTPUT	oas_rnase_effector	OAS	Active	positive	Broad	medium	NASP_RNA_SENSING	10.1089/jir.2023.0098		rna_sensor	
-OAS3	IFN_I_OUTPUT	oas_rnase_effector	OAS	Active	positive	Broad	low	NASP_RNA_SENSING	10.1089/jir.2023.0098		rna_sensor	
 OASL	IFN_I_OUTPUT	ifn_i_isg	RLR	Active	positive	Broad	low		10.1016/j.coviro.2023.101329			
 PSMB8	IFN_I_OUTPUT	ifn_antigen_presentation		Active	positive	Broad	high		10.1371/journal.pone.0180958			
 PSMB9	IFN_I_OUTPUT	ifn_antigen_presentation		Active	positive	Broad	high		10.1371/journal.pone.0180958			
 RNASEL	IFN_I_OUTPUT	oas_rnase_effector		Active	positive	Broad	low		10.1128/jvi.01471-07			
 RSAD2	IFN_I_OUTPUT	ifn_antiviral_effector		Active	positive	Broad	medium		10.3390/pathogens14050510			
+RTP4	IFN_I_OUTPUT	ifn_i_isg		Active	positive	Broad	low		10.1038/nature09907			
 SAMD9	IFN_I_OUTPUT	ifn_antiviral_effector		Active	positive	Broad	medium		10.1128/mBio.00385-13			
 SAMD9L	IFN_I_OUTPUT	ifn_antiviral_effector		Active	positive	Broad	medium		10.1128/mBio.00385-13			
 SIGLEC1	IFN_I_OUTPUT	ifn_i_isg		Active	positive	Myeloid-enriched	low		10.3389/fmed.2022.979373			
@@ -297,7 +314,7 @@ TNFSF10	INFLAMMAGING	inflammaging_cytokine		Post-NASP	positive	Immune-enriched	h
 TREM1	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Myeloid-enriched	high		10.1038/s41593-024-01610-w			
 TREM2	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Adipose/Immune-enriched	medium		10.1038/s43587-026-01101-6			
 VSIG4	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Immune-enriched	medium		10.1038/s41586-026-10542-3			
-AIM2	INFLAMMASOME	inflammasome_dna_sensor	ALR	Early	positive	Immune-enriched	low		10.1016/j.jsb.2017.08.001	dna_sensor		
+AIM2	INFLAMMASOME	inflammasome_sensor	ALR	Early	positive	Immune-enriched	low		10.1016/j.jsb.2017.08.001		dna_sensor	
 CARD8	INFLAMMASOME	inflammasome_sensor		Active	positive	Broad	medium		10.1126/science.abe1707			
 CASP1	INFLAMMASOME	inflammasome_core		Active	positive	Immune-enriched	medium		10.1038/ni.1703			
 CASP4	INFLAMMASOME	inflammasome_sensor		Active	positive	Broad	medium		10.1038/nature13683			
@@ -311,8 +328,8 @@ IL1B	INFLAMMASOME	inflammasome_output		Active	positive	Myeloid-enriched	high	NFK
 IL33	INFLAMMASOME	inflammasome_output		Active	positive	Epithelial-enriched	high		10.1242/jcs.207365			
 NAIP	INFLAMMASOME	inflammasome_sensor	NLR	Post-NASP	positive	Intestinal-enriched	high		10.1016/j.coi.2015.01.010			
 NLRC4	INFLAMMASOME	inflammasome_core	NLR	Active	positive	Myeloid-enriched	low		10.1073/pnas.1710433114			
-NLRP1	INFLAMMASOME	inflammasome_sensor	NLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1126/science.abd0811	rna_sensor		
-NLRP3	INFLAMMASOME	inflammasome_sensor	NLR	Post-NASP	positive	Immune-enriched	low		10.1111/acel.13050			
+NLRP1	INFLAMMASOME	inflammasome_sensor	NLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1126/science.abd0811		rna_sensor	
+NLRP3	INFLAMMASOME	inflammasome_sensor	NLR	Post-NASP	positive	Immune-enriched	low		10.1111/acel.13050		inflammasome_sensor	
 NLRP6	INFLAMMASOME	inflammasome_sensor	NLR	Post-NASP	positive	Intestinal-enriched	low		10.1038/s42003-022-03491-w			
 PYCARD	INFLAMMASOME	inflammasome_core		Active	positive	Immune-enriched	high		10.1242/jcs.207365			
 ASNS	ISR	isr_output		Active	positive	Broad	medium		10.1016/S0021-9258(19)61468-7			
@@ -335,14 +352,6 @@ RICTOR	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Broad	high		10.1016/j.c
 RPS6KB1	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Liver/Adipose-enriched	medium		10.1016/S0092-8674(02)00808-5			
 RPTOR	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Broad	high		10.1016/S0092-8674(02)00833-4			
 STK11	METABOLIC_CONTEXT	ampk_signaling		Active	positive	Broad	medium		10.1016/j.cub.2003.10.031			
-BAK1	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	low		10.1038/s41586-023-06621-4			
-BAX	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Early	positive	Broad	high		10.1038/s41586-023-06621-4			
-MT-ATP8	MITOCHONDRIAL_NA_SENSING	mt_na_substrate	cGAS-STING	Active	positive	Broad	high		10.1038/s41467-024-51363-0			
-MT-ND1	MITOCHONDRIAL_NA_SENSING	mt_na_substrate	RLR	Active	positive	Broad	high		10.1038/s41467-024-51363-0			
-MT-ND6	MITOCHONDRIAL_NA_SENSING	mt_na_substrate	RLR	Active	positive	Broad	high		10.1038/s41467-024-51363-0			
-VDAC1	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Active	positive	Broad	high		10.1126/science.aav4011			
-VDAC2	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Active	positive	Broad	high		10.1126/science.aav4011			
-VDAC3	MITOCHONDRIAL_NA_SENSING	mtdna_release	cGAS-STING	Active	positive	Broad	medium		10.1126/science.aav4011			
 BIRC3	NFKB_CYTOKINE_OUTPUT	nfkb_output		Active	positive	Broad	medium		10.1016/B978-0-12-801430-1.00002-0	c-IAP2		
 CCL2	NFKB_CYTOKINE_OUTPUT	nfkb_output		Active	positive	Broad	medium	SASP; NFKB_CYTOKINE_OUTPUT	10.4049/jimmunol.153.5.2052	MCP-1		
 CXCL1	NFKB_CYTOKINE_OUTPUT	nfkb_output		Active	positive	Broad	high	SASP; NFKB_CYTOKINE_OUTPUT	10.1152/ajpendo.00347.2013			
@@ -390,7 +399,6 @@ CST4	SASP	sasp_output		Post-NASP	positive	Salivary-enriched	medium		10.1038/s414
 CTNNB1	SASP	sasp_regulator		Post-NASP	positive	Broad	high		10.1038/s41467-022-32552-1			SenMayo
 CTSB	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41467-022-32552-1			SenMayo
 CXCL1	SASP	sasp_output		Post-NASP	positive	Broad	high	NFKB_CYTOKINE_OUTPUT	10.1038/s41580-024-00738-8			SenNet
-CXCL1	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41580-024-00738-8			SenNet
 CXCL10	SASP	sasp_output		Post-NASP	positive	Broad	medium		10.1038/s41580-024-00738-8			SenNet
 CXCL12	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41467-022-32552-1			SenMayo
 CXCL16	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41580-024-00738-8			SenNet
@@ -437,6 +445,7 @@ IL1B	SASP	sasp_output		Post-NASP	positive	Broad	high	NFKB_CYTOKINE_OUTPUT	10.103
 IL2	SASP	sasp_output		Post-NASP	positive	Immune-enriched	low		10.1038/s41467-022-32552-1			SenMayo
 IL32	SASP	sasp_output		Post-NASP	positive	Immune-enriched	high		10.1038/s41467-022-32552-1			SenMayo
 IL6	SASP	sasp_output		Post-NASP	positive	Broad	medium	NFKB_CYTOKINE_OUTPUT	10.1038/s41580-024-00738-8			SenNet
+IL6R	SASP	sasp_receptor		Post-NASP	positive	Broad	medium		10.1126/science.3136546			
 IL6ST	SASP	sasp_receptor		Post-NASP	positive	Broad	high		10.1111/acel.14258			
 IL7	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41580-024-00738-8			SenNet
 INHA	SASP	sasp_output		Post-NASP	positive	Gonadal-enriched	medium		10.1038/s41467-022-32552-1			SenMayo
@@ -467,7 +476,6 @@ NRG1	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41467-022-32552-1
 PAPPA	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41467-022-32552-1			SenMayo
 PECAM1	SASP	sasp_receptor		Post-NASP	positive	Endothelial-enriched	medium		10.1038/s41467-022-32552-1			SenMayo
 PGF	SASP	sasp_output		Post-NASP	positive	Endothelial-enriched	medium		10.1038/s41467-022-32552-1			SenMayo
-PIGF	SASP	sasp_output		Post-NASP	positive	Broad	low		10.1038/s41467-022-32552-1			SenMayo
 PLAT	SASP	sasp_output		Post-NASP	positive	Broad	medium		10.1038/s41467-022-32552-1			SenMayo
 PLAU	SASP	sasp_output		Post-NASP	positive	Broad	high		10.1038/s41467-022-32552-1			SenMayo
 PTBP1	SASP	sasp_regulator		Post-NASP	positive	Broad	medium		10.1016/j.ccell.2018.06.007			
@@ -533,47 +541,49 @@ TP53BP1	SENESCENCE	senescence_core		Post-NASP	inverse	Broad	high		10.1038/s41580
 ULBP1	SENESCENCE	senescence_surface		Post-NASP	positive	Broad	low		10.18632/aging.100897			
 ULBP2	SENESCENCE	senescence_surface		Post-NASP	positive	Broad	low		10.18632/aging.100897			
 ULBP3	SENESCENCE	senescence_surface		Post-NASP	positive	Broad	low		10.18632/aging.100897			
-BTK	SIGNALING_CONTEXT	signal_kinase	cGAS-STING	Active	positive	Immune-enriched	low		10.1016/j.celrep.2015.01.039			
-CHUK	SIGNALING_CONTEXT	signal_transduction		Active	positive	Broad	low		10.1002/embr.201337983			
-ELAVL1	SIGNALING_CONTEXT	signal_transduction	Multi	Active	positive	Broad	medium		10.1038/s44318-024-00331-x			
-HNRNPM	SIGNALING_CONTEXT	signal_transduction	Multi	Active	positive	Broad	high		10.1038/s44318-024-00331-x			
-IKBKB	SIGNALING_CONTEXT	signal_transduction		Active	positive	Broad	medium		10.1002/embr.201337983			
-IKBKE	SIGNALING_CONTEXT	signal_transduction		Active	positive	Broad	low		10.1038/ni921			
-IKBKG	SIGNALING_CONTEXT	signal_transduction		Active	positive	Broad	low		10.1002/embr.201337983			
-IRAK1	SIGNALING_CONTEXT	signal_kinase	TLR	Early	positive	Broad	low	SIGNALING_CONTEXT|IFN_I_OUTPUT	10.1084/jem.20042372			
-IRAK2	SIGNALING_CONTEXT	signal_transduction	TLR	Active	positive	Broad	medium		10.3389/fimmu.2023.1133354			
-IRAK4	SIGNALING_CONTEXT	signal_kinase	TLR	Early	positive	Broad	low	SIGNALING_CONTEXT|IFN_I_OUTPUT	10.1016/j.immuni.2005.09.016			
-IRF1	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	high		10.1073/pnas.0607181103			
-IRF3	SIGNALING_CONTEXT	transcriptional_effector		Early	positive	Broad	medium		10.1038/ni921			
-IRF5	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Immune-enriched	low		10.1093/intimm/dxy032			
-IRF7	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	medium	SIGNALING_CONTEXT	10.1038/nature03464			
-IRF9	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	medium		10.4161/jkst.27521			
-JAK1	SIGNALING_CONTEXT	signal_transduction		Active	positive	Broad	high		10.1038/s41392-021-00791-1			
-JAK2	SIGNALING_CONTEXT	signal_transduction		Active	positive	Broad	medium		10.1038/s41392-021-00791-1			
-MAP3K7	SIGNALING_CONTEXT	signal_kinase	Multi	Active	positive	Broad	medium		10.1038/ni1255			
-MYD88	SIGNALING_CONTEXT	adaptor_signaling	TLR	Early	positive	Broad	medium		10.1038/ni758			
-NFKB1	SIGNALING_CONTEXT	transcriptional_effector		Early	positive	Broad	high	SENESCENCE|SASP|SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
-NFKB2	SIGNALING_CONTEXT	transcriptional_effector		Early	positive	Broad	medium	SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
-OTULIN	SIGNALING_CONTEXT	ubiquitin_regulation		Active	positive	Broad	medium		10.1016/j.molcel.2014.03.016			
-PARP14	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	high	SIGNALING_CONTEXT	10.1038/s41467-023-41737-1			
-REL	SIGNALING_CONTEXT	transcriptional_effector		Early	positive	Broad	high	SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
-RELA	SIGNALING_CONTEXT	transcriptional_effector		Early	positive	Broad	low	SASP|SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
-RELB	SIGNALING_CONTEXT	transcriptional_effector		Early	positive	Broad	medium	SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
-RIPK2	SIGNALING_CONTEXT	signal_transduction	Multi	Active	positive	Immune-enriched	low		10.1038/s41467-018-06451-3			
-SENP2	SIGNALING_CONTEXT	ubiquitin_regulation	Multi	Active	inverse	Broad	medium		10.1093/jmcb/mjr020			
-SENP7	SIGNALING_CONTEXT	signal_transduction	cGAS-STING	Active	positive	Broad	high		10.1371/journal.ppat.1006156			
-STAT1	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	high		10.1038/nrm909			
-STAT2	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	medium		10.4161/jkst.27521			
-STAT3	SIGNALING_CONTEXT	transcriptional_effector		Active	positive	Broad	high		10.1038/s41392-021-00791-1			
-TBK1	SIGNALING_CONTEXT	signal_transduction		Early	positive	Broad	medium		10.1038/ni921			
-TICAM1	SIGNALING_CONTEXT	adaptor_signaling	TLR	Early	positive	Broad	low	NASP_RNA_SENSING	10.1038/ni886			
-TICAM2	SIGNALING_CONTEXT	adaptor_signaling	TLR	Early	positive	Immune-enriched	low		10.1038/nri1391			
-TIRAP	SIGNALING_CONTEXT	adaptor_signaling	TLR	Early	positive	Broad	low		10.1155/2023/2899271			
-TLR4	SIGNALING_CONTEXT	surface_tlr_sensor	TLR	Post-NASP	positive	Adipose/Immune-enriched	medium	NFKB_CYTOKINE_OUTPUT	10.3892/ijmm.2020.4530		lps_sensor	
-TRAF3	SIGNALING_CONTEXT	adaptor_signaling	cGAS-STING	Early	positive	Broad	medium	NFKB_CYTOKINE_OUTPUT	10.1038/s41392-022-01287-2			
-TRAF6	SIGNALING_CONTEXT	adaptor_signaling	cGAS-STING	Early	positive	Broad	low		10.1016/j.bbrc.2019.05.022			
-TRIM21	SIGNALING_CONTEXT	ubiquitin_regulation		Active	positive	Broad	low		10.1038/ni.2492			
-TRIM3	SIGNALING_CONTEXT	ubiquitin_regulation	TLR	Active	positive	Broad	low		10.1073/pnas.2002472117			
-TRIM56	SIGNALING_CONTEXT	ubiquitin_regulation	cGAS-STING	Active	positive	Broad	medium		10.1038/s41467-018-02936-3			
-UNC93B1	SIGNALING_CONTEXT	adaptor_signaling	TLR	Early	positive	Broad	low		10.7554/eLife.00291			
-XBP1	SIGNALING_CONTEXT	transcriptional_effector	TLR	Active	positive	Broad	high		10.1038/ni.1857			
+BTK	SIGNALING_CONTEXT_TBK1_IRF	signal_kinase	cGAS-STING	Active	positive	Immune-enriched	low		10.1016/j.celrep.2015.01.039			
+CHUK	SIGNALING_CONTEXT_NFKB	signal_transduction		Active	positive	Broad	low		10.1002/embr.201337983			
+ELAVL1	SIGNALING_CONTEXT_NFKB	signal_transduction	Multi	Active	positive	Broad	medium		10.1038/s44318-024-00331-x			
+HNRNPM	SIGNALING_CONTEXT_TBK1_IRF	signal_transduction	Multi	Active	positive	Broad	high		10.1038/s44318-024-00331-x			
+IKBKB	SIGNALING_CONTEXT_NFKB	signal_transduction		Active	positive	Broad	medium		10.1002/embr.201337983			
+IKBKE	SIGNALING_CONTEXT_TBK1_IRF	signal_transduction		Active	positive	Broad	low		10.1038/ni921			
+IKBKG	SIGNALING_CONTEXT_NFKB	signal_transduction		Active	positive	Broad	low		10.1002/embr.201337983			
+IRAK1	SIGNALING_CONTEXT_TLR	signal_kinase	TLR	Early	positive	Broad	low	SIGNALING_CONTEXT|IFN_I_OUTPUT	10.1084/jem.20042372			
+IRAK2	SIGNALING_CONTEXT_TLR	signal_transduction	TLR	Active	positive	Broad	medium		10.3389/fimmu.2023.1133354			
+IRAK4	SIGNALING_CONTEXT_TLR	signal_kinase	TLR	Early	positive	Broad	low	SIGNALING_CONTEXT|IFN_I_OUTPUT	10.1016/j.immuni.2005.09.016			
+IRF1	SIGNALING_CONTEXT_IFN_JAK_STAT	transcriptional_effector		Active	positive	Broad	high		10.1073/pnas.0607181103			
+IRF3	SIGNALING_CONTEXT_TBK1_IRF	transcriptional_effector		Early	positive	Broad	medium		10.1038/ni921			
+IRF5	SIGNALING_CONTEXT_TLR	transcriptional_effector		Active	positive	Immune-enriched	low		10.1093/intimm/dxy032			
+IRF7	SIGNALING_CONTEXT_TBK1_IRF	transcriptional_effector		Active	positive	Broad	medium	SIGNALING_CONTEXT	10.1038/nature03464			
+IRF9	SIGNALING_CONTEXT_IFN_JAK_STAT	transcriptional_effector		Active	positive	Broad	medium		10.4161/jkst.27521			
+JAK1	SIGNALING_CONTEXT_IFN_JAK_STAT	signal_transduction		Active	positive	Broad	high		10.1038/s41392-021-00791-1			
+JAK2	SIGNALING_CONTEXT_IFN_JAK_STAT	signal_transduction		Active	positive	Broad	medium		10.1038/s41392-021-00791-1			
+MAP3K7	SIGNALING_CONTEXT_NFKB	signal_kinase	Multi	Active	positive	Broad	medium		10.1038/ni1255			
+MYD88	SIGNALING_CONTEXT_TLR	adaptor_signaling	TLR	Early	positive	Broad	medium		10.1038/ni758			
+NFKB1	SIGNALING_CONTEXT_NFKB	transcriptional_effector		Early	positive	Broad	high	SENESCENCE|SASP|SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
+NFKB2	SIGNALING_CONTEXT_NFKB	transcriptional_effector		Early	positive	Broad	medium	SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
+OTULIN	SIGNALING_CONTEXT_NFKB	ubiquitin_regulation		Active	inverse	Broad	medium		10.1016/j.molcel.2014.03.016			
+PARP14	SIGNALING_CONTEXT_IFN_JAK_STAT	transcriptional_effector		Active	positive	Broad	high	SIGNALING_CONTEXT	10.1038/s41467-023-41737-1			
+REL	SIGNALING_CONTEXT_NFKB	transcriptional_effector		Early	positive	Broad	high	SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
+RELA	SIGNALING_CONTEXT_NFKB	transcriptional_effector		Early	positive	Broad	low	SASP|SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
+RELB	SIGNALING_CONTEXT_NFKB	transcriptional_effector		Early	positive	Broad	medium	SIGNALING_CONTEXT	10.1101/cshperspect.a000034			
+RIPK2	SIGNALING_CONTEXT_NFKB	signal_transduction	Multi	Active	positive	Immune-enriched	low		10.1038/s41467-018-06451-3			
+SENP2	SIGNALING_CONTEXT_NFKB	ubiquitin_regulation	Multi	Active	inverse	Broad	medium		10.1093/jmcb/mjr020			
+SENP7	SIGNALING_CONTEXT_TBK1_IRF	signal_transduction	cGAS-STING	Active	positive	Broad	high		10.1371/journal.ppat.1006156			
+STAT1	SIGNALING_CONTEXT_IFN_JAK_STAT	transcriptional_effector		Active	positive	Broad	high		10.1038/nrm909			
+STAT2	SIGNALING_CONTEXT_IFN_JAK_STAT	transcriptional_effector		Active	positive	Broad	medium		10.4161/jkst.27521			
+STAT3	SIGNALING_CONTEXT_IFN_JAK_STAT	transcriptional_effector		Active	positive	Broad	high		10.1038/s41392-021-00791-1			
+TBK1	SIGNALING_CONTEXT_TBK1_IRF	signal_transduction		Early	positive	Broad	medium		10.1038/ni921			
+TICAM1	SIGNALING_CONTEXT_TLR	adaptor_signaling	TLR	Early	positive	Broad	low	NASP_RNA_SENSING	10.1038/ni886			
+TICAM2	SIGNALING_CONTEXT_TLR	adaptor_signaling	TLR	Early	positive	Immune-enriched	low		10.1038/nri1391			
+TIRAP	SIGNALING_CONTEXT_TLR	adaptor_signaling	TLR	Early	positive	Broad	low		10.1155/2023/2899271			
+TLR4	SIGNALING_CONTEXT_TLR	surface_tlr_sensor	TLR	Post-NASP	positive	Adipose/Immune-enriched	medium	NFKB_CYTOKINE_OUTPUT	10.3892/ijmm.2020.4530		lps_sensor	
+TRAF3	SIGNALING_CONTEXT_TBK1_IRF	adaptor_signaling	cGAS-STING	Early	positive	Broad	medium	NFKB_CYTOKINE_OUTPUT	10.1038/s41392-022-01287-2			
+TRAF6	SIGNALING_CONTEXT_TLR	adaptor_signaling	cGAS-STING	Early	positive	Broad	low		10.1016/j.bbrc.2019.05.022			
+TRIM21	SIGNALING_CONTEXT_TBK1_IRF	ubiquitin_regulation		Active	inverse	Broad	low		10.1038/ni.2492			
+TRIM3	SIGNALING_CONTEXT_TLR	ubiquitin_regulation	TLR	Active	positive	Broad	low		10.1073/pnas.2002472117			
+TRIM56	SIGNALING_CONTEXT_TBK1_IRF	ubiquitin_regulation	cGAS-STING	Active	positive	Broad	medium		10.1038/s41467-018-02936-3			
+UNC93B1	SIGNALING_CONTEXT_TLR	adaptor_signaling	TLR	Early	positive	Broad	low		10.7554/eLife.00291			
+XBP1	SIGNALING_CONTEXT_TLR	transcriptional_effector	TLR	Active	positive	Broad	high		10.1038/ni.1857			
+IFNAR1	SIGNALING_CONTEXT_IFN_JAK_STAT	signal_transduction		Active	positive	Broad	medium		10.1016/0092-8674(90)90738-Z			
+IFNAR2	SIGNALING_CONTEXT_IFN_JAK_STAT	signal_transduction		Active	positive	Broad	medium		10.1074/jbc.270.37.21606			

@@ -8,6 +8,7 @@
 | MNDA | dna_sensing_alr | ALR | Active | positive | Immune-enriched | high |  | [10.3389/fimmu.2024.1395035](https://doi.org/10.3389/fimmu.2024.1395035) |  |  |  |
 | PYHIN1 | dna_sensing_alr | ALR | Early | positive | Broad | medium |  | [10.15252/msb.20145808](https://doi.org/10.15252/msb.20145808) | IFIX | dna_sensor |  |
 | LMNB1 | dna_sensing_ccf | cGAS-STING | Early | inverse | Broad | medium | SENESCENCE | [10.1038/nature24050](https://doi.org/10.1038/nature24050) |  |  |  |
+| AIM2 | dna_sensing_core | ALR | Early | positive | Immune-enriched | low |  | [10.1038/ni.1702](https://doi.org/10.1038/ni.1702) |  | dna_sensor |  |
 | CGAS | dna_sensing_core | cGAS-STING | Early | positive | Broad | low |  | [10.1126/science.1229963](https://doi.org/10.1126/science.1229963) | MB21D1 | dna_sensor |  |
 | DDX41 | dna_sensing_core | cGAS-STING | Early | positive | Immune-enriched | low |  | [10.1038/ni.2091](https://doi.org/10.1038/ni.2091) |  | dna_sensor; rna_sensor |  |
 | DHX36 | dna_sensing_core | RLR | Early | positive | Immune-enriched | medium | NASP_RNA_SENSING | [10.1038/s41467-019-10432-5](https://doi.org/10.1038/s41467-019-10432-5) |  | dna_sensor; rna_sensor |  |
