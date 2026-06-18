@@ -43,11 +43,7 @@ def humanize_module_name(module_id: str) -> str:
     if normalized_module_id in MODULE_NAME_DISPLAY:
         return MODULE_NAME_DISPLAY[normalized_module_id]
 
-    tokens = [
-        token
-        for token in normalized_module_id.split("_")
-        if token
-    ]
+    tokens = [token for token in normalized_module_id.split("_") if token]
     if not tokens:
         return ""
 

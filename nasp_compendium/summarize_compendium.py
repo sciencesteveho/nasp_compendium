@@ -325,8 +325,7 @@ def _highest_degree_node(edges: list[dict[str, Any]]) -> str | None:
     degree_by_node: dict[str, int] = {}
     for edge in edges:
         for endpoint in ("source", "target"):
-            node = str(edge.get(endpoint, ""))
-            if node:
+            if node := str(edge.get(endpoint, "")):
                 degree_by_node[node] = degree_by_node.get(node, 0) + 1
 
     if not degree_by_node:
@@ -347,11 +346,11 @@ def _compact_edge_legend_label() -> str:
     ]
     rows_text = "\n".join(rows)
     return (
-        '<\n'
+        "<\n"
         '<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2" CELLPADDING="1">\n'
-        f'{rows_text}\n'
-        '</TABLE>\n'
-        '>'
+        f"{rows_text}\n"
+        "</TABLE>\n"
+        ">"
     )
 
 
@@ -381,6 +380,7 @@ def _add_compact_edge_legend(
             weight="0",
             minlen="0",
         )
+
 
 def _compact_edge_is_backbone(
     rel: str,
@@ -415,9 +415,7 @@ def _edge_weight(
     """Return the Graphviz weight for an edge."""
     if not compact:
         return "1.0"
-    if _compact_edge_is_backbone(rel, source, target):
-        return "2.0"
-    return "0.1"
+    return "2.0" if _compact_edge_is_backbone(rel, source, target) else "0.1"
 
 
 def _edge_minlen(
@@ -429,9 +427,7 @@ def _edge_minlen(
     """Return the Graphviz minlen for an edge."""
     if not compact:
         return "1"
-    if _compact_edge_is_backbone(rel, source, target):
-        return "1"
-    return "0"
+    return "1" if _compact_edge_is_backbone(rel, source, target) else "0"
 
 
 def _node_degrees(edges: list[dict[str, Any]]) -> dict[str, int]:
@@ -439,8 +435,7 @@ def _node_degrees(edges: list[dict[str, Any]]) -> dict[str, int]:
     degrees: dict[str, int] = {}
     for edge in edges:
         for endpoint in ("source", "target"):
-            node = str(edge.get(endpoint, ""))
-            if node:
+            if node := str(edge.get(endpoint, "")):
                 degrees[node] = degrees.get(node, 0) + 1
     return degrees
 
@@ -468,9 +463,7 @@ def _compact_leaf_rank_groups(
             groups.setdefault(source, set()).add(target)
 
     return {
-        anchor: sorted(leaves)
-        for anchor, leaves in groups.items()
-        if leaves
+        anchor: sorted(leaves) for anchor, leaves in groups.items() if leaves
     }
 
 
@@ -480,7 +473,7 @@ def _add_compact_leaf_rank_groups(
 ) -> None:
     """Keep weak leaf nodes in the same compact LR rank as their anchor."""
     for group_index, (anchor, leaves) in enumerate(sorted(rank_groups.items())):
-        with diagram.subgraph(name=f"compact_leaf_rank_{group_index}") as group:
+        with diagram.subgraph(name=f"compact_leaf_rank_{group_index}") as group:  # type: ignore
             group.attr(rank="same")
             group.node(anchor)
             for leaf in leaves:
@@ -684,21 +677,16 @@ def render(
         edge_annotation = ""
 
         if annotate_papers:
-            paper_ids = [str(paper_id) for paper_id in edge.get("papers") or []]
-            if paper_ids:
+            if paper_ids := [
+                str(paper_id) for paper_id in edge.get("papers") or []
+            ]:
                 citations = ", ".join(
                     format_citation(paper_id) for paper_id in paper_ids
                 )
                 edge_label = f"{relation_label}\n[{citations}]"
                 edge_annotation = format_edge_annotation(paper_ids)
 
-        if compact:
-            visible_edge_label = ""
-        elif annotate_papers:
-            visible_edge_label = ""
-        else:
-            visible_edge_label = edge_label
-
+        visible_edge_label = "" if compact or annotate_papers else edge_label
         use_backbone_layout = compact or annotate_papers
         edge_constraint = _edge_constraint(
             rel=rel,

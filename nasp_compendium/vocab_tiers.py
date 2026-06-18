@@ -127,7 +127,7 @@ def classify_term(
             term=term,
             tier=Tier.DRIFT,
             blocking=True,
-            message=f"'{term}' is a drift term ({reason}); use '{replacement}'.",
+            message=f"'{term}' is a drift term ({reason}); use '{replacement}'.",  # noqa: E501
             suggestion=replacement,
         )
 

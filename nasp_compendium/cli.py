@@ -360,7 +360,6 @@ def _load_compendium(
 
 def _run_render_graph(args: argparse.Namespace) -> None:
     """Dispatch the `render_graph` subcommand."""
-
     compendium = _load_compendium(args.directory)
     compendium = compendium.filtered(
         paper_ids=_parse_csv_values(args.paper_ids),

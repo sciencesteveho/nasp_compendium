@@ -1,4 +1,3 @@
-
 """Visualization utilities for gene modules and their taxonomy."""
 
 import colorsys
@@ -647,7 +646,7 @@ def _build_taxonomy_layout(
     class_gene_ribbons: list[dict] = []
     gene_cursor = 0.5 + gene_column_height / 2.0
     class_src_cursor = {seg["label"]: seg["y_top"] for seg in class_segments}
-    sibling_index = {name: 0 for name in classes}
+    sibling_index = dict.fromkeys(classes, 0)
 
     for row in module.itertuples():
         gene_color = _sibling_color(
@@ -758,6 +757,7 @@ def _draw_direction_legend(
       ax: Target axes.
       present_directions: Directions actually annotated on this module's genes.
       fontsize: Base font size for legend text.
+      y_anchor: Vertical axes fraction for the legend's lower edge.
     """
     present = set(present_directions)
     if handles := [
