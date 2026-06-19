@@ -45,6 +45,25 @@ def _write_marker_panel(path: Path) -> None:
     )
 
 
+def _write_sensor_panel(path: Path) -> None:
+    """Write a marker-gene panel with sensor annotations for tests."""
+    path.write_text(
+        "\n".join(
+            [
+                "gene_symbol\tmodule_id\tscoring_direction\tsensor",
+                "CGAS\tNASP_DNA_SENSING\tpositive\tdna_sensor",
+                "DDX58\tNASP_RNA_SENSING\tpositive\trna_sensor",
+                "DDX41\tNASP_DNA_SENSING\tpositive\tdna_sensor; rna_sensor",
+                "NLRP3\tINFLAMMASOME\tpositive\tinflammasome_sensor",
+                "MRE11\tNASP_DNA_SENSING\tpositive\tdna_damage_sensor",
+                "JMJD6\tNASP_DNA_SENSING\tpositive\tconfirmed",
+                "CGAS\tSIGNALING_CONTEXT\tpositive\tdna_sensor",
+            ]
+        )
+        + "\n"
+    )
+
+
 def test_modules_resolves_suffix_and_splits_signed_genes(
     tmp_path: Path,
 ) -> None:
@@ -128,3 +147,65 @@ def test_validate_dataset_reports_symbol_column_matches(
     assert validation_by_gene.loc["CGAS", "matched_var_name"] == "ENSG_CGAS"
     assert validation_by_gene.loc["CGAS", "match_source"] == "var.gene_symbol"
     assert not bool(validation_by_gene.loc["LMNB1", "present"])
+
+
+def test_sensors_filter_sensor_column_tokens(tmp_path: Path) -> None:
+    """Sensor helper filters exact DNA/RNA tags and all sensor-like tags."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_sensor_panel(panel_path)
+
+    assert GeneModules.sensors("rna", panel_path=panel_path) == [
+        "DDX58",
+        "DDX41",
+    ]
+    assert GeneModules.sensors("dna", panel_path=panel_path) == [
+        "CGAS",
+        "DDX41",
+    ]
+    assert GeneModules.sensors("dna_rna", panel_path=panel_path) == [
+        "CGAS",
+        "DDX58",
+        "DDX41",
+    ]
+    assert GeneModules.sensors("all", panel_path=panel_path) == [
+        "CGAS",
+        "DDX58",
+        "DDX41",
+        "NLRP3",
+        "MRE11",
+    ]
+
+
+def test_sensors_support_aliases_and_module_filter(tmp_path: Path) -> None:
+    """Sensor helper supports user-facing aliases and module scoping."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_sensor_panel(panel_path)
+    catalog = GeneModules.from_tsv(panel_path)
+
+    assert catalog.get_sensors("dna + rna") == ["CGAS", "DDX58", "DDX41"]
+    assert catalog.get_sensors("all", module="inflammasome") == ["NLRP3"]
+    assert catalog.get_sensors("dna", module="dna_sensing") == [
+        "CGAS",
+        "DDX41",
+    ]
+
+
+def test_sensors_can_return_matched_var_names(tmp_path: Path) -> None:
+    """Sensor helper can validate sensors against AnnData-like var metadata."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_sensor_panel(panel_path)
+    adata = FakeAnnData(
+        pd.DataFrame(
+            {"gene_symbol": ["CGAS", "NLRP3"]},
+            index=["ENSG_CGAS", "ENSG_NLRP3"],
+        )
+    )
+
+    sensors = GeneModules.sensors(
+        "all",
+        panel_path=panel_path,
+        adata=adata,
+        output="var_names",
+    )
+
+    assert sensors == ["ENSG_CGAS", "ENSG_NLRP3"]

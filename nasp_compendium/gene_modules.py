@@ -54,12 +54,14 @@ class GeneModules:
       >>> from nasp_compendium import GeneModules
 
       List modules
-      >>> module_ids = GeneModules().module_ids()
+      >>> GeneModules().module_ids()
 
       Pull genes for a multi-panel UMAP
       >>> genes = GeneModules.genes("dna_sensing")
       >>> positive_genes = GeneModules.genes("dna_sensing",
       ...   directions=["positive"])
+      >>> nucleic_acid_sensors = GeneModules.sensors("dna_rna")
+      >>> all_sensors = GeneModules.sensors("all")
 
       Scanpy scoring
       >>> module = GeneModules.modules("dna_sensing", scorer="scanpy")
@@ -93,7 +95,24 @@ class GeneModules:
     REQUIRED_COLUMNS: ClassVar[frozenset[str]] = frozenset(
         {"gene_symbol", "module_id", "scoring_direction"}
     )
+    SENSOR_COLUMN: ClassVar[str] = "sensor"
     VALID_SCORERS: ClassVar[frozenset[str]] = frozenset({"scanpy", "aucell"})
+    SENSOR_FILTER_ALIASES: ClassVar[dict[str, str]] = {
+        "all": "all",
+        "all_sensors": "all",
+        "dna": "dna",
+        "dna_sensor": "dna",
+        "dna_sensors": "dna",
+        "rna": "rna",
+        "rna_sensor": "rna",
+        "rna_sensors": "rna",
+        "dna_rna": "dna_rna",
+        "dna+rna": "dna_rna",
+        "dna + rna": "dna_rna",
+        "dna_and_rna": "dna_rna",
+        "nucleic_acid": "dna_rna",
+        "nucleic_acid_sensors": "dna_rna",
+    }
     SCORING_DIRECTIONS: ClassVar[frozenset[str]] = frozenset(
         {"positive", "inverse"}
     )
@@ -203,6 +222,42 @@ class GeneModules:
             gene_symbol_column=gene_symbol_column,
             output=output,
             directions=directions,
+            strict=strict,
+        )
+
+    @classmethod
+    def sensors(
+        cls,
+        sensor_type: str = "all",
+        *,
+        panel_path: str | Path | None = None,
+        module: str | None = None,
+        adata: AnnDataLike | None = None,
+        gene_symbol_column: str | None = None,
+        output: GeneIdOutput = "symbols",
+        strict: bool = False,
+    ) -> list[str]:
+        """Return annotated sensors.
+
+        Args:
+          sensor_type: Sensor filter. Use `rna`, `dna`, `dna_rna` for the union
+            of DNA and RNA sensors, or `all` for any `*_sensor` annotation.
+          panel_path: Optional user-provided marker-gene TSV.
+          module: Optional module id or suffix to restrict the sensor search.
+          adata: Optional AnnData-like object for dataset validation.
+          gene_symbol_column: Optional `adata.var` column with gene symbols.
+          output: Return source symbols or matched `adata.var_names`.
+          strict: Raise if any selected marker gene is absent from `adata`.
+
+        Returns:
+          Ordered sensor genes for downstream visualization or analysis.
+        """
+        return cls(panel_path=panel_path).get_sensors(
+            sensor_type=sensor_type,
+            module=module,
+            adata=adata,
+            gene_symbol_column=gene_symbol_column,
+            output=output,
             strict=strict,
         )
 
@@ -318,6 +373,43 @@ class GeneModules:
         output_column = self._output_column(output)
         return self._dedupe_preserving_order(matched[output_column].tolist())
 
+    def get_sensors(
+        self,
+        sensor_type: str = "all",
+        *,
+        module: str | None = None,
+        adata: AnnDataLike | None = None,
+        gene_symbol_column: str | None = None,
+        output: GeneIdOutput = "symbols",
+        strict: bool = False,
+    ) -> list[str]:
+        """Return selected sensor genes from this catalog.
+
+        `dna_rna` returns genes tagged as either `dna_sensor` or `rna_sensor`.
+        `all` returns genes with any token ending in `_sensor`, including misc
+        sensor classes such as inflammasome, LPS, or metabolite sensors.
+        """
+        panel = self.panel
+        if module is not None:
+            module_id = self.resolve_module_id(module)
+            panel = self._module_panel(module_id)
+
+        sensor_panel = self._sensor_panel(panel, sensor_type=sensor_type)
+        validation = self._validation_for_module(
+            module_panel=sensor_panel,
+            adata=adata,
+            gene_symbol_column=gene_symbol_column,
+            strict=strict,
+        )
+        if adata is None:
+            return self._dedupe_preserving_order(
+                validation["gene_symbol"].tolist()
+            )
+
+        matched = validation[validation["present"]].copy()
+        output_column = self._output_column(output)
+        return self._dedupe_preserving_order(matched[output_column].tolist())
+
     def validate(
         self,
         adata: AnnDataLike,
@@ -396,6 +488,12 @@ class GeneModules:
         panel = panel.copy()
         for column in cls.REQUIRED_COLUMNS:
             panel[column] = panel[column].fillna("").str.strip()
+        if cls.SENSOR_COLUMN not in panel.columns:
+            panel[cls.SENSOR_COLUMN] = ""
+        else:
+            panel[cls.SENSOR_COLUMN] = (
+                panel[cls.SENSOR_COLUMN].fillna("").str.strip()
+            )
 
         panel = panel[
             (panel["gene_symbol"] != "") & (panel["module_id"] != "")
@@ -459,6 +557,58 @@ class GeneModules:
         return self.panel[self.panel["module_id"] == module_id].reset_index(
             drop=True
         )
+
+    def _sensor_panel(
+        self,
+        panel: pd.DataFrame,
+        *,
+        sensor_type: str,
+    ) -> pd.DataFrame:
+        """Return panel rows matching a sensor annotation filter."""
+        resolved_sensor_type = self._normalize_sensor_type(sensor_type)
+        selected = [
+            self._sensor_matches(value, sensor_type=resolved_sensor_type)
+            for value in panel[self.SENSOR_COLUMN].tolist()
+        ]
+        mask = pd.Series(selected, index=panel.index, dtype=bool)
+        return panel.loc[mask].reset_index(drop=True)
+
+    @classmethod
+    def _normalize_sensor_type(cls, sensor_type: str) -> str:
+        """Normalize a public sensor filter option."""
+        normalized = sensor_type.strip().lower().replace("-", "_")
+        if normalized in cls.SENSOR_FILTER_ALIASES:
+            return cls.SENSOR_FILTER_ALIASES[normalized]
+
+        valid = ", ".join(["all", "dna", "dna_rna", "rna"])
+        raise ValueError(
+            f"Unsupported sensor_type '{sensor_type}'. Use one of {valid}."
+        )
+
+    @classmethod
+    def _sensor_matches(cls, value: Any, *, sensor_type: str) -> bool:
+        """Return whether one `sensor` cell matches the requested filter."""
+        tokens = cls._sensor_tokens(value)
+        if sensor_type == "all":
+            return any(token.endswith("_sensor") for token in tokens)
+        if sensor_type == "dna":
+            return "dna_sensor" in tokens
+        if sensor_type == "rna":
+            return "rna_sensor" in tokens
+        if sensor_type == "dna_rna":
+            return bool(tokens.intersection({"dna_sensor", "rna_sensor"}))
+        raise ValueError(f"Unsupported normalized sensor_type: {sensor_type}")
+
+    @staticmethod
+    def _sensor_tokens(value: Any) -> set[str]:
+        """Return normalized semicolon-separated sensor tokens."""
+        if pd.isna(value):
+            return set()
+        return {
+            token.strip().lower()
+            for token in str(value).split(";")
+            if token.strip()
+        }
 
     def _validation_for_module(
         self,

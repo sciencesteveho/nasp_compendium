@@ -23,7 +23,7 @@ repos:
 
       - id: regenerate-marker-docs
         name: Regenerate marker-gene docs
-        entry: hooks/pre-commit
+        entry: hooks/regenerate-marker-docs
         language: script
         pass_filenames: false
         stages:
