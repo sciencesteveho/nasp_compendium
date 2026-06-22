@@ -46,17 +46,8 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e ".[dev]"
 
-      - name: Lint
-        run: ruff check .
-
-      - name: Check formatting
-        run: ruff format --check .
-
-      - name: Test
-        run: pytest
-
-      - name: Validate compendium
-        run: compendium validate --dir docs/compendium
+      - name: Run pre-commit checks
+        run: pre-commit run --all-files --hook-stage pre-push
 
       - name: Render graph
         run: |
