@@ -12,7 +12,6 @@ import pandas as pd
 from nasp_compendium.types import AnnDataLike
 from nasp_compendium.types import GeneIdOutput
 from nasp_compendium.types import GeneModule
-from nasp_compendium.types import ScorerName
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,29 +27,19 @@ class GeneModules:
     """Loads and validates marker-gene modules for scoring.
 
     Derives signed gene sets directly from the marker gene tsv, provides
-    utilities to validate names against a dataset, and returns arguments to drop
-    into sc.tl.score_genes or AUCell.
-
-    For positive-only modules combine_scores returns the positive score alone;
-    for inverse-only modules it returns the negated inverse score.
+    utilities to validate names against a dataset, and returns backend-neutral
+    signed marker-gene modules.
 
     Entry points:
       genes(module): flat gene list for expression plots
-      modules(module, scorer): a GeneModule with signed sets and score names
+      modules(module): a GeneModule with signed sets
       validate_dataset(adata, module): per-gene dataset-coverage DataFrame
-
-    Scoring backends:
-      "scanpy": score the positive and inverse sets with sc.tl.score_genes, then
-        subtract via combine_scores
-      "aucell": run AUCell (via pySCENIC) on the named gene_sets, then subtract
-        the AUCs via combine_scores
 
     Attributes:
       panel_path: Path to the marker-gene TSV that was loaded
       panel: Normalized marker-gene panel as a DataFrame
 
     Examples:
-      >>> import scanpy as sc
       >>> from nasp_compendium import GeneModules
 
       List modules
@@ -63,25 +52,12 @@ class GeneModules:
       >>> nucleic_acid_sensors = GeneModules.sensors("dna_rna")
       >>> all_sensors = GeneModules.sensors("all")
 
-      Scanpy scoring
-      >>> module = GeneModules.modules("dna_sensing", scorer="scanpy")
-      >>> module.score_name
-      ...   'NASP_DNA_SENSING_score'
-      >>> for kwargs in module.scanpy_score_kwargs(random_state=0):
-      ...   sc.tl.score_genes(adata, **kwargs)
-      >>> adata.obs[module.score_name] = module.combine_scores(adata.obs)
-
       Validate against a dataset and map symbols to its var_names.
       >>> coverage = GeneModules.validate_dataset(adata, module="dna_sensing")
       >>> matched = GeneModules.modules("dna_sensing", adata=adata)
       >>> matched.gene_id_output
       ...   'var_names'
       >>> missing = matched.missing_positive_genes
-
-      AUCell scoring on the same module.
-      >>> auc = GeneModules.modules("dna_sensing", scorer="aucell")
-      >>> gene_sets = auc.gene_sets()
-      >>> signed = auc.combine_scores(auc_df)
 
       User-supplied panel via an instance.
       >>> catalog = GeneModules.from_tsv("my_panel.tsv")
@@ -96,7 +72,7 @@ class GeneModules:
         {"gene_symbol", "module_id", "scoring_direction"}
     )
     SENSOR_COLUMN: ClassVar[str] = "sensor"
-    VALID_SCORERS: ClassVar[frozenset[str]] = frozenset({"scanpy", "aucell"})
+    OUTPUT_HINTS: ClassVar[frozenset[str]] = frozenset({"scanpy", "aucell"})
     SENSOR_FILTER_ALIASES: ClassVar[dict[str, str]] = {
         "all": "all",
         "all_sensors": "all",
@@ -159,7 +135,7 @@ class GeneModules:
     def modules(
         cls,
         module: str,
-        scorer: ScorerName = "scanpy",
+        scorer: str | None = None,
         *,
         panel_path: str | Path | None = None,
         adata: AnnDataLike | None = None,
@@ -171,7 +147,8 @@ class GeneModules:
 
         Args:
           module: Module id or suffix.
-          scorer: Scoring backend name used to choose score-name suffixes.
+          scorer: Legacy output hint. Prefer `output`; single-cell scoring
+            lives in `nasp_atlas.single_cell`.
           panel_path: Optional user-provided marker-gene TSV.
           adata: Optional AnnData-like object for dataset validation.
           gene_symbol_column: Optional `adata.var` column with gene symbols.
@@ -280,7 +257,7 @@ class GeneModules:
     def get_module(
         self,
         module: str,
-        scorer: ScorerName = "scanpy",
+        scorer: str | None = None,
         *,
         adata: AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
@@ -288,7 +265,7 @@ class GeneModules:
         strict: bool = False,
     ) -> GeneModule:
         """Return signed gene lists for one module from this catalog."""
-        self._validate_scorer(scorer)
+        self._validate_output_hint(scorer)
         resolved_output = self._resolve_output(
             output, scorer=scorer, adata=adata
         )
@@ -329,7 +306,6 @@ class GeneModules:
 
         return GeneModule(
             module_id=module_id,
-            scorer=scorer,
             positive_genes=positive_genes,
             inverse_genes=inverse_genes,
             context_dependent_genes=context_genes,
@@ -801,10 +777,12 @@ class GeneModules:
         return normalized
 
     @classmethod
-    def _validate_scorer(cls, scorer: str) -> None:
-        """Raise if scorer is not a supported backend label."""
-        if scorer not in cls.VALID_SCORERS:
-            valid = ", ".join(sorted(cls.VALID_SCORERS))
+    def _validate_output_hint(cls, scorer: str | None) -> None:
+        """Raise if a legacy scorer output hint is not supported."""
+        if scorer is None:
+            return
+        if scorer not in cls.OUTPUT_HINTS:
+            valid = ", ".join(sorted(cls.OUTPUT_HINTS))
             raise ValueError(
                 f"Unsupported scorer '{scorer}'. Use one of {valid}."
             )
@@ -813,17 +791,15 @@ class GeneModules:
     def _resolve_output(
         output: GeneIdOutput | None,
         *,
-        scorer: ScorerName,
+        scorer: str | None,
         adata: AnnDataLike | None,
     ) -> GeneIdOutput:
-        """Choose a gene-id output mode for module scoring."""
+        """Choose a gene-id output mode for module extraction."""
         if output is not None:
             return output
-        return (
-            "var_names"
-            if adata is not None and scorer == "scanpy"
-            else "symbols"
-        )
+        if scorer == "aucell":
+            return "symbols"
+        return "var_names" if adata is not None else "symbols"
 
     @staticmethod
     def _output_column(output: GeneIdOutput) -> str:

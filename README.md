@@ -20,7 +20,6 @@ Follow the linked `README.md` files for detailed usage.
 ![](docs/_static/nasp_pathway_map_compact.png)
 
 
-
 </br>
 
 ## Installation
@@ -45,3 +44,15 @@ pip install -e .
 ```
 
 </br>
+
+## Marker-gene modules
+
+Use the GeneModules helper to load modules as signed gene lists.
+
+```python
+from nasp_compendium import GeneModules
+
+module = GeneModules.modules("dna_sensing")
+genes = GeneModules.genes("dna_sensing", directions=["positive"])
+coverage = GeneModules.validate_dataset(adata, module="dna_sensing")
+```

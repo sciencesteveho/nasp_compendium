@@ -81,9 +81,9 @@ def test_modules_resolves_suffix_and_splits_signed_genes(
     assert module.positive_genes == ("CGAS", "STING1")
     assert module.inverse_genes == ("LMNB1",)
     assert module.context_dependent_genes == ("IFI16",)
-    assert module.positive_score_name == "NASP_DNA_SENSING_pos"
-    assert module.inverse_score_name == "NASP_DNA_SENSING_inv"
-    assert module.score_name == "NASP_DNA_SENSING_score"
+    assert not hasattr(module, "scanpy_score_kwargs")
+    assert not hasattr(module, "gene_sets")
+    assert not hasattr(module, "combine_scores")
 
 
 def test_genes_returns_all_module_genes_by_default(tmp_path: Path) -> None:
