@@ -76,6 +76,7 @@ def _default_panel_path_candidates() -> list[Path]:
         candidates.append(Path(env_path))
 
     module_path = Path(__file__).resolve()
+    candidates.append(module_path.parent / "data" / _MARKER_PANEL_FILENAME)
     candidates.append(
         module_path.parent.parent / "data" / _MARKER_PANEL_FILENAME
     )
