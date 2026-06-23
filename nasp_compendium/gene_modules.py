@@ -3,15 +3,107 @@
 from __future__ import annotations
 
 import dataclasses
+import json
+import os
 from collections.abc import Iterable
+from importlib import metadata
 from pathlib import Path
 from typing import Any, ClassVar
+from urllib.parse import unquote
+from urllib.parse import urlparse
 
 import pandas as pd
 
 from nasp_compendium.types import AnnDataLike
 from nasp_compendium.types import GeneIdOutput
 from nasp_compendium.types import GeneModule
+
+
+_MARKER_PANEL_FILENAME = "marker_genes.tsv"
+_MARKER_PANEL_ENV_VAR = "NASP_MARKER_GENES_TSV"
+
+
+def _deduplicate_paths(paths: Iterable[Path]) -> list[Path]:
+    """Return paths in first-seen order without duplicates."""
+    seen: set[Path] = set()
+    unique_paths: list[Path] = []
+    for path in paths:
+        expanded = path.expanduser()
+        if expanded in seen:
+            continue
+        seen.add(expanded)
+        unique_paths.append(expanded)
+    return unique_paths
+
+
+def _project_root_from_direct_url(direct_url_text: str | None) -> Path | None:
+    """Return a local project root recorded by pip, when available."""
+    if not direct_url_text:
+        return None
+    try:
+        direct_url = json.loads(direct_url_text)
+    except json.JSONDecodeError:
+        return None
+
+    url = direct_url.get("url")
+    if not isinstance(url, str):
+        return None
+
+    parsed = urlparse(url)
+    if parsed.scheme != "file":
+        return None
+
+    return Path(unquote(parsed.path))
+
+
+def _distribution_project_root(
+    distribution_name: str = "nasp_compendium",
+) -> Path | None:
+    """Return the source root recorded for an installed local distribution."""
+    try:
+        distribution = metadata.distribution(distribution_name)
+    except metadata.PackageNotFoundError:
+        return None
+    direct_url_text = distribution.read_text("direct_url.json")
+    return _project_root_from_direct_url(direct_url_text)
+
+
+def _default_panel_path_candidates() -> list[Path]:
+    """Return candidate locations for the bundled marker-gene panel."""
+    candidates: list[Path] = []
+
+    if env_path := os.environ.get(_MARKER_PANEL_ENV_VAR):
+        candidates.append(Path(env_path))
+
+    module_path = Path(__file__).resolve()
+    candidates.append(
+        module_path.parent.parent / "data" / _MARKER_PANEL_FILENAME
+    )
+
+    if project_root := _distribution_project_root():
+        candidates.append(project_root / "data" / _MARKER_PANEL_FILENAME)
+
+    return _deduplicate_paths(candidates)
+
+
+def _default_panel_path(*, require_exists: bool = True) -> Path:
+    """Resolve the default marker-gene panel path."""
+    candidates = _default_panel_path_candidates()
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    fallback = candidates[0]
+    if not require_exists:
+        return fallback
+
+    candidate_lines = "\n".join(f"  - {candidate}" for candidate in candidates)
+    raise FileNotFoundError(
+        "Marker-gene TSV not found in default locations:\n"
+        f"{candidate_lines}\n"
+        "Pass panel_path explicitly or set "
+        f"{_MARKER_PANEL_ENV_VAR} to the marker-gene TSV."
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -65,8 +157,8 @@ class GeneModules:
       >>> spec = catalog.get_module("dna_sensing").as_dict()
     """
 
-    DEFAULT_PANEL_PATH: ClassVar[Path] = (
-        Path(__file__).resolve().parent.parent / "data" / "marker_genes.tsv"
+    DEFAULT_PANEL_PATH: ClassVar[Path] = _default_panel_path(
+        require_exists=False
     )
     REQUIRED_COLUMNS: ClassVar[frozenset[str]] = frozenset(
         {"gene_symbol", "module_id", "scoring_direction"}
@@ -118,8 +210,15 @@ class GeneModules:
             `data/marker_genes.tsv`.
           encoding: Text encoding for the TSV.
         """
-        self.panel_path = Path(panel_path or self.DEFAULT_PANEL_PATH)
+        self.panel_path = (
+            Path(panel_path) if panel_path else self.default_panel_path()
+        )
         self.panel = self._load_panel(self.panel_path, encoding=encoding)
+
+    @classmethod
+    def default_panel_path(cls) -> Path:
+        """Return the resolved bundled marker-gene TSV path."""
+        return _default_panel_path()
 
     @classmethod
     def from_tsv(

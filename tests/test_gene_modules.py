@@ -8,6 +8,7 @@ from typing import Any
 import pandas as pd
 
 from nasp_compendium import GeneModules
+from nasp_compendium import gene_modules
 
 
 class FakeAnnData:
@@ -62,6 +63,63 @@ def _write_sensor_panel(path: Path) -> None:
         )
         + "\n"
     )
+
+
+def test_default_panel_path_loads_repo_marker_genes() -> None:
+    """Default marker-gene path resolves to the repo-bundled TSV."""
+    panel_path = GeneModules.default_panel_path()
+
+    assert panel_path.name == "marker_genes.tsv"
+    assert panel_path.exists()
+    assert GeneModules().panel_path == panel_path
+
+
+def test_default_panel_path_uses_installer_source_root(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """Default path can recover the repo data path from pip metadata."""
+    package_root = (
+        tmp_path
+        / "env"
+        / "lib"
+        / "python3.11"
+        / "site-packages"
+        / "nasp_compendium"
+    )
+    package_root.mkdir(parents=True)
+    repo_root = tmp_path / "nasp_compendium"
+    data_dir = repo_root / "data"
+    data_dir.mkdir(parents=True)
+    panel_path = data_dir / "marker_genes.tsv"
+    _write_marker_panel(panel_path)
+
+    class FakeDistribution:
+        """Distribution metadata containing a local project direct URL."""
+
+        def read_text(self, name: str) -> str | None:
+            """Return pip's local-project direct URL metadata."""
+            if name != "direct_url.json":
+                return None
+            return f'{{"url": "{repo_root.as_uri()}", "dir_info": {{}}}}'
+
+    def fake_distribution(name: str) -> FakeDistribution:
+        """Return fake distribution metadata for nasp_compendium."""
+        assert name == "nasp_compendium"
+        return FakeDistribution()
+
+    monkeypatch.setattr(
+        gene_modules,
+        "__file__",
+        str(package_root / "gene_modules.py"),
+    )
+    monkeypatch.setattr(
+        gene_modules.metadata,
+        "distribution",
+        fake_distribution,
+    )
+
+    assert GeneModules.default_panel_path() == panel_path
 
 
 def test_modules_resolves_suffix_and_splits_signed_genes(
