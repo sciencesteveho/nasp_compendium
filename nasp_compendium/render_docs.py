@@ -13,9 +13,6 @@ import pandas as pd
 from nasp_compendium.display import humanize_module_name
 
 
-DOI_PATTERN: re.Pattern[str] = re.compile(r"10\.\d{4,9}/[^\s;,|]+")
-
-
 def _read_marker_table(input_path: Path) -> pd.DataFrame:
     """Read and minimally validate the marker-gene source table."""
     marker_table = pd.read_csv(input_path, sep="\t", dtype=str).fillna("")
@@ -157,10 +154,13 @@ def _format_doi_cell(value: str) -> str:
     return "<br>".join(_format_doi_link(doi) for doi in doi_values)
 
 
-def _extract_dois(value: str) -> list[str]:
+def _extract_dois(
+    value: str,
+    doi_pattern: re.Pattern[str] = re.compile(r"10\.\d{4,9}/[^\s;,|]+"),
+) -> list[str]:
     """Extract DOI-like identifiers from a table cell."""
     doi_values: list[str] = []
-    for match in DOI_PATTERN.findall(value):
+    for match in doi_pattern.findall(value):
         doi = _strip_trailing_punctuation(_strip_doi_url(match))
         if doi and doi not in doi_values:
             doi_values.append(doi)

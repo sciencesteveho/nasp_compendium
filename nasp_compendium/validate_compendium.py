@@ -40,41 +40,6 @@ SKIP_EDGE_EXCLUDED_RELS: frozenset[str] = frozenset(
     }
 )
 
-SKIP_EDGE_EXCLUDED_CANDIDATE_RELS: frozenset[str] = frozenset(
-    SKIP_EDGE_EXCLUDED_RELS | {"downregulates", "upregulates"}
-)
-
-SKIP_EDGE_MAX_DEPTH: int = 8
-
-REQUIRED_EDGE_FIELDS: tuple[str, ...] = (
-    "chain_id",
-    "step",
-    "source",
-    "target",
-    "rel",
-    "evidence_strength",
-    "context",
-    "support",
-    "papers",
-)
-
-SUSPICIOUS_NODE_NAMES: frozenset[str] = frozenset(
-    {
-        "CCF",
-        "CCF_formation",
-        "STING",
-        "cGAS",
-        "IL8",
-        "p65",
-        "tumor_formation",
-        "fibrotic_tissue_formation",
-        "programmed_cell_death",
-        "liver_tumorigenesis",
-        "lung_inflammation",
-        "kidney_fibrosis",
-    }
-)
-
 ALLOWED_FREE_ENDPOINTS: frozenset[str] = frozenset(
     {
         "cGAMP",
@@ -86,53 +51,16 @@ ALLOWED_FREE_ENDPOINTS: frozenset[str] = frozenset(
 
 CLAIMS_KEY: str = "claims"
 CLAIM_EDGE_MATRIX_KEY: str = "claim_edge_matrix"
-SUPPORT_CLAIMS_KEY: str = "support_claims"
-PAPER_SCOPE_KEY: str = "paper_scope"
 BRANCH_TYPE_KEY: str = "branch_type"
 GRAPH_CANDIDATE_KEY: str = "graph_candidate"
 MAPPED_EDGES_KEY: str = "mapped_edges"
-CLAIM_REUSE_WARNING_THRESHOLD: int = 3
 ADJUDICATIONS_KEY: str = "adjudications"
 ISSUE_TYPE_KEY: str = "issue_type"
 DECISION_KEY: str = "decision"
 RATIONALE_KEY: str = "rationale"
 EMITTED_EDGES_KEY: str = "emitted_edges"
 REMOVE_EDGES_KEY: str = "remove_edges"
-REJECTED_ALTERNATIVE_KEY: str = "rejected_alternative"
-CONVENTION_RULE_KEY: str = "convention_rule"
 NEAREST_INTERMEDIATE_SEARCH_KEY: str = "nearest_intermediate_search"
-CANDIDATE_EDGES_CONSIDERED_KEY: str = "candidate_edges_considered"
-
-REQUIRED_CLAIM_FIELDS: tuple[str, ...] = (
-    "claim_id",
-    "evidence_location",
-    "claim",
-    "assay",
-    "disposition",
-    "support",
-)
-
-ALLOWED_CLAIM_DISPOSITIONS: frozenset[str] = frozenset(
-    {
-        "edge",
-        "context_only",
-        "negative",
-        "insufficient",
-    }
-)
-
-ALLOWED_BRANCH_TYPES: frozenset[str] = frozenset(
-    {
-        "main_spine",
-        "sensor_branch",
-        "inflammatory_output",
-        "cohort_association",
-        "state_reversal",
-        "negative_specificity",
-        "organismal_outcome",
-        "context_only",
-    }
-)
 
 GRAPH_CANDIDATE_BRANCH_TYPES: frozenset[str] = frozenset(
     {
@@ -143,52 +71,6 @@ GRAPH_CANDIDATE_BRANCH_TYPES: frozenset[str] = frozenset(
         "state_reversal",
         "negative_specificity",
         "organismal_outcome",
-    }
-)
-
-MATRIX_EDGE_FIELDS: tuple[str, ...] = (
-    "source",
-    "target",
-    "rel",
-    "evidence_strength",
-)
-
-ADJUDICATION_EDGE_FIELDS: tuple[str, ...] = (
-    "source",
-    "target",
-    "rel",
-)
-
-REQUIRED_ADJUDICATION_FIELDS: tuple[str, ...] = (
-    "issue_id",
-    ISSUE_TYPE_KEY,
-    DECISION_KEY,
-    RATIONALE_KEY,
-)
-
-ALLOWED_ADJUDICATION_ISSUE_TYPES: frozenset[str] = frozenset(
-    {
-        "hidden_graph_candidate",
-        "topology_lint",
-        "shortcut_warning",
-        "verb_warning",
-        "evidence_strength_warning",
-        "reagent_endpoint_warning",
-        "broad_claim_reuse",
-        "gold_or_scope_disagreement",
-        "scope_density_warning",
-    }
-)
-
-ALLOWED_ADJUDICATION_DECISIONS: frozenset[str] = frozenset(
-    {
-        "emit_edge",
-        "revise_edges",
-        "keep_context",
-        "keep_insufficient",
-        "keep_as_is",
-        "needs_human_review",
-        "reject_as_gold_defect",
     }
 )
 
@@ -203,27 +85,6 @@ BRANCHES_REQUIRING_ADJUDICATION: frozenset[str] = frozenset(
     }
 )
 
-REAGENT_ONLY_ENDPOINTS: frozenset[str] = frozenset(
-    {
-        "dsDNA90",
-    }
-)
-
-REAGENT_ENDPOINT_PREFIXES: tuple[str, ...] = (
-    "dsDNA",
-    "ssDNA",
-    "polyIC",
-    "poly_I:C",
-)
-
-GENERIC_PROCESS_NODES: frozenset[str] = frozenset(
-    {
-        "cytosolic_RNA_sensing",
-    }
-)
-
-SENSING_PROCESS_SUFFIX: str = "_sensing"
-
 SENSOR_COMPONENT_NODES: frozenset[str] = frozenset(
     {
         "DDX58",
@@ -235,88 +96,6 @@ EDGE_SUPPORTING_CLAIM_DISPOSITIONS: frozenset[str] = frozenset(
     {
         "edge",
         "negative",
-    }
-)
-
-ALLOWED_PAPER_SCOPES: frozenset[str] = frozenset(
-    {
-        "mechanism_paper",
-        "perturbation_paper",
-        "cohort_correlation_paper",
-        "atlas_resource",
-        "biomarker_validation_paper",
-        "review_or_resource",
-        "mixed_mechanism_and_correlation",
-    }
-)
-
-CORRELATIVE_PAPER_SCOPES: frozenset[str] = frozenset(
-    {
-        "cohort_correlation_paper",
-        "atlas_resource",
-        "biomarker_validation_paper",
-        "review_or_resource",
-    }
-)
-
-CAUSAL_EDGE_RELS: frozenset[str] = frozenset(
-    {
-        "activates",
-        "drives",
-        "induces",
-        "causes",
-        "required_for",
-        "produces",
-        "suppresses",
-        "inhibits",
-        "downregulates",
-        "upregulates",
-        "retains",
-        "forms_pore_for",
-        "binds_recruits",
-    }
-)
-
-OVERCONFIDENT_EVIDENCE_STRENGTHS: frozenset[str] = frozenset(
-    {
-        "direct_measured",
-        "perturbation_supported",
-    }
-)
-
-CAUSAL_UNCERTAINTY_PHRASES: tuple[str, ...] = (
-    "not directly perturbed",
-    "not directly tested",
-    "not directly measured",
-    "not tested",
-    "not measured",
-    "no direct perturbation",
-    "no direct evidence",
-    "inferred",
-    "proposed",
-    "consistent with",
-)
-
-DRIVES_TARGET_VERB_REVIEW: frozenset[str] = frozenset(
-    {
-        "cellular_senescence",
-        "retrotransposon_derepression",
-        "DNA_damage",
-        "type_I_IFN",
-        "type_III_IFN",
-        "inflammasome_activation",
-    }
-)
-
-CAUSES_TARGET_VERB_REVIEW: frozenset[str] = frozenset(
-    {
-        "cellular_senescence",
-        "DNA_damage",
-        "tissue_inflammation",
-        "fibrosis",
-        "accelerated_aging",
-        "inflammaging",
-        "mortality",
     }
 )
 
@@ -579,6 +358,35 @@ def _validate_claims(
     data: dict[str, Any],
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
+    *,
+    required_claim_fields: tuple[str, ...] = (
+        "claim_id",
+        "evidence_location",
+        "claim",
+        "assay",
+        "disposition",
+        "support",
+    ),
+    allowed_claim_dispositions: frozenset[str] = frozenset(
+        {
+            "edge",
+            "context_only",
+            "negative",
+            "insufficient",
+        }
+    ),
+    allowed_branch_types: frozenset[str] = frozenset(
+        {
+            "main_spine",
+            "sensor_branch",
+            "inflammatory_output",
+            "cohort_association",
+            "state_reversal",
+            "negative_specificity",
+            "organismal_outcome",
+            "context_only",
+        }
+    ),
 ) -> dict[str, dict[str, Any]]:
     """Validate optional raw-claim records and return records by claim id."""
     claims = data.get(CLAIMS_KEY)
@@ -596,7 +404,7 @@ def _validate_claims(
             errors.append(ValidationIssue(path, f"{label} is not a mapping."))
             continue
 
-        for field in REQUIRED_CLAIM_FIELDS:
+        for field in required_claim_fields:
             if field not in claim:
                 errors.append(
                     ValidationIssue(path, f"{label} is missing '{field}'.")
@@ -618,7 +426,7 @@ def _validate_claims(
         disposition = claim.get("disposition")
         if (
             disposition is not None
-            and disposition not in ALLOWED_CLAIM_DISPOSITIONS
+            and disposition not in allowed_claim_dispositions
         ):
             errors.append(
                 ValidationIssue(
@@ -641,7 +449,7 @@ def _validate_claims(
                     "type so review packets can audit branch coverage.",
                 )
             )
-        elif str(branch_type) not in ALLOWED_BRANCH_TYPES:
+        elif str(branch_type) not in allowed_branch_types:
             errors.append(
                 ValidationIssue(
                     path,
@@ -693,6 +501,13 @@ def _validate_claim_edge_matrix(
     claim_records: dict[str, dict[str, Any]],
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
+    *,
+    matrix_edge_fields: tuple[str, ...] = (
+        "source",
+        "target",
+        "rel",
+        "evidence_strength",
+    ),
 ) -> dict[str, list[dict[str, Any]]]:
     """Validate optional claim-to-edge matrix entries.
 
@@ -751,7 +566,7 @@ def _validate_claim_edge_matrix(
                     ValidationIssue(path, f"{edge_label} is not a mapping.")
                 )
                 continue
-            for field in MATRIX_EDGE_FIELDS:
+            for field in matrix_edge_fields:
                 if field not in mapped_edge:
                     errors.append(
                         ValidationIssue(
@@ -803,6 +618,37 @@ def _validate_adjudications(
     claim_records: dict[str, dict[str, Any]],
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
+    *,
+    required_adjudication_fields: tuple[str, ...] = (
+        "issue_id",
+        "issue_type",
+        "decision",
+        "rationale",
+    ),
+    allowed_adjudication_issue_types: frozenset[str] = frozenset(
+        {
+            "hidden_graph_candidate",
+            "topology_lint",
+            "shortcut_warning",
+            "verb_warning",
+            "evidence_strength_warning",
+            "reagent_endpoint_warning",
+            "broad_claim_reuse",
+            "gold_or_scope_disagreement",
+            "scope_density_warning",
+        }
+    ),
+    allowed_adjudication_decisions: frozenset[str] = frozenset(
+        {
+            "emit_edge",
+            "revise_edges",
+            "keep_context",
+            "keep_insufficient",
+            "keep_as_is",
+            "needs_human_review",
+            "reject_as_gold_defect",
+        }
+    ),
 ) -> list[dict[str, Any]]:
     """Validate optional pre-freeze adjudication records."""
     adjudications = data.get(ADJUDICATIONS_KEY)
@@ -823,7 +669,7 @@ def _validate_adjudications(
             errors.append(ValidationIssue(path, f"{label} is not a mapping."))
             continue
 
-        for field in REQUIRED_ADJUDICATION_FIELDS:
+        for field in required_adjudication_fields:
             if field not in record:
                 errors.append(
                     ValidationIssue(path, f"{label} is missing {field!r}.")
@@ -844,7 +690,7 @@ def _validate_adjudications(
         issue_type = record.get(ISSUE_TYPE_KEY)
         if (
             issue_type is not None
-            and str(issue_type) not in ALLOWED_ADJUDICATION_ISSUE_TYPES
+            and str(issue_type) not in allowed_adjudication_issue_types
         ):
             errors.append(
                 ValidationIssue(
@@ -856,7 +702,7 @@ def _validate_adjudications(
         decision = record.get(DECISION_KEY)
         if (
             decision is not None
-            and str(decision) not in ALLOWED_ADJUDICATION_DECISIONS
+            and str(decision) not in allowed_adjudication_decisions
         ):
             errors.append(
                 ValidationIssue(
@@ -929,6 +775,10 @@ def _validate_adjudication_resolution_metadata(
     record: dict[str, Any],
     claim_records: dict[str, dict[str, Any]],
     warnings: list[ValidationIssue],
+    *,
+    rejected_alternative_key: str = "rejected_alternative",
+    convention_rule_key: str = "convention_rule",
+    candidate_edges_considered_key: str = "candidate_edges_considered",
 ) -> None:
     """Validate issue-specific metadata that makes adjudication auditable."""
     issue_type = str(record.get(ISSUE_TYPE_KEY, ""))
@@ -938,7 +788,7 @@ def _validate_adjudication_resolution_metadata(
         issue_type in {"verb_warning", "evidence_strength_warning"}
         and decision == "keep_as_is"
     ):
-        for field in (REJECTED_ALTERNATIVE_KEY, CONVENTION_RULE_KEY):
+        for field in (rejected_alternative_key, convention_rule_key):
             if not str(record.get(field, "")).strip():
                 warnings.append(
                     ValidationIssue(
@@ -979,7 +829,7 @@ def _validate_adjudication_resolution_metadata(
         "1",
         "yes",
     }
-    candidates = nearest_search.get(CANDIDATE_EDGES_CONSIDERED_KEY)
+    candidates = nearest_search.get(candidate_edges_considered_key)
     if not searched_bool or not isinstance(candidates, list):
         warnings.append(
             ValidationIssue(
@@ -998,6 +848,12 @@ def _validate_adjudication_edge_list(
     field: str,
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
+    *,
+    adjudication_edge_fields: tuple[str, ...] = (
+        "source",
+        "target",
+        "rel",
+    ),
 ) -> None:
     """Validate emitted/remove edge records inside one adjudication."""
     edge_list = record.get(field)
@@ -1015,7 +871,7 @@ def _validate_adjudication_edge_list(
                 ValidationIssue(path, f"{edge_label} is not a mapping.")
             )
             continue
-        for edge_field in ADJUDICATION_EDGE_FIELDS:
+        for edge_field in adjudication_edge_fields:
             if edge_field not in edge:
                 errors.append(
                     ValidationIssue(
@@ -1079,6 +935,19 @@ def _validate_paper_scopes(
     path: Path,
     data: dict[str, Any],
     warnings: list[ValidationIssue],
+    *,
+    paper_scope_key: str = "paper_scope",
+    allowed_paper_scopes: frozenset[str] = frozenset(
+        {
+            "mechanism_paper",
+            "perturbation_paper",
+            "cohort_correlation_paper",
+            "atlas_resource",
+            "biomarker_validation_paper",
+            "review_or_resource",
+            "mixed_mechanism_and_correlation",
+        }
+    ),
 ) -> dict[str, str]:
     """Validate optional paper_scope values and return paper_id to scope."""
     paper_scopes: dict[str, str] = {}
@@ -1089,12 +958,12 @@ def _validate_paper_scopes(
     for paper_id, paper in paper_block.items():
         if not isinstance(paper, dict):
             continue
-        scope = paper.get(PAPER_SCOPE_KEY)
+        scope = paper.get(paper_scope_key)
         if scope is None:
             continue
         scope_text = str(scope)
         paper_scopes[str(paper_id)] = scope_text
-        if scope_text not in ALLOWED_PAPER_SCOPES:
+        if scope_text not in allowed_paper_scopes:
             warnings.append(
                 ValidationIssue(
                     path,
@@ -1114,9 +983,11 @@ def _validate_edge_claim_links(
     require_claim_support: bool,
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
+    *,
+    support_claims_key: str = "support_claims",
 ) -> set[str]:
     """Validate optional edge-to-claim provenance links."""
-    support_claims = edge.get(SUPPORT_CLAIMS_KEY)
+    support_claims = edge.get(support_claims_key)
     if support_claims is None:
         if require_claim_support:
             warnings.append(
@@ -1171,10 +1042,36 @@ def _warn_scope_edge_mismatches(
     edge: dict[Any, Any],
     paper_scopes: dict[str, str],
     warnings: list[ValidationIssue],
+    *,
+    causal_edge_rels: frozenset[str] = frozenset(
+        {
+            "activates",
+            "drives",
+            "induces",
+            "causes",
+            "required_for",
+            "produces",
+            "suppresses",
+            "inhibits",
+            "downregulates",
+            "upregulates",
+            "retains",
+            "forms_pore_for",
+            "binds_recruits",
+        }
+    ),
+    correlative_paper_scopes: frozenset[str] = frozenset(
+        {
+            "cohort_correlation_paper",
+            "atlas_resource",
+            "biomarker_validation_paper",
+            "review_or_resource",
+        }
+    ),
 ) -> None:
     """Warn when correlative papers emit causal edge relationships."""
     rel = edge.get("rel")
-    if rel not in CAUSAL_EDGE_RELS:
+    if rel not in causal_edge_rels:
         return
 
     papers = edge.get("papers")
@@ -1185,7 +1082,7 @@ def _warn_scope_edge_mismatches(
         {
             paper_scopes.get(str(paper_id))
             for paper_id in papers
-            if paper_scopes.get(str(paper_id)) in CORRELATIVE_PAPER_SCOPES  # type: ignore
+            if paper_scopes.get(str(paper_id)) in correlative_paper_scopes  # type: ignore
         }
     ):
         warnings.append(
@@ -1208,6 +1105,25 @@ def _warn_claim_evidence_mismatches(
     linked_claim_ids: set[str],
     adjudications: list[dict[str, Any]],
     warnings: list[ValidationIssue],
+    *,
+    overconfident_evidence_strengths: frozenset[str] = frozenset(
+        {
+            "direct_measured",
+            "perturbation_supported",
+        }
+    ),
+    causal_uncertainty_phrases: tuple[str, ...] = (
+        "not directly perturbed",
+        "not directly tested",
+        "not directly measured",
+        "not tested",
+        "not measured",
+        "no direct perturbation",
+        "no direct evidence",
+        "inferred",
+        "proposed",
+        "consistent with",
+    ),
 ) -> None:
     """Warn when linked claim metadata conflicts with evidence strength."""
     if not linked_claim_ids:
@@ -1292,11 +1208,11 @@ def _warn_claim_evidence_mismatches(
         )
 
     if (
-        evidence_strength in OVERCONFIDENT_EVIDENCE_STRENGTHS
+        evidence_strength in overconfident_evidence_strengths
         and _edge_or_claim_text_contains(
             edge,
             linked_claims,
-            CAUSAL_UNCERTAINTY_PHRASES,
+            causal_uncertainty_phrases,
         )
         and not evidence_adjudicated
     ):
@@ -1391,10 +1307,12 @@ def _warn_broad_claim_reuse(
     claim_reference_counts: collections.Counter[str],
     claim_edge_matrix: dict[str, list[dict[str, Any]]],
     warnings: list[ValidationIssue],
+    *,
+    claim_reuse_warning_threshold: int = 3,
 ) -> None:
     """Warn when one claim supports many edges without a typed matrix."""
     for claim_id, count in sorted(claim_reference_counts.items()):
-        if count <= CLAIM_REUSE_WARNING_THRESHOLD:
+        if count <= claim_reuse_warning_threshold:
             continue
         if claim_edge_matrix.get(claim_id):
             continue
@@ -1449,6 +1367,28 @@ def _warn_relationship_review_patterns(
     edge: dict[Any, Any],
     adjudications: list[dict[str, Any]],
     warnings: list[ValidationIssue],
+    *,
+    drives_target_verb_review: frozenset[str] = frozenset(
+        {
+            "cellular_senescence",
+            "retrotransposon_derepression",
+            "DNA_damage",
+            "type_I_IFN",
+            "type_III_IFN",
+            "inflammasome_activation",
+        }
+    ),
+    causes_target_verb_review: frozenset[str] = frozenset(
+        {
+            "cellular_senescence",
+            "DNA_damage",
+            "tissue_inflammation",
+            "fibrosis",
+            "accelerated_aging",
+            "inflammaging",
+            "mortality",
+        }
+    ),
 ) -> None:
     """Warn on relationship verbs that commonly drift during curation."""
     rel = str(edge.get("rel", ""))
@@ -1456,7 +1396,7 @@ def _warn_relationship_review_patterns(
     if _has_edge_adjudication(adjudications, edge, "verb_warning"):
         return
 
-    if rel == "drives" and target in DRIVES_TARGET_VERB_REVIEW:
+    if rel == "drives" and target in drives_target_verb_review:
         warnings.append(
             ValidationIssue(
                 path,
@@ -1465,7 +1405,7 @@ def _warn_relationship_review_patterns(
             )
         )
 
-    if rel == "causes" and target in CAUSES_TARGET_VERB_REVIEW:
+    if rel == "causes" and target in causes_target_verb_review:
         warnings.append(
             ValidationIssue(
                 path,
@@ -1615,19 +1555,36 @@ def _warn_cross_edge_topology_patterns(
             )
 
 
-def _is_reagent_only_endpoint(node: str) -> bool:
+def _is_reagent_only_endpoint(
+    node: str,
+    *,
+    reagent_only_endpoints: frozenset[str] = frozenset({"dsDNA90"}),
+    reagent_endpoint_prefixes: tuple[str, ...] = (
+        "dsDNA",
+        "ssDNA",
+        "polyIC",
+        "poly_I:C",
+    ),
+) -> bool:
     """Return whether a node looks like an assay reagent rather than a graph
     node.
     """
-    return node in REAGENT_ONLY_ENDPOINTS or any(
-        node.startswith(prefix) for prefix in REAGENT_ENDPOINT_PREFIXES
+    return node in reagent_only_endpoints or any(
+        node.startswith(prefix) for prefix in reagent_endpoint_prefixes
     )
 
 
-def _is_generic_sensing_process(node: str) -> bool:
+def _is_generic_sensing_process(
+    node: str,
+    *,
+    generic_process_nodes: frozenset[str] = frozenset(
+        {"cytosolic_RNA_sensing"}
+    ),
+    sensing_process_suffix: str = "_sensing",
+) -> bool:
     """Return whether a node is a generic sensing process."""
-    return node in GENERIC_PROCESS_NODES or node.endswith(
-        SENSING_PROCESS_SUFFIX
+    return node in generic_process_nodes or node.endswith(
+        sensing_process_suffix
     )
 
 
@@ -1798,6 +1755,17 @@ def _validate_edges(
     adjudications: list[dict[str, Any]],
     paper_scopes: dict[str, str],
     require_claim_support: bool,
+    required_edge_fields: tuple[str, ...] = (
+        "chain_id",
+        "step",
+        "source",
+        "target",
+        "rel",
+        "evidence_strength",
+        "context",
+        "support",
+        "papers",
+    ),
 ) -> None:
     """Validate edge-level schema, controlled vocabulary, and curation hints."""
     if not isinstance(edges, list):
@@ -1811,7 +1779,7 @@ def _validate_edges(
             errors.append(ValidationIssue(path, f"{label} is not a mapping."))
             continue
 
-        for field in REQUIRED_EDGE_FIELDS:
+        for field in required_edge_fields:
             if field not in edge:
                 errors.append(
                     ValidationIssue(path, f"{label} is missing '{field}'.")
@@ -1890,6 +1858,8 @@ def _validate_edges(
 def _warn_skip_edges(
     data_by_path: dict[Path, dict[str, Any]],
     warnings: list[ValidationIssue],
+    *,
+    skip_edge_max_depth: int = 8,
 ) -> None:
     """Warn when a paper has both a direct edge and a longer same-paper path.
 
@@ -1899,7 +1869,7 @@ def _warn_skip_edges(
     causal chain steps. Direct `upregulates` and `downregulates` abundance
     edges are not flagged as shortcut candidates because they can legitimately
     coexist with longer upstream signaling chains. The search uses a bounded
-    breadth-first traversal with `SKIP_EDGE_MAX_DEPTH` edges to avoid
+    breadth-first traversal with `skip_edge_max_depth` edges to avoid
     pathological cycles. Warnings are review prompts, not proof that an edge is
     invalid.
     """
@@ -1930,7 +1900,7 @@ def _warn_skip_edges(
                 adjacency,
                 source,
                 target,
-                max_depth=SKIP_EDGE_MAX_DEPTH,
+                max_depth=skip_edge_max_depth,
             )
             if intermediate_path is None:
                 continue
@@ -1959,13 +1929,19 @@ def _paper_adjacency(
     return adjacency
 
 
-def _is_skip_edge_candidate(edge: dict[Any, Any]) -> bool:
+def _is_skip_edge_candidate(
+    edge: dict[Any, Any],
+    *,
+    skip_edge_excluded_candidate_rels: frozenset[str] = frozenset(
+        SKIP_EDGE_EXCLUDED_RELS | {"downregulates", "upregulates"}
+    ),
+) -> bool:
     """Return whether an edge is eligible for skip-edge path checking."""
     return (
         edge.get("source") is not None
         and edge.get("target") is not None
         and edge.get("rel") is not None
-        and str(edge.get("rel")) not in SKIP_EDGE_EXCLUDED_CANDIDATE_RELS
+        and str(edge.get("rel")) not in skip_edge_excluded_candidate_rels
     )
 
 
@@ -2156,8 +2132,26 @@ def _declared_entities(data_values: object) -> set[str]:
     return entities
 
 
-def _is_suspicious_node_name(node: object) -> bool:
+def _is_suspicious_node_name(
+    node: object,
+    suspicious_node_names: frozenset[str] = frozenset(
+        {
+            "CCF",
+            "CCF_formation",
+            "STING",
+            "cGAS",
+            "IL8",
+            "p65",
+            "tumor_formation",
+            "fibrotic_tissue_formation",
+            "programmed_cell_death",
+            "liver_tumorigenesis",
+            "lung_inflammation",
+            "kidney_fibrosis",
+        }
+    ),
+) -> bool:
     """Return whether a node name matches known naming anti-patterns."""
     if not isinstance(node, str):
         return False
-    return node.endswith("_expression") or node in SUSPICIOUS_NODE_NAMES
+    return node.endswith("_expression") or node in suspicious_node_names

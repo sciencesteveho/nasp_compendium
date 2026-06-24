@@ -9,11 +9,6 @@ from nasp_compendium import render_docs as render_docs_module
 from nasp_compendium.visualization import gene_modules
 
 
-DEFAULT_DOCS_DIR: Path = (
-    Path(__file__).resolve().parent.parent / "docs" / "marker_genes"
-)
-
-
 def regenerate(
     input_path: Path,
     docs_dir: Path,
@@ -69,15 +64,18 @@ def regenerate(
     )
 
 
-def _parse_args() -> argparse.Namespace:
+def _parse_args(default_docs_dir: Path | None = None) -> argparse.Namespace:
     """Parse command-line arguments."""
+    if default_docs_dir is None:
+        default_docs_dir = (
+            Path(__file__).resolve().parent.parent / "docs" / "marker_genes"
+        )
+
     parser = argparse.ArgumentParser(
         description="Regenerate marker-gene docs and module figures."
     )
     parser.add_argument("--input", required=True, type=Path)
-    parser.add_argument(
-        "--docs-dir", required=True, type=Path, default=DEFAULT_DOCS_DIR
-    )
+    parser.add_argument("--docs-dir", type=Path, default=default_docs_dir)
     return parser.parse_args()
 
 

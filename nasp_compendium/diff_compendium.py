@@ -11,13 +11,6 @@ from nasp_compendium import summarize_compendium
 from nasp_compendium.style import ENTITY_FIELDS
 
 
-EDGE_COMPARE_FIELDS: tuple[str, ...] = (
-    "evidence_strength",
-    "context",
-    "support",
-)
-
-
 @dataclasses.dataclass(frozen=True)
 class EdgeKey:
     """Stable identity for one graph edge."""
@@ -160,8 +153,16 @@ def _diff_entities(
 def _diff_edges(
     old_edges: list[dict[str, Any]],
     new_edges: list[dict[str, Any]],
+    *,
+    compare_fields: tuple[str, ...] = (
+        "evidence_strength",
+        "context",
+        "support",
+    ),
 ) -> tuple[
-    tuple[EdgeChange, ...], tuple[EdgeChange, ...], tuple[ModifiedEdge, ...]
+    tuple[EdgeChange, ...],
+    tuple[EdgeChange, ...],
+    tuple[ModifiedEdge, ...],
 ]:
     """Diff edge lists by stable identity and comparable fields."""
     old_by_key = _edges_by_key(old_edges)
@@ -181,7 +182,7 @@ def _diff_edges(
     for key in sorted(old_keys & new_keys, key=_edge_sort_key):
         if changed_fields := tuple(
             field
-            for field in EDGE_COMPARE_FIELDS
+            for field in compare_fields
             if _normalize_value(old_by_key[key].get(field))
             != _normalize_value(new_by_key[key].get(field))
         ):

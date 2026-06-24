@@ -11,18 +11,6 @@ from pathlib import Path
 import yaml
 
 
-NOISE_SUFFIXES: tuple[str, ...] = (
-    "_loci",
-    "_locus",
-    "_accumulation",
-    "_formation",
-    "_levels",
-    "_expression",
-    "_signaling",
-    "_signalling",
-)
-
-
 class Tier(enum.Enum):
     """Vocabulary tier a term resolves to."""
 
@@ -71,7 +59,19 @@ class Vocabulary:
         return flat
 
 
-def normalize_term(term: str) -> str:
+def normalize_term(
+    term: str,
+    noise_suffixes: tuple[str, ...] = (
+        "_loci",
+        "_locus",
+        "_accumulation",
+        "_formation",
+        "_levels",
+        "_expression",
+        "_signaling",
+        "_signalling",
+    ),
+) -> str:
     """Reduce a term to a comparison key for mechanical-variant matching.
 
     Lowercases, strips a known set of locus/condition/readout suffixes, and
@@ -84,7 +84,7 @@ def normalize_term(term: str) -> str:
     changed = True
     while changed:
         changed = False
-        for suffix in NOISE_SUFFIXES:
+        for suffix in noise_suffixes:
             if key.endswith(suffix):
                 key = key[: -len(suffix)]
                 changed = True

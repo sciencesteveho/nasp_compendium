@@ -30,39 +30,6 @@ COMPENDIUM_DIR: Path = (
 
 GRAPH_FONT: str = "Helvetica"
 SVG_FONT_FAMILY: str = "Helvetica, 'Nimbus Sans', Arial, sans-serif"
-DEFAULT_LAYOUT_ENGINE: str = "dot"
-COMPACT_LAYOUT_ENGINE: str = "dot"
-GRAPH_FONT_PATH: str = (
-    "/System/Library/Fonts:"
-    "/System/Library/Fonts/Supplemental:"
-    "/Library/Fonts:"
-    "/usr/share/fonts:"
-    "/usr/local/share/fonts"
-)
-NON_CONSTRAINING_RELS: frozenset[str] = frozenset(
-    {
-        "contains",
-        "correlates",
-        "negatively_correlates",
-        "does_not_correlate",
-        "does_not_drive",
-    }
-)
-COMPACT_BACKBONE_RELS: frozenset[str] = frozenset(
-    {
-        "activates",
-        "causes",
-        "drives",
-        "induces",
-        "required_for",
-        "produces",
-        "forms_pore_for",
-        "suppresses",
-        "inhibits",
-        "downregulates",
-        "upregulates",
-    }
-)
 COMPACT_NONCONSTRAINING_RELS: frozenset[str] = frozenset(
     {
         "contains",
@@ -73,20 +40,6 @@ COMPACT_NONCONSTRAINING_RELS: frozenset[str] = frozenset(
         "binds_recruits",
         "retains",
     }
-)
-SVG_DASH_PATTERNS: dict[str, str] = {
-    'stroke-dasharray="5,2"': 'stroke-dasharray="2,1.2"',
-    'stroke-dasharray="1,5"': 'stroke-dasharray="1,2"',
-}
-COMPACT_EDGE_LEGEND_ROWS: tuple[tuple[str, str, str], ...] = (
-    ("#55A868", "━━▶", "activation / positive output"),
-    ("#C44E52", "━━┤", "inhibition / downregulation"),
-    ("#4C72B0", "━━▶", "requirement / production"),
-    ("#8172B3", "━━▶", "binding / recruitment"),
-    ("#999999", "···○", "correlation / no effect"),
-    (DEFAULT_REL_COLOR, "━━━━", "direct or perturbation-supported"),
-    (DEFAULT_REL_COLOR, "╍╍╍▶", "canonical inferred"),
-    (DEFAULT_REL_COLOR, "···▶", "correlative"),
 )
 
 
@@ -313,11 +266,14 @@ def aggregate_duplicate_edges(
 def _select_layout_engine(
     layout_engine: str | None,
     compact: bool,
+    *,
+    default_layout_engine: str = "dot",
+    compact_layout_engine: str = "dot",
 ) -> str:
     """Return the Graphviz engine for the requested rendering mode."""
     if layout_engine:
         return layout_engine
-    return COMPACT_LAYOUT_ENGINE if compact else DEFAULT_LAYOUT_ENGINE
+    return compact_layout_engine if compact else default_layout_engine
 
 
 def _highest_degree_node(edges: list[dict[str, Any]]) -> str | None:
@@ -333,7 +289,18 @@ def _highest_degree_node(edges: list[dict[str, Any]]) -> str | None:
     return max(degree_by_node, key=lambda node: (degree_by_node[node], node))
 
 
-def _compact_edge_legend_label() -> str:
+def _compact_edge_legend_label(
+    legend_rows: tuple[tuple[str, str, str], ...] = (
+        ("#55A868", "━━▶", "activation / positive output"),
+        ("#C44E52", "━━┤", "inhibition / downregulation"),
+        ("#4C72B0", "━━▶", "requirement / production"),
+        ("#8172B3", "━━▶", "binding / recruitment"),
+        ("#999999", "···○", "correlation / no effect"),
+        (DEFAULT_REL_COLOR, "━━━━", "direct or perturbation-supported"),
+        (DEFAULT_REL_COLOR, "╍╍╍▶", "canonical inferred"),
+        (DEFAULT_REL_COLOR, "···▶", "correlative"),
+    ),
+) -> str:
     """Return a Graphviz HTML label for the compact edge legend."""
     rows = [
         (
@@ -342,7 +309,7 @@ def _compact_edge_legend_label() -> str:
             f'<TD ALIGN="LEFT"><FONT FACE="{GRAPH_FONT}" '
             f'POINT-SIZE="7">{label}</FONT></TD></TR>'
         )
-        for color, symbol, label in COMPACT_EDGE_LEGEND_ROWS
+        for color, symbol, label in legend_rows
     ]
     rows_text = "\n".join(rows)
     return (
@@ -386,10 +353,26 @@ def _compact_edge_is_backbone(
     rel: str,
     source: str,
     target: str,
+    *,
+    backbone_rels: frozenset[str] = frozenset(
+        {
+            "activates",
+            "causes",
+            "drives",
+            "induces",
+            "required_for",
+            "produces",
+            "forms_pore_for",
+            "suppresses",
+            "inhibits",
+            "downregulates",
+            "upregulates",
+        }
+    ),
 ) -> bool:
     """Return whether an edge should define compact-mode LR flow."""
     del source, target
-    return rel in COMPACT_BACKBONE_RELS
+    return rel in backbone_rels
 
 
 def _edge_constraint(
@@ -397,10 +380,20 @@ def _edge_constraint(
     source: str,
     target: str,
     compact: bool,
+    *,
+    non_constraining_rels: frozenset[str] = frozenset(
+        {
+            "contains",
+            "correlates",
+            "negatively_correlates",
+            "does_not_correlate",
+            "does_not_drive",
+        }
+    ),
 ) -> str:
     """Return the Graphviz constraint flag for an edge."""
     if not compact:
-        return str(rel not in NON_CONSTRAINING_RELS).lower()
+        return str(rel not in non_constraining_rels).lower()
     if rel in COMPACT_NONCONSTRAINING_RELS:
         return "false"
     return str(_compact_edge_is_backbone(rel, source, target)).lower()
@@ -489,6 +482,13 @@ def render(
     annotate_papers: bool = False,
     aggregate_edges: bool = True,
     compact: bool = False,
+    graph_font_path: str = (
+        "/System/Library/Fonts:"
+        "/System/Library/Fonts/Supplemental:"
+        "/Library/Fonts:"
+        "/usr/share/fonts:"
+        "/usr/local/share/fonts"
+    ),
 ) -> None:
     """Render the compendium as a directed pathway diagram via Graphviz.
 
@@ -508,6 +508,8 @@ def render(
       aggregate_edges: If True, merge duplicate source-target-rel edges.
       compact: If True, keep a left-to-right pathway layout while hiding
         edge labels and adding a visual edge legend.
+      graph_font_path: Graphviz font search path used for deterministic
+        font resolution across platforms.
     """
     if not compendium.edges:
         print("  No edges recorded. Add an 'edges:' block to a paper file.")
@@ -529,7 +531,7 @@ def render(
         "splines": "spline",
         "fontname": GRAPH_FONT,
         "fontnames": "ps",
-        "fontpath": GRAPH_FONT_PATH,
+        "fontpath": graph_font_path,
         "ordering": "out",
         "remincross": "true",
         "outputorder": "edgesfirst",
@@ -767,10 +769,19 @@ def convert_svg_to_png(svg_path: Path, png_path: Path) -> None:
     )
 
 
-def postprocess_svg(svg_path: Path) -> None:
+def postprocess_svg(
+    svg_path: Path,
+    dash_patterns: dict[str, str] | None = None,
+) -> None:
     """Post-process Graphviz SVG output for deterministic browser/raster
     style.
     """
+    if dash_patterns is None:
+        dash_patterns = {
+            'stroke-dasharray="5,2"': 'stroke-dasharray="2,1.2"',
+            'stroke-dasharray="1,5"': 'stroke-dasharray="1,2"',
+        }
+
     text = svg_path.read_text()
     text = text.replace(
         'font-family="Helvetica,sans-Serif"',
@@ -780,7 +791,7 @@ def postprocess_svg(svg_path: Path) -> None:
         'font-family="sans-Serif"',
         f'font-family="{SVG_FONT_FAMILY}"',
     )
-    for original, replacement in SVG_DASH_PATTERNS.items():
+    for original, replacement in dash_patterns.items():
         text = text.replace(original, replacement)
     svg_path.write_text(text)
 

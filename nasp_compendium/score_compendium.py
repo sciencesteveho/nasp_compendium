@@ -10,20 +10,6 @@ from typing import Any
 import yaml  # type: ignore
 
 
-REVIEWABLE_SUFFIXES: tuple[str, ...] = (".md", ".yaml", ".yml")
-CORRELATIVE_RELS: frozenset[str] = frozenset(
-    {"correlates", "negatively_correlates", "does_not_correlate"}
-)
-GOLD_DEFECT_PHRASES: tuple[str, ...] = (
-    "almost certainly wrong",
-    "recommend: drop this edge",
-    "possible non-edge",
-    "placeholder",
-    "score_exclude",
-    "gold defect",
-)
-
-
 @dataclasses.dataclass(frozen=True)
 class EdgeRecord:
     """Normalized edge record used for scoring."""
@@ -329,9 +315,12 @@ def _resolve_pairs(
     return pairs
 
 
-def _is_reviewable_file(path: Path) -> bool:
+def _is_reviewable_file(
+    path: Path,
+    suffixes: tuple[str, ...] = (".md", ".yaml", ".yml"),
+) -> bool:
     """Return whether a file has a supported YAML-in-Markdown suffix."""
-    return path.is_file() and path.suffix in REVIEWABLE_SUFFIXES
+    return path.is_file() and path.suffix in suffixes
 
 
 def _paper_key_from_path(path: Path) -> str:
@@ -376,7 +365,17 @@ def _edge_record(edge: dict[str, Any]) -> EdgeRecord:
     )
 
 
-def _is_gold_defect(edge: EdgeRecord) -> bool:
+def _is_gold_defect(
+    edge: EdgeRecord,
+    defect_phrases: tuple[str, ...] = (
+        "almost certainly wrong",
+        "recommend: drop this edge",
+        "possible non-edge",
+        "placeholder",
+        "score_exclude",
+        "gold defect",
+    ),
+) -> bool:
     """Return whether a gold edge is annotated as a scoring defect."""
     text = " ".join(
         [
@@ -387,7 +386,7 @@ def _is_gold_defect(edge: EdgeRecord) -> bool:
             edge.rel,
         ]
     ).lower()
-    return any(phrase in text for phrase in GOLD_DEFECT_PHRASES)
+    return any(phrase in text for phrase in defect_phrases)
 
 
 def _relationship_mismatches(
@@ -427,11 +426,15 @@ def _evidence_mismatches(
 def _symmetric_correlation_differences(
     missed: list[EdgeRecord],
     extra: list[EdgeRecord],
+    *,
+    correlative_rels: frozenset[str] = frozenset(
+        {"correlates", "negatively_correlates", "does_not_correlate"}
+    ),
 ) -> list[EdgeMismatch]:
     """Return reversed-endpoint correlation pairs."""
     differences: list[EdgeMismatch] = []
     for gold_edge in missed:
-        if gold_edge.rel not in CORRELATIVE_RELS:
+        if gold_edge.rel not in correlative_rels:
             continue
         for draft_edge in extra:
             if draft_edge.rel != gold_edge.rel:

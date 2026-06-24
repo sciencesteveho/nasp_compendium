@@ -12,20 +12,11 @@ import yaml  # type: ignore
 from nasp_compendium import validate_compendium
 
 
-REVIEWABLE_SUFFIXES: tuple[str, ...] = (".md", ".yaml", ".yml")
-CLAIM_EDGE_MATRIX_KEY: str = "claim_edge_matrix"
-GRAPH_CANDIDATE_KEY: str = "graph_candidate"
 BRANCH_TYPE_KEY: str = "branch_type"
-CLAIM_REUSE_WARNING_THRESHOLD: int = 3
 ADJUDICATIONS_KEY: str = "adjudications"
 ISSUE_TYPE_KEY: str = "issue_type"
 DECISION_KEY: str = "decision"
-REJECTED_ALTERNATIVE_KEY: str = "rejected_alternative"
-CONVENTION_RULE_KEY: str = "convention_rule"
-NEAREST_INTERMEDIATE_SEARCH_KEY: str = "nearest_intermediate_search"
-CANDIDATE_EDGES_CONSIDERED_KEY: str = "candidate_edges_considered"
 CURATION_DENSITY_KEY: str = "curation_density"
-CORE_RESOURCE_EDGE_LIMIT: int = 12
 BRANCHES_REQUIRING_ADJUDICATION: frozenset[str] = frozenset(
     {
         "sensor_branch",
@@ -36,27 +27,7 @@ BRANCHES_REQUIRING_ADJUDICATION: frozenset[str] = frozenset(
         "negative_specificity",
     }
 )
-REAGENT_ONLY_ENDPOINTS: frozenset[str] = frozenset({"dsDNA90"})
-REAGENT_ENDPOINT_PREFIXES: tuple[str, ...] = (
-    "dsDNA",
-    "ssDNA",
-    "polyIC",
-    "poly_I:C",
-)
-GENERIC_PROCESS_NODES: frozenset[str] = frozenset({"cytosolic_RNA_sensing"})
-SENSING_PROCESS_SUFFIX: str = "_sensing"
 SENSOR_COMPONENT_NODES: frozenset[str] = frozenset({"DDX58", "IFIH1"})
-GRAPH_CANDIDATE_BRANCH_TYPES: frozenset[str] = frozenset(
-    {
-        "main_spine",
-        "sensor_branch",
-        "inflammatory_output",
-        "cohort_association",
-        "state_reversal",
-        "negative_specificity",
-        "organismal_outcome",
-    }
-)
 
 
 def build_review_packet(input_path: Path) -> str:
@@ -115,7 +86,10 @@ def gate_blockers(input_path: Path) -> list[str]:
     return blockers
 
 
-def _load_review_data(input_path: Path) -> dict[Path, dict[str, Any]]:
+def _load_review_data(
+    input_path: Path,
+    reviewable_suffixes: tuple[str, ...] = (".md", ".yaml", ".yml"),
+) -> dict[Path, dict[str, Any]]:
     """Load reviewable YAML files from a file or directory."""
     paths = (
         [input_path]
@@ -126,7 +100,7 @@ def _load_review_data(input_path: Path) -> dict[Path, dict[str, Any]]:
     for path in paths:
         if (
             path.name.endswith(".gold.md")
-            or path.suffix not in REVIEWABLE_SUFFIXES
+            or path.suffix not in reviewable_suffixes
         ):
             continue
         data = yaml.safe_load(path.read_text())
@@ -756,14 +730,29 @@ def _claims_have_field(claims: list[dict[str, Any]], field: str) -> bool:
     )
 
 
-def _claim_graph_candidate(claim: dict[str, Any]) -> bool:
+def _claim_graph_candidate(
+    claim: dict[str, Any],
+    *,
+    graph_candidate_key: str = "graph_candidate",
+    graph_candidate_branch_types: frozenset[str] = frozenset(
+        {
+            "main_spine",
+            "sensor_branch",
+            "inflammatory_output",
+            "cohort_association",
+            "state_reversal",
+            "negative_specificity",
+            "organismal_outcome",
+        }
+    ),
+) -> bool:
     """Return whether a claim is marked as graph-useful."""
-    value = claim.get(GRAPH_CANDIDATE_KEY)
+    value = claim.get(graph_candidate_key)
     if isinstance(value, bool):
         return value
     if value is None:
         return (
-            str(claim.get(BRANCH_TYPE_KEY, "")) in GRAPH_CANDIDATE_BRANCH_TYPES
+            str(claim.get(BRANCH_TYPE_KEY, "")) in graph_candidate_branch_types
         )
     return str(value).strip().lower() in {"1", "true", "yes", "y"}
 
@@ -781,9 +770,12 @@ def _hidden_graph_candidate_claims(
     }
 
 
-def _claim_edge_matrix(data: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+def _claim_edge_matrix(
+    data: dict[str, Any],
+    claim_edge_matrix_key: str = "claim_edge_matrix",
+) -> dict[str, list[dict[str, Any]]]:
     """Return matrix mapped edges keyed by claim id."""
-    matrix = data.get(CLAIM_EDGE_MATRIX_KEY)
+    matrix = data.get(claim_edge_matrix_key)
     if not isinstance(matrix, list):
         return {}
 
@@ -840,6 +832,8 @@ def _edges_without_matrix_support(
 def _broadly_reused_claims(
     edges: list[Any],
     data: dict[str, Any],
+    *,
+    claim_reuse_warning_threshold: int = 3,
 ) -> list[tuple[str, int]]:
     """Return heavily reused support claims lacking matrix detail."""
     matrix = _claim_edge_matrix(data)
@@ -853,7 +847,7 @@ def _broadly_reused_claims(
     return [
         (claim_id, count)
         for claim_id, count in sorted(claim_counts.items())
-        if count > CLAIM_REUSE_WARNING_THRESHOLD and not matrix.get(claim_id)
+        if count > claim_reuse_warning_threshold and not matrix.get(claim_id)
     ]
 
 
@@ -968,7 +962,12 @@ def _unadjudicated_hidden_graph_candidates(data: dict[str, Any]) -> set[str]:
     return hidden - adjudicated
 
 
-def _incomplete_hidden_graph_adjudications(data: dict[str, Any]) -> set[str]:
+def _incomplete_hidden_graph_adjudications(
+    data: dict[str, Any],
+    *,
+    nearest_intermediate_search_key: str = "nearest_intermediate_search",
+    candidate_edges_considered_key: str = "candidate_edges_considered",
+) -> set[str]:
     """Return hidden claim adjudications missing nearest-intermediate search."""
     claims_by_id = _claims_by_id(data)
     hidden = _hidden_graph_candidate_claims(claims_by_id)
@@ -991,7 +990,7 @@ def _incomplete_hidden_graph_adjudications(data: dict[str, Any]) -> set[str]:
             "keep_as_is",
         }:
             continue
-        nearest_search = record.get(NEAREST_INTERMEDIATE_SEARCH_KEY)
+        nearest_search = record.get(nearest_intermediate_search_key)
         if not isinstance(nearest_search, dict):
             incomplete.add(claim_id)
             continue
@@ -1001,7 +1000,7 @@ def _incomplete_hidden_graph_adjudications(data: dict[str, Any]) -> set[str]:
             "1",
             "yes",
         }
-        candidates = nearest_search.get(CANDIDATE_EDGES_CONSIDERED_KEY)
+        candidates = nearest_search.get(candidate_edges_considered_key)
         if not searched_bool or not isinstance(candidates, list):
             incomplete.add(claim_id)
     return incomplete
@@ -1154,14 +1153,17 @@ def _association_balance_warnings(data: dict[str, Any]) -> list[str]:
     return []
 
 
-def _density_warnings(data: dict[str, Any]) -> list[str]:
+def _density_warnings(
+    data: dict[str, Any],
+    core_resource_edge_limit: int = 12,
+) -> list[str]:
     """Return warnings when resource/correlative drafts over-emit core edges."""
     if not _is_correlative_or_resource_scope(data):
         return []
     if _curation_density(data) == "expanded":
         return []
     edge_count = len(_edges_list(data))
-    if edge_count <= CORE_RESOURCE_EDGE_LIMIT:
+    if edge_count <= core_resource_edge_limit:
         return []
     return [
         f"resource/correlative draft has {edge_count} edges with "
@@ -1205,19 +1207,36 @@ def _is_correlative_or_resource_scope(data: dict[str, Any]) -> bool:
     )
 
 
-def _is_reagent_only_endpoint(node: str) -> bool:
+def _is_reagent_only_endpoint(
+    node: str,
+    *,
+    reagent_only_endpoints: frozenset[str] = frozenset({"dsDNA90"}),
+    reagent_endpoint_prefixes: tuple[str, ...] = (
+        "dsDNA",
+        "ssDNA",
+        "polyIC",
+        "poly_I:C",
+    ),
+) -> bool:
     """Return whether a node looks like an assay reagent rather than a graph
     node.
     """
-    return node in REAGENT_ONLY_ENDPOINTS or any(
-        node.startswith(prefix) for prefix in REAGENT_ENDPOINT_PREFIXES
+    return node in reagent_only_endpoints or any(
+        node.startswith(prefix) for prefix in reagent_endpoint_prefixes
     )
 
 
-def _is_generic_sensing_process(node: str) -> bool:
+def _is_generic_sensing_process(
+    node: str,
+    *,
+    generic_process_nodes: frozenset[str] = frozenset(
+        {"cytosolic_RNA_sensing"}
+    ),
+    sensing_process_suffix: str = "_sensing",
+) -> bool:
     """Return whether a node is a generic sensing process."""
-    return node in GENERIC_PROCESS_NODES or node.endswith(
-        SENSING_PROCESS_SUFFIX
+    return node in generic_process_nodes or node.endswith(
+        sensing_process_suffix
     )
 
 
@@ -1253,6 +1272,9 @@ def _edge_adjudication_is_complete(
     data: dict[str, Any],
     edge: dict[str, Any],
     issue_type: str,
+    *,
+    rejected_alternative_key: str = "rejected_alternative",
+    convention_rule_key: str = "convention_rule",
 ) -> bool:
     """Return whether an edge adjudication has issue-specific metadata."""
     record = _edge_adjudication_record(data, edge, issue_type)
@@ -1263,8 +1285,8 @@ def _edge_adjudication_is_complete(
     if issue_type not in {"verb_warning", "evidence_strength_warning"}:
         return True
     return bool(
-        str(record.get(REJECTED_ALTERNATIVE_KEY, "")).strip()
-        and str(record.get(CONVENTION_RULE_KEY, "")).strip()
+        str(record.get(rejected_alternative_key, "")).strip()
+        and str(record.get(convention_rule_key, "")).strip()
     )
 
 

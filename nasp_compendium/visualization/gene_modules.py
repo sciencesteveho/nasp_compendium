@@ -19,14 +19,6 @@ from matplotlib.transforms import blended_transform_factory
 from nasp_compendium.display import humanize_module_name
 
 
-PANEL_COLUMNS = (
-    "gene_symbol",
-    "module_id",
-    "module_class",
-    "scoring_direction",
-)
-
-
 DIRECTION_MARKERS: dict[str, tuple[str, str]] = {
     "positive": ("^", "#2a7f62"),
     "inverse": ("v", "#b5452f"),
@@ -112,24 +104,30 @@ def _darken_color(
 def _load_panel(
     panel_path: str | Path,
     encoding: str = "utf-8",
+    panel_columns: tuple[str, ...] = (
+        "gene_symbol",
+        "module_id",
+        "module_class",
+        "scoring_direction",
+    ),
 ) -> pd.DataFrame:
     """Load and normalize the gene-module panel TSV.
 
-    Reads the panel, restricts to PANEL_COLUMNS, drops rows missing a gene
-    symbol, module_id, or module_class, deduplicates on
-    (gene_symbol, module_id, module_class), and fills missing scoring
-    directions with an empty string.
+    Reads the panel, restricts to panel_columns, drops rows missing a gene
+    symbol, module_id, or module_class, deduplicates on (gene_symbol, module_id,
+    module_class), and fills missing scoring directions with an empty string.
 
     Args:
       panel_path: Path to the panel TSV.
       encoding: Text encoding for the panel file.
+      panel_columns: Columns to retain from the source panel.
 
     Returns:
-      Long-form panel DF with PANEL_COLUMNS, one row per
+      Long-form panel DF with panel_columns, one row per
       (gene_symbol, module_id, module_class).
     """
     panel = pd.read_csv(panel_path, sep="\t", dtype=str, encoding=encoding)
-    panel = panel[list(PANEL_COLUMNS)].dropna(
+    panel = panel[list(panel_columns)].dropna(
         subset=["gene_symbol", "module_id", "module_class"]
     )
     panel = panel.drop_duplicates(
