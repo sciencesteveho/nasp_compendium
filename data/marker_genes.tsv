@@ -587,3 +587,15 @@ UNC93B1	SIGNALING_CONTEXT_TLR	adaptor_signaling	TLR	Early	positive	Broad	low		10
 XBP1	SIGNALING_CONTEXT_TLR	transcriptional_effector	TLR	Active	positive	Broad	high		10.1038/ni.1857			
 IFNAR1	SIGNALING_CONTEXT_IFN_JAK_STAT	signal_transduction		Active	positive	Broad	medium		10.1016/0092-8674(90)90738-Z			
 IFNAR2	SIGNALING_CONTEXT_IFN_JAK_STAT	signal_transduction		Active	positive	Broad	medium		10.1074/jbc.270.37.21606			
+IFIT5	IFN_I_OUTPUT	ifn_antiviral_effector		Active	positive	Broad	low		10.1073/pnas.1412842111			
+CARD11	SIGNALING_CONTEXT_NFKB	adaptor_signaling		early	positive	Immune-enriched	medium		10.1093/emboj/cdf505			
+IL18R1	SIGNALING_CONTEXT_NFKB	signal_transduction		early	positive	Immune-enriched	low		10.1074/jbc.272.41.25737	CD218a		
+RIPK1	SIGNALING_CONTEXT_NFKB	signal_transduction		Active	positive	Broad	low		10.1016/S1074-7613(00)80252-6			
+CD14	SIGNALING_CONTEXT_TLR	surface_tlr_sensor	TLR	early	positive	Myeloid-enriched	high		10.1016/j.cell.2011.09.051			
+CD70	INFLAMMAGING	inflammaging_cytokine		Active	positive	Immune-enriched	low		10.1016/0092-8674(93)90133-B	TNFSF7; CD27LG		
+TNFRSF11A	SIGNALING_CONTEXT_NFKB	signal_transduction		early	positive	Immune-enriched	low		10.1074/jbc.274.12.7724	RANK		
+TNFRSF14	SIGNALING_CONTEXT_NFKB	signal_transduction		Active	positive	Immune-enriched	high		10.1074/jbc.272.22.14029			
+TNFSF13B	INFLAMMAGING	inflammaging_cytokine		Active	positive	Immune-enriched	medium		10.1084/jem.190.11.1697	BAFF		
+TRAF5	SIGNALING_CONTEXT_NFKB	adaptor_signaling		early	positive	Immune-enriched	medium	SIGNALING_CONTEXT_NFKB	10.1073/pnas.96.17.9803			
+ZC3H12A	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	medium	NASP_FEEDBACK	10.1038/nature07924			
+ZFP36	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	high	NASP_FEEDBACK	10.1126/science.281.5379.1001	TTP		

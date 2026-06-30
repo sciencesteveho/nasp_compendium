@@ -10,6 +10,7 @@
 | TAP1 | ifn_antigen_presentation |  | Active | positive | Broad | high |  | [10.1371/journal.pone.0180958](https://doi.org/10.1371/journal.pone.0180958) |  |  |  |
 | GBP1 | ifn_antiviral_effector |  | Active | positive | Immune-enriched | medium |  | [10.1084/jem.20182031](https://doi.org/10.1084/jem.20182031) |  |  |  |
 | GBP5 | ifn_antiviral_effector |  | Active | positive | Immune-enriched | high |  | [10.1084/jem.20182031](https://doi.org/10.1084/jem.20182031) |  |  |  |
+| IFIT5 | ifn_antiviral_effector |  | Active | positive | Broad | low |  | [10.1073/pnas.1412842111](https://doi.org/10.1073/pnas.1412842111) |  |  |  |
 | ISG20 | ifn_antiviral_effector |  | Active | positive | Broad | high |  | [10.1128/mSphere.00209-18](https://doi.org/10.1128/mSphere.00209-18) |  |  |  |
 | RSAD2 | ifn_antiviral_effector |  | Active | positive | Broad | medium |  | [10.3390/pathogens14050510](https://doi.org/10.3390/pathogens14050510) |  |  |  |
 | SAMD9 | ifn_antiviral_effector |  | Active | positive | Broad | medium |  | [10.1128/mBio.00385-13](https://doi.org/10.1128/mBio.00385-13) |  |  |  |

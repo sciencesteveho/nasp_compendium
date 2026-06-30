@@ -10,4 +10,6 @@
 | SOCS3 | induced_negative_regulator |  | Active | positive | Broad | high |  | [10.1161/ATVBAHA.110.207464](https://doi.org/10.1161/ATVBAHA.110.207464) |  |  |  |
 | TNFAIP3 | induced_negative_regulator |  | Active | positive | Broad | high | NFKB_CYTOKINE_OUTPUT | [10.1182/blood-2008-08-174110](https://doi.org/10.1182/blood-2008-08-174110) |  |  |  |
 | USP18 | induced_negative_regulator |  | Active | positive | Broad | low |  | [10.1042/BSR20180250](https://doi.org/10.1042/BSR20180250) |  |  |  |
+| ZC3H12A | induced_negative_regulator |  | Active | positive | Broad | medium | NASP_FEEDBACK | [10.1038/nature07924](https://doi.org/10.1038/nature07924) |  |  |  |
 | ZFP36 | induced_negative_regulator |  | Active | positive | Broad | high |  | [10.1126/science.281.5379.1001](https://doi.org/10.1126/science.281.5379.1001) |  |  |  |
+| ZFP36 | induced_negative_regulator |  | Active | positive | Broad | high | NASP_FEEDBACK | [10.1126/science.281.5379.1001](https://doi.org/10.1126/science.281.5379.1001) | TTP |  |  |

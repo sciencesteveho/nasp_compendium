@@ -20,6 +20,7 @@
 | CCL11 | inflammaging_cytokine |  | Post-NASP | positive | Immune-enriched | low |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | Eotaxin |  | Franceschi et al., Nature Aging, 2025 |
 | CCL3 | inflammaging_cytokine |  | Post-NASP | positive | Broad | high | SASP | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | MIP1α |  | Franceschi et al., Nature Aging, 2025 |
 | CD40LG | inflammaging_cytokine |  | Post-NASP | positive | Immune-enriched | low |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) |  |  | Franceschi et al., Nature Aging, 2025 |
+| CD70 | inflammaging_cytokine |  | Active | positive | Immune-enriched | low |  | [10.1016/0092-8674(93)90133-B](https://doi.org/10.1016/0092-8674(93)90133-B) | TNFSF7; CD27LG |  |  |
 | CXCL1 | inflammaging_cytokine |  | Post-NASP | positive | Broad | high | SASP; NFKB_CYTOKINE_OUTPUT | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) |  |  | Franceschi et al., Nature Aging, 2025 |
 | IFNA1 | inflammaging_cytokine |  | Post-NASP | positive | Broad | low |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | IFNα |  | Franceschi et al., Nature Aging, 2025 |
 | IFNG | inflammaging_cytokine |  | Post-NASP | positive | Immune-enriched | medium | SASP | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | FNγ |  | Franceschi et al., Nature Aging, 2025 |
@@ -34,6 +35,7 @@
 | SERPINE1 | inflammaging_cytokine |  | Post-NASP | positive | Broad | high |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | PAI1 |  | Franceschi et al., Nature Aging, 2025 |
 | TGFA | inflammaging_cytokine |  | Post-NASP | positive | Broad | low |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | TGFα |  | Franceschi et al., Nature Aging, 2025 |
 | TNFSF10 | inflammaging_cytokine |  | Post-NASP | positive | Immune-enriched | high |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) | TRAIL |  | Franceschi et al., Nature Aging, 2025 |
+| TNFSF13B | inflammaging_cytokine |  | Active | positive | Immune-enriched | medium |  | [10.1084/jem.190.11.1697](https://doi.org/10.1084/jem.190.11.1697) | BAFF |  |  |
 | PDGFA | inflammaging_growth_factor |  | Post-NASP | positive | Broad | medium |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) |  |  | Franceschi et al., Nature Aging, 2025 |
 | PDGFB | inflammaging_growth_factor |  | Post-NASP | positive | Broad | low |  | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) |  |  | Franceschi et al., Nature Aging, 2025 |
 | CD163 | myeloid_activation |  | Post-NASP | positive | Immune-enriched | medium |  | [10.1089/ars.2012.4834](https://doi.org/10.1089/ars.2012.4834) |  |  |  |
