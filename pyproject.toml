@@ -56,7 +56,10 @@ omit = [
 where = ["."]
 include = ["nasp_compendium*"]
 
-[tool.setuptools.package-data]
+[tool.setuptools.data-files]
+"share/nasp_compendium/data" = ["data/marker_genes.tsv"]
+
+[tool.setuptools.exclude-package-data]
 nasp_compendium = ["data/*.tsv"]
 
 [tool.ruff]

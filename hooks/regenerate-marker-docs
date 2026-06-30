@@ -7,7 +7,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 cd "${repo_root}"
 
 marker_tsv="${NASP_MARKER_TSV:-$(git config --get nasp.markerTsv || true)}"
-marker_tsv="${marker_tsv:-data/nasp_gene_modules.tsv}"
+marker_tsv="${marker_tsv:-data/marker_genes.tsv}"
 docs_dir="${NASP_DOCS_DIR:-$(git config --get nasp.docsDir || true)}"
 docs_dir="${docs_dir:-docs/marker_genes}"
 

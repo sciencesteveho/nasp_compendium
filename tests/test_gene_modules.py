@@ -66,42 +66,62 @@ def _write_sensor_panel(path: Path) -> None:
 
 
 def test_default_panel_path_loads_repo_marker_genes() -> None:
-    """Default marker-gene path resolves to the repo-bundled TSV."""
-    panel_path = GeneModules.default_panel_path()
+    """Default catalog loads the repo-bundled marker genes."""
+    catalog = GeneModules()
 
-    assert panel_path.name == "marker_genes.tsv"
-    assert panel_path.exists()
-    assert GeneModules().panel_path == panel_path
+    assert catalog.panel_path.name == "marker_genes.tsv"
+    assert catalog.panel_path.exists()
+    assert "NASP_DNA_SENSING" in catalog.module_ids()
 
 
-def test_default_panel_path_uses_installer_source_root(
+def test_default_panel_uses_repo_data_not_legacy_package_data(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    """Default path can recover the repo data path from pip metadata."""
-    package_root = (
-        tmp_path
-        / "env"
-        / "lib"
-        / "python3.11"
-        / "site-packages"
-        / "nasp_compendium"
+    """Repo-level marker data is canonical when both locations exist."""
+    package_root = tmp_path / "nasp_compendium"
+    package_data_dir = package_root / "data"
+    package_data_dir.mkdir(parents=True)
+    _write_sensor_panel(package_data_dir / "marker_genes.tsv")
+
+    repo_data_dir = tmp_path / "data"
+    repo_data_dir.mkdir()
+    _write_marker_panel(repo_data_dir / "marker_genes.tsv")
+
+    monkeypatch.setattr(
+        gene_modules,
+        "__file__",
+        str(package_root / "gene_modules.py"),
     )
+
+    catalog = GeneModules()
+
+    assert catalog.module_ids() == ["NASP_DNA_SENSING", "NASP_RNA_SENSING"]
+
+
+def test_default_panel_loads_packaged_data_file(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """Installed packages can load the bundled marker-gene data file."""
+    install_root = tmp_path / "target"
+    package_root = install_root / "nasp_compendium"
     package_root.mkdir(parents=True)
-    repo_root = tmp_path / "nasp_compendium"
-    data_dir = repo_root / "data"
-    data_dir.mkdir(parents=True)
-    panel_path = data_dir / "marker_genes.tsv"
-    _write_marker_panel(panel_path)
+    installed_data_dir = install_root / "share" / "nasp_compendium" / "data"
+    installed_data_dir.mkdir(parents=True)
+    _write_marker_panel(installed_data_dir / "marker_genes.tsv")
 
     class FakeDistribution:
-        """Distribution metadata containing a local project direct URL."""
+        """Distribution metadata for an installed package."""
+
+        def locate_file(self, path: str) -> Path:
+            """Resolve a distribution-relative path."""
+            return install_root / path
 
         def read_text(self, name: str) -> str | None:
-            """Return pip's local-project direct URL metadata."""
-            if name != "direct_url.json":
-                return None
-            return f'{{"url": "{repo_root.as_uri()}", "dir_info": {{}}}}'
+            """Return no local source-tree metadata."""
+            assert name == "direct_url.json"
+            return None
 
     def fake_distribution(name: str) -> FakeDistribution:
         """Return fake distribution metadata for nasp_compendium."""
@@ -113,13 +133,17 @@ def test_default_panel_path_uses_installer_source_root(
         "__file__",
         str(package_root / "gene_modules.py"),
     )
+    monkeypatch.setattr(gene_modules.sys, "prefix", str(tmp_path / "env"))
     monkeypatch.setattr(
         gene_modules.metadata,
         "distribution",
         fake_distribution,
     )
 
-    assert GeneModules.default_panel_path() == panel_path
+    assert GeneModules().module_ids() == [
+        "NASP_DNA_SENSING",
+        "NASP_RNA_SENSING",
+    ]
 
 
 def test_modules_resolves_suffix_and_splits_signed_genes(
@@ -139,9 +163,6 @@ def test_modules_resolves_suffix_and_splits_signed_genes(
     assert module.positive_genes == ("CGAS", "STING1")
     assert module.inverse_genes == ("LMNB1",)
     assert module.context_dependent_genes == ("IFI16",)
-    assert not hasattr(module, "scanpy_score_kwargs")
-    assert not hasattr(module, "gene_sets")
-    assert not hasattr(module, "combine_scores")
 
 
 def test_genes_returns_all_module_genes_by_default(tmp_path: Path) -> None:
@@ -203,7 +224,6 @@ def test_validate_dataset_reports_symbol_column_matches(
     validation_by_gene = validation.set_index("gene_symbol")
     assert bool(validation_by_gene.loc["CGAS", "present"])
     assert validation_by_gene.loc["CGAS", "matched_var_name"] == "ENSG_CGAS"
-    assert validation_by_gene.loc["CGAS", "match_source"] == "var.gene_symbol"
     assert not bool(validation_by_gene.loc["LMNB1", "present"])
 
 

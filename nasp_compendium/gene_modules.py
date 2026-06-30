@@ -5,6 +5,7 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
+import sys
 from collections.abc import Iterable
 from importlib import metadata
 from pathlib import Path
@@ -21,6 +22,9 @@ from nasp_compendium.types import GeneModule
 
 _MARKER_PANEL_FILENAME = "marker_genes.tsv"
 _MARKER_PANEL_ENV_VAR = "NASP_MARKER_GENES_TSV"
+_INSTALLED_MARKER_PANEL_PATH = (
+    Path("share") / "nasp_compendium" / "data" / _MARKER_PANEL_FILENAME
+)
 
 
 def _deduplicate_paths(paths: Iterable[Path]) -> list[Path]:
@@ -68,6 +72,17 @@ def _distribution_project_root(
     return _project_root_from_direct_url(direct_url_text)
 
 
+def _distribution_installed_panel_path(
+    distribution_name: str = "nasp_compendium",
+) -> Path | None:
+    """Return the installed data-file path recorded by distribution metadata."""
+    try:
+        distribution = metadata.distribution(distribution_name)
+    except metadata.PackageNotFoundError:
+        return None
+    return Path(distribution.locate_file(str(_INSTALLED_MARKER_PANEL_PATH)))
+
+
 def _default_panel_path_candidates() -> list[Path]:
     """Return candidate locations for the bundled marker-gene panel."""
     candidates: list[Path] = []
@@ -76,13 +91,17 @@ def _default_panel_path_candidates() -> list[Path]:
         candidates.append(Path(env_path))
 
     module_path = Path(__file__).resolve()
-    candidates.append(module_path.parent / "data" / _MARKER_PANEL_FILENAME)
     candidates.append(
         module_path.parent.parent / "data" / _MARKER_PANEL_FILENAME
     )
+    candidates.append(Path(sys.prefix) / _INSTALLED_MARKER_PANEL_PATH)
+    if installed_panel_path := _distribution_installed_panel_path():
+        candidates.append(installed_panel_path)
 
     if project_root := _distribution_project_root():
         candidates.append(project_root / "data" / _MARKER_PANEL_FILENAME)
+
+    candidates.append(module_path.parent / "data" / _MARKER_PANEL_FILENAME)
 
     return _deduplicate_paths(candidates)
 
