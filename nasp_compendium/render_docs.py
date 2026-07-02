@@ -113,6 +113,7 @@ def render_module(
 def render_index(
     module_ids: Iterable[str],
     figure_relpath: str | None = None,
+    overlap_figure_relpath: str | None = None,
     title: str = "Marker gene taxonomy",
 ) -> str:
     """Render the marker-gene landing page.
@@ -121,6 +122,9 @@ def render_index(
       module_ids: Module ids to list, in display order.
       figure_relpath: Optional path to the whole-taxonomy barplot, relative to
         the index file, embedded beneath the heading.
+      overlap_figure_relpath: Optional path to the module shared-gene overlap
+        heatmap, relative to the index file, embedded beneath the taxonomy
+        figure.
       title: Page heading.
 
     Returns:
@@ -129,6 +133,11 @@ def render_index(
     lines = [f"# {title}", ""]
     if figure_relpath is not None:
         lines += [f"![Module taxonomy]({figure_relpath})", ""]
+    if overlap_figure_relpath is not None:
+        lines += [
+            f"![Inter-module shared-gene overlaps]({overlap_figure_relpath})",
+            "",
+        ]
     lines += ["## Modules", ""]
     lines.extend(
         f"- [{humanize_module_name(module_id)}]({module_stem(module_id)}.md)"
@@ -212,6 +221,7 @@ def render_docs(
     output_dir: Path,
     module_figures: dict[str, Path] | None = None,
     index_figure: Path | None = None,
+    index_overlap_figure: Path | None = None,
     index_name: str = "index.md",
 ) -> None:
     """Render all marker-gene Markdown docs from a TSV file.
@@ -222,6 +232,8 @@ def render_docs(
       module_figures: Optional mapping from module_id to a Sankey figure path;
         each is embedded on its module page as a link relative to output_dir.
       index_figure: Optional whole-taxonomy figure embedded on the index page.
+      index_overlap_figure: Optional module shared-gene overlap heatmap
+        embedded on the index page.
       index_name: Filename for the generated landing page.
     """
     marker_table = _read_marker_table(input_path)
@@ -241,8 +253,9 @@ def render_docs(
         rendered_module_ids.append(module_key)
 
     index_relpath = _relative_figure(index_figure, output_dir)
+    index_overlap_relpath = _relative_figure(index_overlap_figure, output_dir)
     (output_dir / index_name).write_text(
-        render_index(rendered_module_ids, index_relpath),
+        render_index(rendered_module_ids, index_relpath, index_overlap_relpath),
         encoding="utf-8",
     )
 

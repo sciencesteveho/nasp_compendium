@@ -8,13 +8,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib import colors as mcolors
 from matplotlib.axes import Axes
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Colormap
+from matplotlib.colors import ListedColormap
+from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
 from matplotlib.patches import Rectangle
 from matplotlib.path import Path as MplPath
 from matplotlib.transforms import blended_transform_factory
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes  # type: ignore
 
 from nasp_compendium.display import humanize_module_name
 
@@ -57,6 +63,42 @@ def apply_publication_style() -> None:
     this module and need the same styling.
     """
     _set_matplotlib_publication_parameters()
+
+
+def _pastelize_cmap(
+    cmap_name: str = "YlGnBu",
+    blend: float = 0.20,
+) -> ListedColormap:
+    """Return a lighter variant of a matplotlib colormap."""
+    base = plt.colormaps[cmap_name].resampled(256)
+    colors = base(np.linspace(0, 1, 256))
+    colors[:, :3] = colors[:, :3] * (1 - blend) + blend
+    return ListedColormap(colors, name=f"{cmap_name}_pastel")
+
+
+def _zero_gray_cmap(
+    cmap: Colormap | str,
+    *,
+    zero_position: float | str = "low",
+) -> ListedColormap:
+    """Return a copy of `cmap` with the zero position set to light gray."""
+    base = plt.get_cmap(cmap) if isinstance(cmap, str) else cmap
+    colors = base(np.linspace(0, 1, 256))
+    if zero_position == "low":
+        position = 0.0
+    elif zero_position == "center":
+        position = 0.5
+    elif zero_position == "high":
+        position = 1.0
+    else:
+        position = float(np.clip(float(zero_position), 0.0, 1.0))
+
+    index = round(position * (len(colors) - 1))
+    colors[index] = mcolors.to_rgba("#eeeeee")
+    name = getattr(base, "name", "cmap")
+    cmap_with_zero = ListedColormap(colors, name=f"{name}_zero_gray")
+    cmap_with_zero.set_bad(color="white")
+    return cmap_with_zero
 
 
 def list_module_ids(
@@ -535,6 +577,258 @@ def taxonomy_class_barplot(
         bar_spacing=bar_spacing,
         bar_height=bar_height,
     )
+
+
+def module_gene_overlap_matrix(
+    panel_path: str | Path,
+    *,
+    encoding: str = "utf-8",
+    module_order: Sequence[str] | None = None,
+    include_self: bool = False,
+) -> pd.DataFrame:
+    """Return pairwise shared-gene counts between marker-gene modules.
+
+    Args:
+      panel_path: Path to the panel TSV.
+      encoding: Text encoding for the panel file.
+      module_order: Optional explicit module_id order; unlisted modules are
+        appended alphabetically.
+      include_self: Whether the diagonal should contain each module's gene
+        count. Defaults to False for an inter-module overlap view.
+
+    Returns:
+      Square DataFrame indexed and columned by module_id, with integer shared
+      gene counts.
+    """
+    panel = pd.read_csv(
+        panel_path,
+        sep="\t",
+        dtype=str,
+        encoding=encoding,
+        usecols=["gene_symbol", "module_id"],
+    ).dropna(subset=["gene_symbol", "module_id"])
+    panel["gene_symbol"] = panel["gene_symbol"].str.strip().str.upper()
+    panel["module_id"] = panel["module_id"].str.strip()
+    panel = panel[(panel["gene_symbol"] != "") & (panel["module_id"] != "")]
+    panel = panel.drop_duplicates(subset=["gene_symbol", "module_id"])
+
+    module_gene_sets = panel.groupby("module_id")["gene_symbol"].apply(set)
+    if module_order is None:
+        ordered_modules = sorted(module_gene_sets.index.tolist())
+    else:
+        present = set(module_gene_sets.index)
+        ordered_modules = [
+            module for module in module_order if module in present
+        ]
+        ordered_modules.extend(
+            sorted(
+                module
+                for module in module_gene_sets.index
+                if module not in ordered_modules
+            )
+        )
+
+    values = np.zeros((len(ordered_modules), len(ordered_modules)), dtype=int)
+    for row_index, row_module in enumerate(ordered_modules):
+        row_genes = module_gene_sets[row_module]
+        for col_index, col_module in enumerate(ordered_modules):
+            if row_index == col_index and not include_self:
+                continue
+            values[row_index, col_index] = len(
+                row_genes.intersection(module_gene_sets[col_module])
+            )
+
+    return pd.DataFrame(values, index=ordered_modules, columns=ordered_modules)
+
+
+def _style_module_overlap_heatmap_axis(
+    *,
+    ax: Axes,
+    module_labels: list[str],
+) -> None:
+    """Apply shared publication styling to a module-overlap heatmap."""
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_xticks(range(len(module_labels)))
+    ax.set_xticklabels(
+        module_labels,
+        rotation=270,
+        ha="center",
+        va="top",
+        color="black",
+    )
+    ax.set_yticks(range(len(module_labels)))
+    ax.set_yticklabels(module_labels, color="black")
+    ax.tick_params(axis="both", which="major", length=0, pad=2.1)
+
+    ax.set_xticks(np.arange(-0.5, len(module_labels), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(module_labels), 1), minor=True)
+    ax.grid(which="minor", color="white", linewidth=0.25)
+    ax.tick_params(axis="both", which="minor", length=0)
+
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set_visible(True)
+        label.set_clip_on(False)
+
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+
+def _draw_lower_triangle_grid(
+    *,
+    ax: Axes,
+    n_modules: int,
+    include_self: bool,
+) -> None:
+    """Draw white cell boundaries only for the visible lower triangle."""
+    for row_index in range(n_modules):
+        last_col_index = row_index + 1 if include_self else row_index
+        for col_index in range(last_col_index):
+            ax.add_patch(
+                Rectangle(
+                    (col_index - 0.5, row_index - 0.5),
+                    1,
+                    1,
+                    fill=False,
+                    edgecolor="white",
+                    linewidth=0.25,
+                )
+            )
+
+
+def _add_heatmap_colorbar(
+    *,
+    fig: Figure,
+    ax: Axes,
+    mappable: ScalarMappable,
+    title: str,
+    cbar_width: str | float = "3%",
+    cbar_height: str | float = "50%",
+) -> None:
+    """Add a compact colorbar beside a heatmap."""
+    cax = inset_axes(
+        ax,
+        width=cbar_width,
+        height=cbar_height,
+        loc="center left",
+        bbox_to_anchor=(1, 0.25, 1, 0.5),
+        bbox_transform=ax.transAxes,
+        borderpad=0,
+    )
+    cbar = fig.colorbar(mappable, cax=cax)
+    cbar.ax.tick_params(length=1.5, pad=0.5)
+    cbar.ax.set_ylabel(title, rotation=270, labelpad=4, va="bottom")
+
+
+def module_gene_overlap_heatmap(
+    panel_path: str | Path,
+    *,
+    outpath: str | Path,
+    encoding: str = "utf-8",
+    module_order: Sequence[str] | None = None,
+    include_self: bool = False,
+    cell_size: float = 0.11,
+    min_width: float = 1.5,
+    min_height: float = 1.5,
+    cmap: Colormap | str | None = None,
+) -> Path:
+    """Plot pairwise module shared-gene counts as a square-cell heatmap.
+
+    Args:
+      panel_path: Path to the panel TSV.
+      outpath: Output path for the saved figure.
+      encoding: Text encoding for the panel file.
+      module_order: Optional explicit module_id order; unlisted modules are
+        appended alphabetically.
+      include_self: Whether to include each module's own gene count on the
+        diagonal. Defaults to False for inter-module overlaps only.
+      cell_size: Width and height of each heatmap cell in inches.
+      min_width: Minimum heatmap panel width in inches.
+      min_height: Minimum heatmap panel height in inches.
+      cmap: Colormap for overlap counts. Defaults to the same pastel YlGnBu
+        family used for atlas expression heatmaps.
+
+    Returns:
+      Path to the written figure file.
+    """
+    _set_matplotlib_publication_parameters()
+    overlap = module_gene_overlap_matrix(
+        panel_path,
+        encoding=encoding,
+        module_order=module_order,
+        include_self=include_self,
+    )
+    if overlap.empty:
+        raise ValueError("No module-gene rows found for overlap heatmap.")
+
+    values = overlap.to_numpy(dtype=float)
+    mask_diagonal = 1 if include_self else 0
+    visible_values = np.ma.masked_where(
+        np.triu(np.ones_like(values, dtype=bool), k=mask_diagonal),
+        values,
+    )
+    max_value = float(values.max()) if values.size else 0.0
+    vmax = max(1.0, max_value)
+    heatmap_cmap = _zero_gray_cmap(
+        cmap if cmap is not None else _pastelize_cmap("YlGnBu", blend=0.20),
+        zero_position="low",
+    )
+
+    n_modules = len(overlap.index)
+    panel_w = max(min_width, n_modules * cell_size)
+    panel_h = max(min_height, n_modules * cell_size)
+    fig, ax = plt.subplots(figsize=(panel_w, panel_h))
+    image = ax.imshow(
+        visible_values,
+        aspect="equal",
+        cmap=heatmap_cmap,
+        interpolation="nearest",
+        vmin=0,
+        vmax=vmax,
+    )
+    ax.set_box_aspect(1)
+
+    module_labels = [
+        humanize_module_name(module_id) for module_id in overlap.index
+    ]
+    _style_module_overlap_heatmap_axis(ax=ax, module_labels=module_labels)
+    _draw_lower_triangle_grid(
+        ax=ax,
+        n_modules=n_modules,
+        include_self=include_self,
+    )
+
+    annotation_fontsize = _font_size_points(plt.rcParams["font.size"])
+    for row_index, row in enumerate(values):
+        for col_index, value in enumerate(row):
+            if col_index > row_index or (
+                col_index == row_index and not include_self
+            ):
+                continue
+            if value <= 0:
+                continue
+            ax.text(
+                col_index,
+                row_index,
+                str(int(value)),
+                ha="center",
+                va="center",
+                fontsize=annotation_fontsize,
+                color="black",
+            )
+
+    _add_heatmap_colorbar(
+        fig=fig,
+        ax=ax,
+        mappable=image,
+        title="Shared genes",
+    )
+
+    output_path = Path(outpath)
+    fig.savefig(output_path, bbox_inches="tight", dpi=450)
+    plt.close(fig)
+
+    return output_path
 
 
 def _sibling_color(

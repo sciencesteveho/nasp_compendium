@@ -20,7 +20,7 @@ def regenerate(
 
     Writes one Sankey per module and a whole-taxonomy barplot into
     `docs_dir/assets_subdir`, then renders the Markdown with each module's
-    Sankey embedded on its page and the barplot on the index page.
+    Sankey embedded on its page and the summary figures on the index page.
 
     Args:
       input_path: Path to the marker-gene TSV source file.
@@ -55,11 +55,18 @@ def regenerate(
         cmap=cmap_barplot,
     )
 
+    index_overlap_figure = assets_dir / "module_gene_overlap_heatmap.png"
+    gene_modules.module_gene_overlap_heatmap(
+        input_path,
+        outpath=index_overlap_figure,
+    )
+
     render_docs_module.render_docs(
         input_path=input_path,
         output_dir=docs_dir,
         module_figures=module_figures,
         index_figure=index_figure,
+        index_overlap_figure=index_overlap_figure,
         index_name="README.md",
     )
 

@@ -9,6 +9,8 @@ import pandas as pd
 
 from nasp_compendium import GeneModules
 from nasp_compendium import gene_modules
+from nasp_compendium import render_docs
+from nasp_compendium.visualization import gene_modules as viz_gene_modules
 
 
 class FakeAnnData:
@@ -59,6 +61,25 @@ def _write_sensor_panel(path: Path) -> None:
                 "MRE11\tNASP_DNA_SENSING\tpositive\tdna_damage_sensor",
                 "JMJD6\tNASP_DNA_SENSING\tpositive\tconfirmed",
                 "CGAS\tSIGNALING_CONTEXT\tpositive\tdna_sensor",
+            ]
+        )
+        + "\n"
+    )
+
+
+def _write_overlap_panel(path: Path) -> None:
+    """Write a minimal marker-gene panel with cross-module overlaps."""
+    path.write_text(
+        "\n".join(
+            [
+                "gene_symbol\tmodule_id",
+                "A\tMODULE_ONE",
+                "B\tMODULE_ONE",
+                "B\tMODULE_TWO",
+                "C\tMODULE_TWO",
+                "C\tMODULE_THREE",
+                "D\tMODULE_THREE",
+                "D\tMODULE_THREE",
             ]
         )
         + "\n"
@@ -144,6 +165,56 @@ def test_default_panel_loads_packaged_data_file(
         "NASP_DNA_SENSING",
         "NASP_RNA_SENSING",
     ]
+
+
+def test_module_gene_overlap_matrix_counts_intersections(
+    tmp_path: Path,
+) -> None:
+    """Overlap matrix counts shared genes and grays the self diagonal."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_overlap_panel(panel_path)
+
+    overlap = viz_gene_modules.module_gene_overlap_matrix(panel_path)
+
+    assert overlap.index.tolist() == [
+        "MODULE_ONE",
+        "MODULE_THREE",
+        "MODULE_TWO",
+    ]
+    assert overlap.loc["MODULE_ONE", "MODULE_ONE"] == 0
+    assert overlap.loc["MODULE_ONE", "MODULE_TWO"] == 1
+    assert overlap.loc["MODULE_TWO", "MODULE_THREE"] == 1
+    assert overlap.loc["MODULE_ONE", "MODULE_THREE"] == 0
+
+
+def test_module_gene_overlap_matrix_can_include_self_counts(
+    tmp_path: Path,
+) -> None:
+    """Overlap matrix can keep module gene counts on the diagonal."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_overlap_panel(panel_path)
+
+    overlap = viz_gene_modules.module_gene_overlap_matrix(
+        panel_path,
+        include_self=True,
+    )
+
+    assert overlap.loc["MODULE_THREE", "MODULE_THREE"] == 2
+
+
+def test_render_index_embeds_overlap_heatmap() -> None:
+    """Marker-gene README can include the shared-gene overlap heatmap."""
+    markdown = render_docs.render_index(
+        ["NASP_DNA_SENSING"],
+        figure_relpath="assets/taxonomy_class_barplot.png",
+        overlap_figure_relpath="assets/module_gene_overlap_heatmap.png",
+    )
+
+    assert "![Module taxonomy](assets/taxonomy_class_barplot.png)" in markdown
+    assert (
+        "![Inter-module shared-gene overlaps]"
+        "(assets/module_gene_overlap_heatmap.png)"
+    ) in markdown
 
 
 def test_modules_resolves_suffix_and_splits_signed_genes(

@@ -2,6 +2,8 @@
 
 ![Module taxonomy](assets/taxonomy_class_barplot.png)
 
+![Inter-module shared-gene overlaps](assets/module_gene_overlap_heatmap.png)
+
 ## Modules
 
 - [Aging hallmarks](aging_hallmarks.md)
