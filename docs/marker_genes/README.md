@@ -7,6 +7,7 @@
 ## Modules
 
 - [Aging hallmarks](aging_hallmarks.md)
+- [Aging protective](aging_protective.md)
 - [Autophagy](autophagy.md)
 - [cGAMP transport](cgamp_transport.md)
 - [IFN-I output](ifn_i_output.md)

@@ -170,23 +170,23 @@ ATF3	TE_DEREPRESSION	te_activator	RLR	Active	positive	Broad	high		10.1038/s43587
 FOXA1	TE_DEREPRESSION	te_activator	cGAS-STING	Early	positive	Liver-enriched	medium		10.1038/s41586-018-0784-9			
 SMARCA4	TE_DEREPRESSION	te_repressor		Active	inverse	Broad	high		10.1126/sciadv.adn2811			
 MTOR	AGING_HALLMARKS	nutrient_sensing		Post-NASP	context_dependent	Broad	medium		10.1038/nature08221			
-BANF1	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	high		10.1016/j.cell.2022.11.001			
-BUB1B	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.15252/embj.201386907			
-COL3A1	AGING_HALLMARKS	tissue_remodeling		Post-NASP	inverse	Fibroblast-enriched	high		10.1038/s41586-026-10542-3			
-EDA2R	AGING_HALLMARKS	tissue_remodeling		Post-NASP	inverse	Broad	low		10.1038/s41586-026-10542-3			
-FOXO3	AGING_HALLMARKS	proteostasis		Post-NASP	inverse	Broad	high		10.1093/gerona/glab378			
-KL	AGING_HALLMARKS	endocrine_longevity		Post-NASP	inverse	Kidney-enriched	low		10.1038/36285	Klotho		
-LAMP2	AGING_HALLMARKS	proteostasis		Post-NASP	inverse	Broad	high		10.1038/s41586-020-03129-z	LAMP2A		
-LMNA	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	high		10.1016/j.cell.2022.11.001			
-PIN1	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	medium		10.1016/j.celrep.2021.109694			
-SIRT1	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.1080/00207454.2022.2057849			
-SIRT3	AGING_HALLMARKS	mitochondrial_maintenance		Post-NASP	inverse	Broad	low		10.1016/j.celrep.2013.01.005			
-SIRT6	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.1016/j.cell.2019.03.043			
-SIRT7	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.1080/00207454.2022.2057849			
-TERT	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.1016/j.cell.2008.09.034			
-VEGFA	AGING_HALLMARKS	angiogenic		Post-NASP	inverse	Broad	high		10.1126/science.abc8479	VEGF		
-WRN	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	medium		10.1021/bi0266986			
-ZMPSTE24	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	medium		10.1083/jcb.200801096			
+BANF1	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	high		10.1016/j.cell.2022.11.001			
+BUB1B	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	low		10.15252/embj.201386907			
+COL3A1	AGING_PROTECTIVE	tissue_remodeling		Post-NASP	positive	Fibroblast-enriched	high		10.1038/s41586-026-10542-3			
+EDA2R	AGING_PROTECTIVE	tissue_remodeling		Post-NASP	positive	Broad	low		10.1038/s41586-026-10542-3			
+FOXO3	AGING_PROTECTIVE	proteostasis		Post-NASP	positive	Broad	high		10.1093/gerona/glab378			
+KL	AGING_PROTECTIVE	endocrine_longevity		Post-NASP	positive	Kidney-enriched	low		10.1038/36285	Klotho		
+LAMP2	AGING_PROTECTIVE	proteostasis		Post-NASP	positive	Broad	high		10.1038/s41586-020-03129-z	LAMP2A		
+LMNA	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	high		10.1016/j.cell.2022.11.001			
+PIN1	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	medium		10.1016/j.celrep.2021.109694			
+SIRT1	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	low		10.1080/00207454.2022.2057849			
+SIRT3	AGING_PROTECTIVE	mitochondrial_maintenance		Post-NASP	positive	Broad	low		10.1016/j.celrep.2013.01.005			
+SIRT6	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	low		10.1016/j.cell.2019.03.043			
+SIRT7	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	low		10.1080/00207454.2022.2057849			
+TERT	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	low		10.1016/j.cell.2008.09.034			
+VEGFA	AGING_PROTECTIVE	angiogenic		Post-NASP	positive	Broad	high		10.1126/science.abc8479	VEGF		
+WRN	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	medium		10.1021/bi0266986			
+ZMPSTE24	AGING_PROTECTIVE	genome_maintenance		Post-NASP	positive	Broad	medium		10.1083/jcb.200801096			
 NREP	AGING_HALLMARKS	tissue_remodeling		Post-NASP	positive	Broad	high		10.1038/s41586-026-10542-3			
 CDKN1A	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Broad	high		10.1038/s41586-026-10542-3			
 COL1A1	AGING_HALLMARKS	tissue_remodeling		Post-NASP	positive	Fibroblast-enriched	high		10.1038/s41586-026-10542-3			
@@ -611,4 +611,4 @@ TNIP1	NASP_FEEDBACK	induced_negative_regulator	TLR	Active	positive	Broad	high		1
 TANK	NASP_FEEDBACK	induced_negative_regulator	TLR	Active	positive	Broad	high	SIGNALING_CONTEXT_TBK1_IRF	10.1038/ni.1771			
 TBKBP1	SIGNALING_CONTEXT_TBK1_IRF	adaptor_signaling		Active	positive	Broad	low		10.1038/sj.emboj.7601743			
 AZI2	SIGNALING_CONTEXT_TBK1_IRF	adaptor_signaling	Multi	Active	positive	Broad	medium	SIGNALING_CONTEXT_TLR	10.4049/jimmunol.177.12.8676	NAP1		
-USP25	SIGNALING_CONTEXT_TBK1_IRF	ubiquitin_regulation	Multi	Active	positive	Broad	high	SIGNALING_CONTEXT_NFKB	10.1073/pnas.1509968112			
+USP25	SIGNALING_CONTEXT_TBK1_IRF	ubiquitin_regulation	Multi	Active	positive	Broad	high	SIGNALING_CONTEXT_NFKB	10.1073/pnas.1509968112
