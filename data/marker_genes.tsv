@@ -2,21 +2,20 @@ gene_symbol	module_id	module_class	sensor_family	activation_tier	scoring_directi
 AIM2	NASP_DNA_SENSING	dna_sensing_core	ALR	Early	positive	Immune-enriched	low		10.1038/ni.1702		dna_sensor	
 CGAS	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Broad	low		10.1126/science.1229963	MB21D1	dna_sensor	
 DDX41	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Immune-enriched	low		10.1038/ni.2091		dna_sensor; rna_sensor	
-DHX36	NASP_DNA_SENSING	dna_sensing_core	RLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1038/s41467-019-10432-5		dna_sensor; rna_sensor	
+DHX36	NASP_DNA_SENSING	dna_sensing_core	Multi	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1038/s41467-019-10432-5		dna_sensor; rna_sensor	
 DHX9	NASP_DNA_SENSING	dna_sensing_core	RLR	Early	positive	Immune-enriched	medium		10.4049/jimmunol.1101307		dna_sensor; rna_sensor	
 HNRNPA2B1	NASP_DNA_SENSING	dna_sensing_core		Early	positive	Broad	high		10.1126/science.aav0758		dna_sensor; rna_sensor	
 IFI16	NASP_DNA_SENSING	dna_sensing_alr	ALR	Early	positive	Broad	high	INFLAMMASOME	10.1038/ni.1932		dna_sensor	
-JMJD6	NASP_DNA_SENSING	sensing_checkpoint	cGAS-STING	Active	positive	Broad	medium		10.1126/science.aav0758	confirmed		
+JMJD6	NASP_DNA_SENSING	sensing_checkpoint	cGAS-STING	Active	positive	Broad	medium		10.1126/science.aav0758			
 KAT5	NASP_DNA_SENSING	sensing_checkpoint	cGAS-STING	Early	positive	Broad	low		10.1073/pnas.1922330117			
 LMNB1	NASP_DNA_SENSING	dna_sensing_ccf	cGAS-STING	Early	inverse	Broad	medium	SENESCENCE	10.1038/nature24050			
 LRRFIP1	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Broad	high		10.1038/ni.1876		dna_sensor; rna_sensor	
 LSM14A	NASP_DNA_SENSING	dna_sensing_cosensor		Early	positive	Broad	high		10.1073/pnas.1203405109	RAPS5		
-METTL3	NASP_DNA_SENSING	dna_sensing_endosomal	TLR	Active	positive	Broad	low		10.1016/j.jbc.2024.107226			
 MNDA	NASP_DNA_SENSING	dna_sensing_alr	ALR	Active	positive	Immune-enriched	high		10.3389/fimmu.2024.1395035			
 MRE11	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Early	positive	Broad	low		10.1073/pnas.1222694110	MRE11A	dna_damage_sensor	
 PCBP1	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Active	positive	Broad	high		10.1038/s41423-020-0462-3			
-POLR3A	NASP_DNA_SENSING	dna_sensing_core		Early	positive	Broad	low		10.1016/j.cell.2009.06.015	RPC1		
-POLR3B	NASP_DNA_SENSING	dna_sensing_core		Early	positive	Broad	low		10.1016/j.cell.2009.06.015	RPC2		
+POLR3A	NASP_DNA_SENSING	dna_sensing_core	RLR	Early	positive	Broad	low		10.1016/j.cell.2009.06.015	RPC1		
+POLR3B	NASP_DNA_SENSING	dna_sensing_core	RLR	Early	positive	Broad	low		10.1016/j.cell.2009.06.015	RPC2		
 PPT1	NASP_DNA_SENSING	dna_sensing_endosomal	TLR	Active	positive	Broad	medium		10.1038/s41467-023-43650-z			
 PQBP1	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	medium		10.1016/j.cell.2015.04.050		dna_sensor	
 PRKDC	NASP_DNA_SENSING	dna_sensing_core		Early	positive	Broad	high		10.7554/eLife.00047	DNA-PK	dna_sensor	
@@ -30,7 +29,6 @@ TOP1	NASP_DNA_SENSING	dna_sensing_core	cGAS-STING	Active	positive	Broad	high		10
 TRIM14	NASP_DNA_SENSING	ubiquitin_regulation	cGAS-STING	Active	positive	Broad	medium		10.1016/j.molcel.2016.08.025			
 XRCC5	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	high		10.7554/eLife.00047		dna_sensor	
 XRCC6	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	high		10.1111/imm.13318	ku70	dna_sensor	
-YTHDF1	NASP_DNA_SENSING	dna_sensing_endosomal	TLR	Active	positive	Immune-enriched	low		10.1016/j.jbc.2024.107226			
 ZBP1	NASP_DNA_SENSING	dna_sensing_core	ZBP1	Early	positive	Broad	low	IFN_I_OUTPUT	10.1038/nature06013		dna_sensor; rna_sensor	
 ZCCHC3	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	low		10.1038/s41467-018-05559-w		dna_sensor	
 ZYG11B	NASP_DNA_SENSING	dna_sensing_cosensor	cGAS-STING	Early	positive	Broad	high		10.1016/j.celrep.2023.112278			
@@ -45,7 +43,7 @@ DHX16	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	low		10.1016/j
 DHX33	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	low		10.1016/j.immuni.2013.07.001		rna_sensor	
 DHX36	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Immune-enriched	medium	NASP_RNA_SENSING	10.1038/s41467-019-10432-5		dna_sensor; rna_sensor	
 DHX58	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	low		10.1073/pnas.0606699104	LGP2	rna_sensor	
-DHX9	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Immune-enriched	medium		10.4049/jimmunol.1101307		dna_sensor; rna_sensor	
+DHX9	NASP_RNA_SENSING	rna_sensing_core	Multi	Early	positive	Immune-enriched	medium		10.4049/jimmunol.1101307		dna_sensor; rna_sensor	
 EIF2AK2	NASP_RNA_SENSING	rna_sensing_core	PKR	Early	positive	Broad	high	NASP_RNA_SENSING	10.1073/pnas.75.3.1121		rna_sensor	
 HNRNPA2B1	NASP_RNA_SENSING	rna_sensing_core		Early	positive	Broad	high		10.1126/science.aav0758		dna_sensor; rna_sensor	
 IFIH1	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1038/nature04734	MDA5	rna_sensor	
@@ -77,7 +75,6 @@ TLR7	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	l
 TLR8	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	positive	Immune-enriched	low	NFKB_CYTOKINE_OUTPUT|IFN_I_OUTPUT	10.1126/science.1093620		rna_sensor	
 TRIM25	NASP_RNA_SENSING	rna_sensing_core	RLR	Early	positive	Broad	medium		10.1126/science.ads4539			
 TRIM4	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	medium		10.1093/jmcb/mju005			
-XIST	NASP_RNA_SENSING	rna_sensing_endosomal	TLR	Early	Positive	Broad	high		10.1172/jci.insight.169344			
 YWHAE	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1016/j.chom.2012.04.006	14-3-3ε		
 YWHAH	NASP_RNA_SENSING	rna_sensing_core	RLR	Active	positive	Broad	high		10.1371/journal.ppat.1007582	14-3-3η		
 ZBP1	NASP_RNA_SENSING	rna_sensing_core	ZBP1	Early	positive	Broad	low	IFN_I_OUTPUT	10.1038/nature06013		dna_sensor; rna_sensor	
@@ -110,7 +107,7 @@ ADAR	NASP_RESTRICTION	rna_restriction	RLR	Early	positive	Broad	high		10.1126/sci
 APOBEC3A	NASP_RESTRICTION	te_restriction_factor	RLR	Early	positive	Immune-enriched	medium		10.1093/nar/gkj416			
 APOBEC3B	NASP_RESTRICTION	te_restriction_factor	RLR	Early	positive	Immune-enriched	low		10.1093/nar/gkj416			
 ATF7IP	NASP_RESTRICTION	te_silencing		Active	positive	Broad	high		10.1093/nar/gkae1165	MCAF1		
-ATG9A	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Early	inverse	Broad	low		10.1073/pnas.0911267106			
+ATG9A	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Early	positive	Broad	low		10.1073/pnas.0911267106			
 AURKA	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	low		10.1172/JCI161929			
 BNIP3	NASP_RESTRICTION	mitophagy_restraint	cGAS-STING	Active	positive	Broad	high		10.1083/jcb.202408166			
 BNIP3L	NASP_RESTRICTION	mitophagy_restraint		Active	positive	Broad	high		10.1038/nature07006	Nix		
@@ -160,7 +157,6 @@ SUPV3L1	NASP_RESTRICTION	mt_na_restraint	RLR	Early	positive	Broad	low		10.1038/s
 TASOR	NASP_RESTRICTION	te_silencing		Early	positive	Broad	medium		10.1093/nar/gkae1165	FAM208A		
 TFAM	NASP_RESTRICTION	mt_na_restraint	cGAS-STING	Early	positive	Broad	medium	AGING_HALLMARKS; MITOCHONDRIAL_NA_SENSING	10.1038/nature14156			
 TNRC18	NASP_RESTRICTION	te_silencing		Early	positive	Broad	high		10.1038/s41586-023-06688-z			
-TREX1	NASP_RESTRICTION	te_silencing	cGAS-STING	Early	positive	Broad	low		10.1038/s41586-018-0784-9			
 TREX1	NASP_RESTRICTION	dna_restriction	cGAS-STING	Early	positive	Broad	low		10.1016/j.cell.2008.06.032			
 TRIM28	NASP_RESTRICTION	te_silencing	Multi	Early	positive	Broad	medium		10.1038/nature08674	KAP1		
 TRIM29	NASP_RESTRICTION	induced_negative_regulator	cGAS-STING	Active	positive	Immune-enriched	high		10.1038/s41467-017-00101-w			
@@ -168,29 +164,20 @@ TRIM40	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low
 WWTR1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	high		10.1038/ncb3496			
 YAP1	NASP_RESTRICTION	sensing_checkpoint	cGAS-STING	Active	positive	Broad	high		10.1038/ncb3496			
 ZNF598	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low		10.1016/j.celrep.2019.07.081			
-ZNF598	NASP_RESTRICTION	induced_negative_regulator	RLR	Active	positive	Broad	low		10.1016/j.celrep.2019.07.081			
 ZNF91	NASP_RESTRICTION	te_restriction_factor	Multi	Early	positive	Broad	high		10.1038/nature13760			
 ZNF93	NASP_RESTRICTION	te_silencing	Multi	Early	positive	Broad	low		10.1038/nature13760			
-MECP2	TE_DEREPRESSION	te_activator	cGAS-STING	Early	positive	Broad	high		10.1038/s41467-025-65713-z			
 ATF3	TE_DEREPRESSION	te_activator	RLR	Active	positive	Broad	high		10.1038/s43587-024-00745-6			
 FOXA1	TE_DEREPRESSION	te_activator	cGAS-STING	Early	positive	Liver-enriched	medium		10.1038/s41586-018-0784-9			
 SMARCA4	TE_DEREPRESSION	te_repressor		Active	inverse	Broad	high		10.1126/sciadv.adn2811			
+MTOR	AGING_HALLMARKS	nutrient_sensing		Post-NASP	context_dependent	Broad	medium		10.1038/nature08221			
 BANF1	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	high		10.1016/j.cell.2022.11.001			
 BUB1B	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.15252/embj.201386907			
-CDKN1A	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Broad	high		10.1038/s41586-026-10542-3			
-COL1A1	AGING_HALLMARKS	tissue_remodeling		Post-NASP	positive	Fibroblast-enriched	high		10.1038/s41586-026-10542-3			
 COL3A1	AGING_HALLMARKS	tissue_remodeling		Post-NASP	inverse	Fibroblast-enriched	high		10.1038/s41586-026-10542-3			
 EDA2R	AGING_HALLMARKS	tissue_remodeling		Post-NASP	inverse	Broad	low		10.1038/s41586-026-10542-3			
 FOXO3	AGING_HALLMARKS	proteostasis		Post-NASP	inverse	Broad	high		10.1093/gerona/glab378			
-GHR	AGING_HALLMARKS	nutrient_sensing		Post-NASP	positive	Liver/Broad	high		10.1111/acel.13506			
-GPNMB	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Immune-enriched	high		10.1038/s41586-026-10542-3			
-IGF1R	AGING_HALLMARKS	nutrient_sensing		Post-NASP	positive	Broad	high		10.1016/j.cell.2022.11.001			
-KAT7	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Broad	medium		10.1126/scitranslmed.abd2655			
 KL	AGING_HALLMARKS	endocrine_longevity		Post-NASP	inverse	Kidney-enriched	low		10.1038/36285	Klotho		
 LAMP2	AGING_HALLMARKS	proteostasis		Post-NASP	inverse	Broad	high		10.1038/s41586-020-03129-z	LAMP2A		
 LMNA	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	high		10.1016/j.cell.2022.11.001			
-MTOR	AGING_HALLMARKS	nutrient_sensing		Post-NASP	context_dependent	Broad	medium		10.1038/nature08221			
-NREP	AGING_HALLMARKS	tissue_remodeling		Post-NASP	positive	Broad	high		10.1038/s41586-026-10542-3			
 PIN1	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	medium		10.1016/j.celrep.2021.109694			
 SIRT1	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.1080/00207454.2022.2057849			
 SIRT3	AGING_HALLMARKS	mitochondrial_maintenance		Post-NASP	inverse	Broad	low		10.1016/j.celrep.2013.01.005			
@@ -200,6 +187,13 @@ TERT	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	low		10.1016/j.
 VEGFA	AGING_HALLMARKS	angiogenic		Post-NASP	inverse	Broad	high		10.1126/science.abc8479	VEGF		
 WRN	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	medium		10.1021/bi0266986			
 ZMPSTE24	AGING_HALLMARKS	genome_maintenance		Post-NASP	inverse	Broad	medium		10.1083/jcb.200801096			
+NREP	AGING_HALLMARKS	tissue_remodeling		Post-NASP	positive	Broad	high		10.1038/s41586-026-10542-3			
+CDKN1A	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Broad	high		10.1038/s41586-026-10542-3			
+COL1A1	AGING_HALLMARKS	tissue_remodeling		Post-NASP	positive	Fibroblast-enriched	high		10.1038/s41586-026-10542-3			
+GHR	AGING_HALLMARKS	nutrient_sensing		Post-NASP	positive	Liver/Broad	high		10.1111/acel.13506			
+GPNMB	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Immune-enriched	high		10.1038/s41586-026-10542-3			
+IGF1R	AGING_HALLMARKS	nutrient_sensing		Post-NASP	positive	Broad	high		10.1016/j.cell.2022.11.001			
+KAT7	AGING_HALLMARKS	senescence_driver		Post-NASP	positive	Broad	medium		10.1126/scitranslmed.abd2655			
 ATG14	AUTOPHAGY	autophagy_modulation		Active	positive	Broad	medium		10.1080/15548627.2021.1899440			
 ATG5	AUTOPHAGY	autophagy_modulation		Active	positive	Broad	high		10.1038/s41586-019-1006-9			
 ATG7	AUTOPHAGY	autophagy_modulation		Active	positive	Broad	high		10.1080/15548627.2021.1899440			
@@ -277,7 +271,7 @@ CD38	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Immune-enriched	medium	
 CD40LG	INFLAMMAGING	inflammaging_cytokine		Post-NASP	positive	Immune-enriched	low		10.1038/s43587-025-00938-7			Franceschi et al., Nature Aging, 2025
 CD68	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Liver/Immune-enriched	high		10.1007/s11357-022-00536-0			
 CD9	INFLAMMAGING	adipose_context		Post-NASP	positive	Adipose/Immune-enriched	high		10.1038/s43587-025-00952-9			
-CHIT1	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Immune-enriched	low		10.1146/annurev-physiol-012110-142250	PAI1		
+CHIT1	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Immune-enriched	low		10.1146/annurev-physiol-012110-142250			
 CRP	INFLAMMAGING	acute_phase		Post-NASP	positive	Liver-enriched	medium		10.3389/fimmu.2018.00754			
 CSF1	INFLAMMAGING	myeloid_activation		Post-NASP	positive	Broad	medium	SASP	10.1038/s43587-025-00938-7			Franceschi et al., Nature Aging, 2025
 CXCL1	INFLAMMAGING	inflammaging_cytokine		Post-NASP	positive	Broad	high	SASP; NFKB_CYTOKINE_OUTPUT	10.1038/s43587-025-00938-7			Franceschi et al., Nature Aging, 2025
@@ -346,9 +340,9 @@ PMAIP1	ISR	isr_output		Active	positive	Broad	high		10.1091/mbc.e13-01-0067
 PPP1R15A	ISR	isr_feedback		Active	positive	Broad	high		10.1128/MCB.20.19.7192-7204.2000	GADD34		
 TRIB3	ISR	isr_feedback		Active	positive	Broad	low		10.1074/jbc.M611723200			
 MTOR	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Broad	medium	INFLAMMAGING|SASP	10.1038/369756a0			
-PRKAA1	METABOLIC_CONTEXT	ampk_signaling		Active	positive	Adipose/Immune-enriched	medium		10.1038/nature09932			
-PRKAA2	METABOLIC_CONTEXT	ampk_signaling		Active	positive	Liver-enriched	medium		10.1038/nature09932	AMPKα1		
-RICTOR	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Broad	high		10.1016/j.cub.2004.06.054	AMPKα2		
+PRKAA1	METABOLIC_CONTEXT	ampk_signaling		Active	positive	Adipose/Immune-enriched	medium		10.1038/nature09932	AMPKα1		
+PRKAA2	METABOLIC_CONTEXT	ampk_signaling		Active	positive	Liver-enriched	medium		10.1038/nature09932	AMPKα2		
+RICTOR	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Broad	high		10.1016/j.cub.2004.06.054			
 RPS6KB1	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Liver/Adipose-enriched	medium		10.1016/S0092-8674(02)00808-5			
 RPTOR	METABOLIC_CONTEXT	mtor_signaling		Active	positive	Broad	high		10.1016/S0092-8674(02)00833-4			
 STK11	METABOLIC_CONTEXT	ampk_signaling		Active	positive	Broad	medium		10.1016/j.cub.2003.10.031			
@@ -598,4 +592,23 @@ TNFRSF14	SIGNALING_CONTEXT_NFKB	signal_transduction		Active	positive	Immune-enri
 TNFSF13B	INFLAMMAGING	inflammaging_cytokine		Active	positive	Immune-enriched	medium		10.1084/jem.190.11.1697	BAFF		
 TRAF5	SIGNALING_CONTEXT_NFKB	adaptor_signaling		early	positive	Immune-enriched	medium	SIGNALING_CONTEXT_NFKB	10.1073/pnas.96.17.9803			
 ZC3H12A	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	medium	NASP_FEEDBACK	10.1038/nature07924			
-ZFP36	NASP_FEEDBACK	induced_negative_regulator		Active	positive	Broad	high	NASP_FEEDBACK	10.1126/science.281.5379.1001	TTP		
+METTL3	SIGNALING_CONTEXT_TLR	dna_sensing_endosomal	TLR	Active	positive	Broad	low		10.1016/j.jbc.2024.107226			
+YTHDF1	SIGNALING_CONTEXT_TLR	dna_sensing_endosomal	TLR	Active	positive	Immune-enriched	low		10.1016/j.jbc.2024.107226			
+ATG16L1	AUTOPHAGY	autophagy_casm	cGAS-STING	Active	positive	Broad	low		10.1083/jcb.202009128			
+CALCOCO2	AUTOPHAGY	selective_autophagy		Active	positive	Broad	medium		10.1038/ni.1800	NDP52		
+GABARAP	AUTOPHAGY	autophagy_core		Active	positive	Broad	high		10.1038/emboj.2010.74			
+PIK3C3	AUTOPHAGY	autophagy_core		Active	positive	Broad	medium		10.1091/mbc.e08-01-0080			
+RB1CC1	AUTOPHAGY	autophagy_core		Active	positive	Broad	high		10.1091/mbc.e08-12-1249	FIP200		
+TAX1BP1	AUTOPHAGY	selective_autophagy	TLR	Active	positive	Broad	high	NASP_FEEDBACK	10.1371/journal.ppat.1006600			
+ULK1	AUTOPHAGY	autophagy_core		Active	positive	Broad	medium		10.1091/mbc.e08-12-1249			
+WIPI2	AUTOPHAGY	autophagy_core		Active	positive	Broad	medium		10.1016/j.molcel.2014.05.021			
+LRRC8C	CGAMP_TRANSPORT	cgamp_transport	cGAS-STING	Early	positive	Broad	medium		10.1016/j.molcel.2020.10.021			
+LRRC8E	CGAMP_TRANSPORT	cgamp_transport	cGAS-STING	Early	positive	Broad	low		10.1016/j.molcel.2020.10.021			
+CX3CR1	IMMUNOSENESCENCE	t_cell_immunosenescence		Post-NASP	positive	Immune-enriched	low		10.1016/j.immuni.2016.10.018			
+TCF7	IMMUNOSENESCENCE	t_cell_immunosenescence		Post-NASP	inverse	Immune-enriched	high		10.1016/j.immuni.2016.07.021	TCF1		
+CYLD	NASP_FEEDBACK	induced_negative_regulator	RLR	Active	positive	Broad	medium		10.1038/embor.2008.136			
+TNIP1	NASP_FEEDBACK	induced_negative_regulator	TLR	Active	positive	Broad	high		10.1084/jem.20102177	ABIN-1		
+TANK	NASP_FEEDBACK	induced_negative_regulator	TLR	Active	positive	Broad	high	SIGNALING_CONTEXT_TBK1_IRF	10.1038/ni.1771			
+TBKBP1	SIGNALING_CONTEXT_TBK1_IRF	adaptor_signaling		Active	positive	Broad	low		10.1038/sj.emboj.7601743			
+AZI2	SIGNALING_CONTEXT_TBK1_IRF	adaptor_signaling	Multi	Active	positive	Broad	medium	SIGNALING_CONTEXT_TLR	10.4049/jimmunol.177.12.8676	NAP1		
+USP25	SIGNALING_CONTEXT_TBK1_IRF	ubiquitin_regulation	Multi	Active	positive	Broad	high	SIGNALING_CONTEXT_NFKB	10.1073/pnas.1509968112			

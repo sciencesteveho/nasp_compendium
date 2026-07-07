@@ -17,7 +17,7 @@
 | DHX33 | rna_sensing_core | RLR | Active | positive | Broad | low |  | [10.1016/j.immuni.2013.07.001](https://doi.org/10.1016/j.immuni.2013.07.001) |  | rna_sensor |  |
 | DHX36 | rna_sensing_core | RLR | Early | positive | Immune-enriched | medium | NASP_RNA_SENSING | [10.1038/s41467-019-10432-5](https://doi.org/10.1038/s41467-019-10432-5) |  | dna_sensor; rna_sensor |  |
 | DHX58 | rna_sensing_core | RLR | Early | positive | Broad | low |  | [10.1073/pnas.0606699104](https://doi.org/10.1073/pnas.0606699104) | LGP2 | rna_sensor |  |
-| DHX9 | rna_sensing_core | RLR | Early | positive | Immune-enriched | medium |  | [10.4049/jimmunol.1101307](https://doi.org/10.4049/jimmunol.1101307) |  | dna_sensor; rna_sensor |  |
+| DHX9 | rna_sensing_core | Multi | Early | positive | Immune-enriched | medium |  | [10.4049/jimmunol.1101307](https://doi.org/10.4049/jimmunol.1101307) |  | dna_sensor; rna_sensor |  |
 | EIF2AK2 | rna_sensing_core | PKR | Early | positive | Broad | high | NASP_RNA_SENSING | [10.1073/pnas.75.3.1121](https://doi.org/10.1073/pnas.75.3.1121) |  | rna_sensor |  |
 | HNRNPA2B1 | rna_sensing_core |  | Early | positive | Broad | high |  | [10.1126/science.aav0758](https://doi.org/10.1126/science.aav0758) |  | dna_sensor; rna_sensor |  |
 | IFIH1 | rna_sensing_core | RLR | Early | positive | Broad | medium |  | [10.1038/nature04734](https://doi.org/10.1038/nature04734) | MDA5 | rna_sensor |  |
@@ -47,7 +47,6 @@
 | TLR3 | rna_sensing_endosomal | TLR | Early | positive | Immune-enriched | low | IFN_I_OUTPUT | [10.1038/35099560](https://doi.org/10.1038/35099560) |  | rna_sensor |  |
 | TLR7 | rna_sensing_endosomal | TLR | Early | positive | Immune-enriched | low | IFN_I_OUTPUT | [10.1126/science.1093620](https://doi.org/10.1126/science.1093620) |  | rna_sensor |  |
 | TLR8 | rna_sensing_endosomal | TLR | Early | positive | Immune-enriched | low | NFKB_CYTOKINE_OUTPUT\|IFN_I_OUTPUT | [10.1126/science.1093620](https://doi.org/10.1126/science.1093620) |  | rna_sensor |  |
-| XIST | rna_sensing_endosomal | TLR | Early | Positive | Broad | high |  | [10.1172/jci.insight.169344](https://doi.org/10.1172/jci.insight.169344) |  |  |  |
 | ITPRIP | sensing_checkpoint | RLR | Active | positive | Broad | medium |  | [10.1128/jvi.00507-18](https://doi.org/10.1128/jvi.00507-18) |  |  |  |
 | PPP1CA | sensing_checkpoint | RLR | Early | positive | Broad | high |  | [10.1016/j.immuni.2012.11.018](https://doi.org/10.1016/j.immuni.2012.11.018) | PP1α |  |  |
 | PPP1CC | sensing_checkpoint | RLR | Early | positive | Broad | high |  | [10.1016/j.immuni.2012.11.018](https://doi.org/10.1016/j.immuni.2012.11.018) | PP1γ |  |  |

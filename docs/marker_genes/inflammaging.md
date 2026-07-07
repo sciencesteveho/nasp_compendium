@@ -42,7 +42,7 @@
 | CD36 | myeloid_activation |  | Post-NASP | positive | Broad | high |  | [10.1038/s42255-019-0142-8](https://doi.org/10.1038/s42255-019-0142-8) |  |  |  |
 | CD38 | myeloid_activation |  | Post-NASP | positive | Immune-enriched | medium |  | [10.1016/j.cmet.2016.05.006](https://doi.org/10.1016/j.cmet.2016.05.006) |  |  |  |
 | CD68 | myeloid_activation |  | Post-NASP | positive | Liver/Immune-enriched | high |  | [10.1007/s11357-022-00536-0](https://doi.org/10.1007/s11357-022-00536-0) |  |  |  |
-| CHIT1 | myeloid_activation |  | Post-NASP | positive | Immune-enriched | low |  | [10.1146/annurev-physiol-012110-142250](https://doi.org/10.1146/annurev-physiol-012110-142250) | PAI1 |  |  |
+| CHIT1 | myeloid_activation |  | Post-NASP | positive | Immune-enriched | low |  | [10.1146/annurev-physiol-012110-142250](https://doi.org/10.1146/annurev-physiol-012110-142250) |  |  |  |
 | CSF1 | myeloid_activation |  | Post-NASP | positive | Broad | medium | SASP | [10.1038/s43587-025-00938-7](https://doi.org/10.1038/s43587-025-00938-7) |  |  | Franceschi et al., Nature Aging, 2025 |
 | GPNMB | myeloid_activation |  | Post-NASP | positive | Adipose/Immune-enriched | high |  | [10.3389/fimmu.2021.674739](https://doi.org/10.3389/fimmu.2021.674739) |  |  |  |
 | LGALS3 | myeloid_activation |  | Post-NASP | positive | Broad | high |  | [10.1038/s41586-026-10542-3](https://doi.org/10.1038/s41586-026-10542-3) |  |  |  |

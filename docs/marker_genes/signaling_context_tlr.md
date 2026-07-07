@@ -10,6 +10,8 @@
 | TIRAP | adaptor_signaling | TLR | Early | positive | Broad | low |  | [10.1155/2023/2899271](https://doi.org/10.1155/2023/2899271) |  |  |  |
 | TRAF6 | adaptor_signaling | cGAS-STING | Early | positive | Broad | low |  | [10.1016/j.bbrc.2019.05.022](https://doi.org/10.1016/j.bbrc.2019.05.022) |  |  |  |
 | UNC93B1 | adaptor_signaling | TLR | Early | positive | Broad | low |  | [10.7554/eLife.00291](https://doi.org/10.7554/eLife.00291) |  |  |  |
+| METTL3 | dna_sensing_endosomal | TLR | Active | positive | Broad | low |  | [10.1016/j.jbc.2024.107226](https://doi.org/10.1016/j.jbc.2024.107226) |  |  |  |
+| YTHDF1 | dna_sensing_endosomal | TLR | Active | positive | Immune-enriched | low |  | [10.1016/j.jbc.2024.107226](https://doi.org/10.1016/j.jbc.2024.107226) |  |  |  |
 | IRAK1 | signal_kinase | TLR | Early | positive | Broad | low | SIGNALING_CONTEXT\|IFN_I_OUTPUT | [10.1084/jem.20042372](https://doi.org/10.1084/jem.20042372) |  |  |  |
 | IRAK4 | signal_kinase | TLR | Early | positive | Broad | low | SIGNALING_CONTEXT\|IFN_I_OUTPUT | [10.1016/j.immuni.2005.09.016](https://doi.org/10.1016/j.immuni.2005.09.016) |  |  |  |
 | IRAK2 | signal_transduction | TLR | Active | positive | Broad | medium |  | [10.3389/fimmu.2023.1133354](https://doi.org/10.3389/fimmu.2023.1133354) |  |  |  |

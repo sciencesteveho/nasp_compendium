@@ -28,7 +28,6 @@
 | TRIM29 | induced_negative_regulator | cGAS-STING | Active | positive | Immune-enriched | high |  | [10.1038/s41467-017-00101-w](https://doi.org/10.1038/s41467-017-00101-w) |  |  |  |
 | TRIM40 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2017.10.020](https://doi.org/10.1016/j.celrep.2017.10.020) |  |  |  |
 | ZNF598 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2019.07.081](https://doi.org/10.1016/j.celrep.2019.07.081) |  |  |  |
-| ZNF598 | induced_negative_regulator | RLR | Active | positive | Broad | low |  | [10.1016/j.celrep.2019.07.081](https://doi.org/10.1016/j.celrep.2019.07.081) |  |  |  |
 | BNIP3 | mitophagy_restraint | cGAS-STING | Active | positive | Broad | high |  | [10.1083/jcb.202408166](https://doi.org/10.1083/jcb.202408166) |  |  |  |
 | BNIP3L | mitophagy_restraint |  | Active | positive | Broad | high |  | [10.1038/nature07006](https://doi.org/10.1038/nature07006) | Nix |  |  |
 | PINK1 | mitophagy_restraint | cGAS-STING | Active | positive | Broad | medium |  | [10.1111/acel.13622](https://doi.org/10.1111/acel.13622) |  |  |  |
@@ -44,7 +43,7 @@
 | SKIV2L | rna_restriction |  | Early | positive | Broad | low |  | [10.1038/ni.2948](https://doi.org/10.1038/ni.2948) |  |  |  |
 | AARS1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | medium |  | [10.1038/s41586-024-07992-y](https://doi.org/10.1038/s41586-024-07992-y) |  | l_lactate_sensor |  |
 | AARS2 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | low |  | [10.1038/s41586-024-07992-y](https://doi.org/10.1038/s41586-024-07992-y) |  | l_lactate_sensor |  |
-| ATG9A | sensing_checkpoint | cGAS-STING | Early | inverse | Broad | low |  | [10.1073/pnas.0911267106](https://doi.org/10.1073/pnas.0911267106) |  |  |  |
+| ATG9A | sensing_checkpoint | cGAS-STING | Early | positive | Broad | low |  | [10.1073/pnas.0911267106](https://doi.org/10.1073/pnas.0911267106) |  |  |  |
 | AURKA | sensing_checkpoint | cGAS-STING | Active | positive | Broad | low |  | [10.1172/JCI161929](https://doi.org/10.1172/JCI161929) |  |  |  |
 | CDK1 | sensing_checkpoint | cGAS-STING | Active | positive | Broad | medium |  | [10.1038/s41421-020-0162-2](https://doi.org/10.1038/s41421-020-0162-2) |  |  |  |
 | DDX46 | sensing_checkpoint | RLR | Active | positive | Broad | medium |  | [10.1038/ni.3830](https://doi.org/10.1038/ni.3830) |  |  |  |
@@ -68,6 +67,5 @@
 | SIRT6 | te_silencing |  | Early | positive | Broad | low |  | [10.1038/ncomms6011](https://doi.org/10.1038/ncomms6011) |  |  |  |
 | TASOR | te_silencing |  | Early | positive | Broad | medium |  | [10.1093/nar/gkae1165](https://doi.org/10.1093/nar/gkae1165) | FAM208A |  |  |
 | TNRC18 | te_silencing |  | Early | positive | Broad | high |  | [10.1038/s41586-023-06688-z](https://doi.org/10.1038/s41586-023-06688-z) |  |  |  |
-| TREX1 | te_silencing | cGAS-STING | Early | positive | Broad | low |  | [10.1038/s41586-018-0784-9](https://doi.org/10.1038/s41586-018-0784-9) |  |  |  |
 | TRIM28 | te_silencing | Multi | Early | positive | Broad | medium |  | [10.1038/nature08674](https://doi.org/10.1038/nature08674) | KAP1 |  |  |
 | ZNF93 | te_silencing | Multi | Early | positive | Broad | low |  | [10.1038/nature13760](https://doi.org/10.1038/nature13760) |  |  |  |

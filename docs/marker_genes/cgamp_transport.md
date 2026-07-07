@@ -9,6 +9,8 @@
 | GJB1 | cgamp_transport | cGAS-STING | Early | positive | Broad | low |  | [10.3389/fimmu.2023.1150705](https://doi.org/10.3389/fimmu.2023.1150705) | Cx32 |  |  |
 | GJC1 | cgamp_transport | cGAS-STING | Early | positive | Broad | low |  | [10.3389/fimmu.2023.1150705](https://doi.org/10.3389/fimmu.2023.1150705) | Cx45 |  |  |
 | LRRC8A | cgamp_transport | cGAS-STING | Early | positive | Broad | medium |  | [10.3389/fimmu.2023.1150705](https://doi.org/10.3389/fimmu.2023.1150705) |  |  |  |
+| LRRC8C | cgamp_transport | cGAS-STING | Early | positive | Broad | medium |  | [10.1016/j.molcel.2020.10.021](https://doi.org/10.1016/j.molcel.2020.10.021) |  |  |  |
+| LRRC8E | cgamp_transport | cGAS-STING | Early | positive | Broad | low |  | [10.1016/j.molcel.2020.10.021](https://doi.org/10.1016/j.molcel.2020.10.021) |  |  |  |
 | P2RX7 | cgamp_transport | cGAS-STING | Early | positive | Immune-enriched | medium |  | [10.3389/fimmu.2023.1150705](https://doi.org/10.3389/fimmu.2023.1150705) |  |  |  |
 | SLC19A1 | cgamp_transport | cGAS-STING | Early | positive | Broad | low |  | [10.3389/fimmu.2023.1150705](https://doi.org/10.3389/fimmu.2023.1150705) |  |  |  |
 | SLC46A2 | cgamp_transport | cGAS-STING | Early | positive | Immune-enriched | low |  | [10.3389/fimmu.2023.1150705](https://doi.org/10.3389/fimmu.2023.1150705) |  |  |  |
