@@ -1,0 +1,84 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["CGAS"]:::nucleic_acid_sensors
+  n1["FTO"]:::genes
+  n2["HNRNPA2B1"]:::nucleic_acid_sensors
+  n3["IFI16"]:::nucleic_acid_sensors
+  n4["IL6"]:::genes
+  n5["IRF3"]:::genes
+  n6["JMJD6"]:::genes
+  n7["SRC"]:::genes
+  n8["STING1"]:::nucleic_acid_sensors
+  n9["TBK1"]:::genes
+  n10["TNF"]:::genes
+  n11["type I IFN"]:::pathways
+  n12["viral nucleic acids"]:::mechanisms
+  %% binds_recruits; direct_measured; Wang_science_2019
+  n2 -- binds recruits --> n12
+  %% induces; direct_measured; Wang_science_2019
+  n12 -- induces --> n2
+  %% activates; perturbation_supported; Wang_science_2019
+  n6 -- activates --> n2
+  %% binds_recruits; direct_measured; Wang_science_2019
+  n2 -- binds recruits --> n7
+  %% activates; perturbation_supported; Wang_science_2019
+  n7 -- activates --> n9
+  %% activates; direct_measured; Wang_science_2019
+  n9 -- activates --> n5
+  %% drives; canonical_inferred; Wang_science_2019
+  n5 -- drives --> n11
+  %% required_for; perturbation_supported; Wang_science_2019
+  n8 -- required for --> n11
+  %% upregulates; perturbation_supported; Wang_science_2019
+  n2 -- upregulates --> n0
+  %% upregulates; perturbation_supported; Wang_science_2019
+  n2 -- upregulates --> n3
+  %% upregulates; perturbation_supported; Wang_science_2019
+  n2 -- upregulates --> n8
+  %% suppresses; perturbation_supported; Wang_science_2019
+  n1 -- suppresses --x n11
+  %% does_not_drive; perturbation_supported; Wang_science_2019
+  n2 -- does not drive --- n4
+  %% does_not_drive; perturbation_supported; Wang_science_2019
+  n2 -- does not drive --- n10
+  %% drives; perturbation_supported; Wang_science_2019
+  n2 -- drives --> n11
+  %% activates; perturbation_supported; Wang_science_2019
+  n2 -- activates --> n0
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#8172B3,stroke-width:1px;
+  linkStyle 1 stroke:#55A868,stroke-width:1px;
+  linkStyle 2 stroke:#55A868,stroke-width:1px;
+  linkStyle 3 stroke:#8172B3,stroke-width:1px;
+  linkStyle 4 stroke:#55A868,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 7 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 8 stroke:#55A868,stroke-width:1px;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#C44E52,stroke-width:1px;
+  linkStyle 12 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 13 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 14 stroke:#55A868,stroke-width:1px;
+  linkStyle 15 stroke:#55A868,stroke-width:1px;

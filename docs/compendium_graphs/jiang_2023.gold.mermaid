@@ -1,0 +1,64 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["IFNB1"]:::genes
+  n1["NF-kB"]:::pathways
+  n2["RELA"]:::genes
+  n3["RPSA"]:::nucleic_acid_sensors
+  n4["SMARCA5"]:::genes
+  n5["chromatin accessibility"]:::mechanisms
+  n6["proinflammatory cytokines"]:::pathways
+  n7["viral nucleic acids"]:::mechanisms
+  %% binds_recruits; direct_measured; Jiang_natcomms_2023
+  n3 -- binds recruits --> n7
+  %% induces; direct_measured; Jiang_natcomms_2023
+  n7 -- induces --> n3
+  %% binds_recruits; perturbation_supported; Jiang_natcomms_2023
+  n3 -- binds recruits --> n4
+  %% activates; perturbation_supported; Jiang_natcomms_2023
+  n4 -- activates --> n5
+  %% binds_recruits; perturbation_supported; Jiang_natcomms_2023
+  n5 -- binds recruits --> n2
+  %% drives; perturbation_supported; Jiang_natcomms_2023
+  n2 -- drives --> n6
+  %% required_for; perturbation_supported; Jiang_natcomms_2023
+  n3 -- required for --> n6
+  %% does_not_drive; perturbation_supported; Jiang_natcomms_2023
+  n3 -- does not drive --- n0
+  %% does_not_drive; perturbation_supported; Jiang_natcomms_2023
+  n3 -- does not drive --- n1
+  %% drives; perturbation_supported; Jiang_natcomms_2023
+  n3 -- drives --> n6
+  %% activates; perturbation_supported; Jiang_natcomms_2023
+  n3 -- activates --> n2
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#8172B3,stroke-width:1px;
+  linkStyle 1 stroke:#55A868,stroke-width:1px;
+  linkStyle 2 stroke:#8172B3,stroke-width:1px;
+  linkStyle 3 stroke:#55A868,stroke-width:1px;
+  linkStyle 4 stroke:#8172B3,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 7 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 8 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;

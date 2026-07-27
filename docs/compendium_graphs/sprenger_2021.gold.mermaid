@@ -1,0 +1,78 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["BAX/BAK pore"]:::default
+  n1["CGAS"]:::nucleic_acid_sensors
+  n2["RNA sensing"]:::default
+  n3["SLC25A33"]:::genes
+  n4["STING1"]:::nucleic_acid_sensors
+  n5["TBK1"]:::genes
+  n6["YME1L1"]:::genes
+  n7["cGAMP"]:::default
+  n8["cytosolic dsDNA"]:::mechanisms
+  n9["mitochondrial fragmentation"]:::default
+  n10["mtDNA release"]:::mechanisms
+  n11["pyrimidine metabolism"]:::mechanisms
+  n12["type I IFN"]:::pathways
+  %% inhibits; direct_measured; Sprenger_natmetab_2021
+  n6 -- inhibits --x n3
+  %% drives; perturbation_supported; Sprenger_natmetab_2021
+  n3 -- drives --> n10
+  %% produces; perturbation_supported; Sprenger_natmetab_2021
+  n10 -- produces --> n8
+  %% binds_recruits; perturbation_supported; Sprenger_natmetab_2021
+  n8 -- binds recruits --> n1
+  %% produces; canonical_inferred; Sprenger_natmetab_2021
+  n1 -- produces --> n7
+  %% activates; perturbation_supported; Sprenger_natmetab_2021
+  n7 -- activates --> n4
+  %% activates; perturbation_supported; Sprenger_natmetab_2021
+  n4 -- activates --> n5
+  %% drives; direct_measured; Sprenger_natmetab_2021
+  n5 -- drives --> n12
+  %% required_for; direct_measured; Sprenger_natmetab_2021
+  n6 -- required for --> n11
+  %% drives; perturbation_supported; Sprenger_natmetab_2021
+  n11 -- drives --> n12
+  %% does_not_drive; perturbation_supported; Sprenger_natmetab_2021
+  n9 -- does not drive --- n12
+  %% does_not_drive; perturbation_supported; Sprenger_natmetab_2021
+  n0 -- does not drive --- n12
+  %% does_not_drive; perturbation_supported; Sprenger_natmetab_2021
+  n2 -- does not drive --- n12
+  %% activates; perturbation_supported; Sprenger_natmetab_2021
+  n6 -- activates --> n1
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#C44E52,stroke-width:1px;
+  linkStyle 1 stroke:#55A868,stroke-width:1px;
+  linkStyle 2 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 3 stroke:#8172B3,stroke-width:1px;
+  linkStyle 4 stroke:#4C72B0,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#55A868,stroke-width:1px;
+  linkStyle 7 stroke:#55A868,stroke-width:1px;
+  linkStyle 8 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 11 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 12 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 13 stroke:#55A868,stroke-width:1px;
