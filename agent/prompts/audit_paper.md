@@ -1,13 +1,7 @@
+
 # Audit One Compendium Paper
 
-Read first:
-- `AGENTS.md`
-- `agent/analysis_prompt.md`
-- `agent/conventions.md`
-- The target file in `docs/compendium/`
-- Relevant PDFs from `data/literature/`
-- `nasp_compendium/summarize_compendium.py`
-- `nasp_compendium/style.py`
+See `agent/prompts/_shared.md` for the Read-first set (target: the file under audit in `docs/compendium/`).
 
 Task:
 - Audit one curated compendium file against the source PDF.
@@ -21,9 +15,4 @@ Output:
 - If fixes are requested, keep edits narrow and avoid unrelated rewrites.
 
 Checks:
-- Run `compendium validate --dir docs/compendium`.
-- If the compendium changed, run:
-  `compendium render_graph --directory docs/compendium --annotate-papers`
-- Show diffs for human review.
-- List unresolved evidence or naming uncertainties.
-- Do not commit.
+- See `agent/prompts/_shared.md`.

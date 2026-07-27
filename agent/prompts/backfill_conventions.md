@@ -1,13 +1,7 @@
+
 # Backfill Compendium Conventions
 
-Read first:
-- `AGENTS.md`
-- `agent/analysis_prompt.md`
-- `agent/conventions.md`
-- Target files in `docs/compendium/`
-- Relevant PDFs from `data/literature/` when evidence needs verification
-- `nasp_compendium/summarize_compendium.py`
-- `nasp_compendium/style.py`
+See `agent/prompts/_shared.md` for the Read-first set.
 
 Task:
 - Backfill existing compendium entries to match current conventions.
@@ -21,9 +15,4 @@ Output:
 - For audit findings, write reports to `agent/reports/audits/`.
 
 Checks:
-- Run `compendium validate --dir docs/compendium`.
-- If the compendium changed, run:
-  `compendium render_graph --directory docs/compendium --annotate-papers`
-- Show diffs for human review.
-- List any convention choices that still need human review.
-- Do not commit.
+- See `agent/prompts/_shared.md`.

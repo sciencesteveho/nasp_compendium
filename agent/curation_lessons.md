@@ -1,3 +1,4 @@
+
 # NASP Curation Lessons
 
 Durable curation lessons distilled from calibration and held-out testing. This
@@ -15,7 +16,7 @@ The current lessons were locked after:
 
 - four dev calibration papers: `mao_2024`, `lian_2018`, `martinez_2024`,
   `tyshkovskiy_2026`
-- one held-out paper: `qin_2024`
+- one historical held-out run: `qin_2024`, now an exposed regression benchmark
 
 The effective change was not new schema. The useful improvement came from
 better final-pass curation judgment:
@@ -55,7 +56,7 @@ Before freezing a draft, check the following in order:
 
 Early drafts tend to recover the central mechanistic spine and miss graph-useful
 parallel branches. A branch is not complete merely because one edge of that
-`branch_type` exists.
+kind exists.
 
 Decision rule:
 - After drafting the spine, run a dedicated branch pass.
@@ -128,13 +129,13 @@ Examples:
   nucleic-acid TLR edge, with the rest in context, unless the paper makes each
   TLR independently graph-relevant.
 
-## 4. Search for nearest intermediates before adjudicating broad claims away
+## 4. Search for nearest intermediates before dropping broad claims
 
 A broad output claim may be too coarse as written, but it can still imply a
 narrower graph-useful edge.
 
 Decision rule:
-- Before marking a broad graph-candidate claim `context_only`, search for the
+- Before leaving a broad output claim in context only, search for the
   nearest supported intermediate.
 - Prefer that intermediate edge over a source-to-output shortcut.
 - Keep the broad phenotype in context unless it is itself a reusable endpoint.
@@ -254,8 +255,8 @@ Use:
 Known human-judgment zones:
 - `epigenetic_remodeling -> retrotransposon_derepression` may be `induces` when
   framed as a trigger-to-program transition, or `drives` when framed as ongoing
-  chromatin-state control. Adjudicate validator warnings rather than blindly
-  normalizing.
+  chromatin-state control. Decide validator warnings on the biology rather than
+  blindly normalizing.
 - `AIM2 -> inflammasome_activation` relationship choice can be
   convention-sensitive. Prefer the repo's normalized relation for the node pair
   unless the paper gives a clear reason to deviate.
@@ -404,30 +405,7 @@ Endpoint-direction sign audit:
 - If the sign remains ambiguous, record the ambiguity in context and flag for
   human review.
 
-## 16. Claims, matrices, and adjudications
-
-A claim-edge matrix is most useful when a broad claim supports several edges.
-
-Use `claim_edge_matrix:` when:
-- one claim supports more than three edges
-- a broad claim is reused across several branches
-- exact claim-to-edge support may be unclear during review
-
-Every emitted edge should have non-empty `support_claims` when the draft uses a
-claims block.
-
-If a graph-candidate claim remains context-only or insufficient, it needs a
-specific non-emission rationale. For high-priority branches, search for a
-nearest intermediate before adjudicating the claim away.
-
-Adjudications are for deliberate choices, not decoration. Use them when:
-- keeping a validator warning
-- rejecting an apparent shortcut warning
-- preserving a human-judgment verb choice
-- choosing one representative specificity edge from a redundant panel
-- keeping a graph-candidate claim out of the graph
-
-## 17. Validation success is not biological success
+## 16. Validation success is not biological success
 
 A draft can pass validation and still miss the central biology.
 
@@ -446,7 +424,7 @@ Then do a biology-only pass:
   bridge biology?
 - Would a domain expert recognize what the paper showed?
 
-## 18. Calibration differences are lessons, not automatic gold obedience
+## 17. Calibration differences are lessons, not automatic gold obedience
 
 Gold files are useful for measuring consistency, but not every mismatch should
 become a new rule.
@@ -464,7 +442,7 @@ Classify mismatches as:
 Only update lessons or conventions for repeated, generalizable failures.
 Do not tune the lessons to memorize dev-paper watchpoints.
 
-## 19. What not to tune further
+## 18. What not to tune further
 
 Do not add new schema fields for:
 - branch inventory
@@ -474,15 +452,16 @@ Do not add new schema fields for:
 - paper-specific watchpoint lists
 
 These increased complexity without durable benefit. The current stable layer is:
-claims, optional claim-edge matrix, existing adjudications, validator/review
-packet, and this lessons file.
+the flat `paper` + `edges` format, the validator/review packet, and this
+lessons file.
 
-## 20. Practical calibration policy
+## 19. Practical calibration policy
 
 Use the current five papers as follows:
 
 - Mao, Lian, Martinez, and Tyshkovskiy are dev-calibration papers.
-- Qin is the first held-out success report.
+- Qin is a historical held-out run, but its expected result is now exposed; use
+  it for regression only, not as evidence of current generalization.
 - Do not keep tuning against these five unless the goal is reproducibility, not
   improvement.
 - Build new gold standards across new topology classes: endosomal TLR sensing,

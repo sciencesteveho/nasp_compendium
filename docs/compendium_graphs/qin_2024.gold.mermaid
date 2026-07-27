@@ -1,0 +1,70 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["CGAS"]:::nucleic_acid_sensors
+  n1["IRF3"]:::genes
+  n2["NF-kB"]:::pathways
+  n3["RIG-I/MDA5-MAVS"]:::pathways
+  n4["STING1"]:::nucleic_acid_sensors
+  n5["TBK1"]:::genes
+  n6["TLR9"]:::pathways
+  n7["ZC3HAV1"]:::genes
+  n8["cGAMP"]:::default
+  n9["tissue inflammation"]:::mechanisms
+  n10["type I IFN"]:::pathways
+  %% produces; canonical_inferred; Qin_commsbio_2024
+  n0 -- produces --> n8
+  %% activates; canonical_inferred; Qin_commsbio_2024
+  n8 -- activates --> n4
+  %% binds_recruits; direct_measured; Qin_commsbio_2024
+  n7 -- binds recruits --> n4
+  %% activates; perturbation_supported; Qin_commsbio_2024
+  n7 -- activates --> n4
+  %% activates; perturbation_supported; Qin_commsbio_2024
+  n4 -- activates --> n5
+  %% activates; perturbation_supported; Qin_commsbio_2024
+  n5 -- activates --> n1
+  %% induces; perturbation_supported; Qin_commsbio_2024
+  n1 -- induces --> n10
+  %% activates; perturbation_supported; Qin_commsbio_2024
+  n4 -- activates --> n2
+  %% drives; perturbation_supported; Qin_commsbio_2024
+  n2 -- drives --> n9
+  %% does_not_drive; perturbation_supported; Qin_commsbio_2024
+  n7 -- does not drive --- n8
+  %% suppresses; perturbation_supported; Qin_commsbio_2024
+  n7 -- suppresses --x n3
+  %% does_not_drive; perturbation_supported; Qin_commsbio_2024
+  n7 -- does not drive --- n6
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#4C72B0,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 1 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 2 stroke:#8172B3,stroke-width:1px;
+  linkStyle 3 stroke:#55A868,stroke-width:1px;
+  linkStyle 4 stroke:#55A868,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#55A868,stroke-width:1px;
+  linkStyle 7 stroke:#55A868,stroke-width:1px;
+  linkStyle 8 stroke:#55A868,stroke-width:1px;
+  linkStyle 9 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 10 stroke:#C44E52,stroke-width:1px;
+  linkStyle 11 stroke:#CCCCCC,stroke-width:1px;

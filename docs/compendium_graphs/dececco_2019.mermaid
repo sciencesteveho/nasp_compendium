@@ -1,0 +1,115 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["CCL2"]:::genes
+  n1["CGAS"]:::nucleic_acid_sensors
+  n2["FOXA1"]:::genes
+  n3["IL1B"]:::genes
+  n4["IL6"]:::genes
+  n5["JAK-STAT"]:::pathways
+  n6["MMP3"]:::genes
+  n7["RB1"]:::genes
+  n8["RBL1"]:::genes
+  n9["SASP"]:::pathways
+  n10["STING1"]:::nucleic_acid_sensors
+  n11["TREX1"]:::genes
+  n12["cGAMP"]:::default
+  n13["cellular senescence"]:::mechanisms
+  n14["cytoplasmic retroelement cDNA"]:::mechanisms
+  n15["epigenetic remodeling"]:::mechanisms
+  n16["immune cell recruitment"]:::mechanisms
+  n17["retrotransposon derepression"]:::mechanisms
+  n18["tissue inflammation"]:::mechanisms
+  n19["type I IFN"]:::pathways
+  %% induces; direct_measured; DeCecco_nature_2019
+  n13 -- induces --> n15
+  %% suppresses; perturbation_supported; DeCecco_nature_2019
+  n7 -- suppresses --x n17
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n2 -- drives --> n17
+  %% suppresses; perturbation_supported; DeCecco_nature_2019
+  n11 -- suppresses --x n17
+  %% produces; direct_measured; DeCecco_nature_2019
+  n17 -- produces --> n14
+  %% activates; perturbation_supported; DeCecco_nature_2019
+  n14 -- activates --> n1
+  %% produces; canonical_inferred; DeCecco_nature_2019
+  n1 -- produces --> n12
+  %% activates; canonical_inferred; DeCecco_nature_2019
+  n12 -- activates --> n10
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n10 -- drives --> n19
+  %% activates; direct_measured; DeCecco_nature_2019
+  n19 -- activates --> n5
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n5 -- drives --> n9
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n10 -- upregulates --> n4
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n10 -- upregulates --> n0
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n10 -- upregulates --> n6
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n5 -- upregulates --> n4
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n5 -- upregulates --> n0
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n5 -- upregulates --> n6
+  %% induces; direct_measured; DeCecco_nature_2019
+  n13 -- induces --> n17
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n17 -- drives --> n19
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n9 -- drives --> n16
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n16 -- drives --> n18
+  %% does_not_correlate; direct_measured; DeCecco_nature_2019
+  n13 -- does not correlate --- n8
+  %% required_for; perturbation_supported; DeCecco_nature_2019
+  n17 -- required for --> n19
+  %% does_not_drive; perturbation_supported; DeCecco_nature_2019
+  n19 -- does not drive --- n3
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#55A868,stroke-width:1px;
+  linkStyle 1 stroke:#C44E52,stroke-width:1px;
+  linkStyle 2 stroke:#55A868,stroke-width:1px;
+  linkStyle 3 stroke:#C44E52,stroke-width:1px;
+  linkStyle 4 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#4C72B0,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 7 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 8 stroke:#55A868,stroke-width:1px;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#55A868,stroke-width:1px;
+  linkStyle 12 stroke:#55A868,stroke-width:1px;
+  linkStyle 13 stroke:#55A868,stroke-width:1px;
+  linkStyle 14 stroke:#55A868,stroke-width:1px;
+  linkStyle 15 stroke:#55A868,stroke-width:1px;
+  linkStyle 16 stroke:#55A868,stroke-width:1px;
+  linkStyle 17 stroke:#55A868,stroke-width:1px;
+  linkStyle 18 stroke:#55A868,stroke-width:1px;
+  linkStyle 19 stroke:#55A868,stroke-width:1px;
+  linkStyle 20 stroke:#55A868,stroke-width:1px;
+  linkStyle 21 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 22 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 23 stroke:#CCCCCC,stroke-width:1px;

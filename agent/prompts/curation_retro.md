@@ -1,12 +1,10 @@
+
 # Curation Retrospective
 
 Read first:
-- `AGENTS.md`
-- `agent/curation_lessons.md`
-- `agent/conventions.md`
+- See `agent/prompts/_shared.md` for the Read-first set.
 - Recent reports in `agent/reports/audits/`
 - Recent prompt changes in `agent/prompts/`
-- Relevant curated files in `docs/compendium/`
 
 Task:
 - Distill durable curation lessons from recent audits since the last
@@ -34,9 +32,6 @@ Output:
 - Do not commit.
 
 Checks:
-- Run `compendium validate --dir docs/compendium`.
-- If any compendium file changed, run:
-  `compendium render_graph --directory docs/compendium --annotate-papers`
-- Show diffs for human review.
-- List lessons that should be promoted to conventions separately from lessons
-  that should remain as judgment patterns.
+- See `agent/prompts/_shared.md`.
+- Additionally, list lessons that should be promoted to conventions separately
+  from lessons that should remain as judgment patterns.

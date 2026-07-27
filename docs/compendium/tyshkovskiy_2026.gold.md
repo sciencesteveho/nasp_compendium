@@ -1,3 +1,4 @@
+
 paper:
 
   Tyshkovskiy_Nature_2026:
@@ -343,6 +344,7 @@ edges:
     target: mortality
     rel: does_not_drive
     evidence_strength: strong_correlative
+    score_exclude: true
     context: "REVIEW FLAG (possible non-edge). Across human-blood data,
       transcriptomic mortality clocks and DNA-methylation clocks show correlated
       age acceleration, strongest for the chromatin-modification module clock, and

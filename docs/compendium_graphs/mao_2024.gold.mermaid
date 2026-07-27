@@ -1,0 +1,88 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["ATF3"]:::genes
+  n1["DDX58"]:::nucleic_acid_sensors
+  n2["IFIH1"]:::nucleic_acid_sensors
+  n3["IRF3"]:::genes
+  n4["MAVS"]:::nucleic_acid_sensors
+  n5["SASP"]:::pathways
+  n6["TBK1"]:::genes
+  n7["aging"]:::mechanisms
+  n8["cellular senescence"]:::mechanisms
+  n9["cytoplasmic retroelement RNA"]:::mechanisms
+  n10["epigenetic remodeling"]:::mechanisms
+  n11["inflammaging"]:::mechanisms
+  n12["retrotransposon derepression"]:::mechanisms
+  n13["type I IFN"]:::pathways
+  %% upregulates; direct_measured; Mao_natureaging_2024
+  n8 -- upregulates --> n0
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n10 -- induces --> n12
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n0 -- induces --> n12
+  %% does_not_drive; direct_measured; Mao_natureaging_2024
+  n0 -- does not drive --- n13
+  %% produces; direct_measured; Mao_natureaging_2024
+  n12 -- produces --> n9
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n9 -- activates --> n1
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n9 -- activates --> n2
+  %% activates; canonical_inferred; Mao_natureaging_2024
+  n1 -- activates --> n4
+  %% activates; canonical_inferred; Mao_natureaging_2024
+  n2 -- activates --> n4
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n4 -- activates --> n6
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n6 -- activates --> n3
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n3 -- induces --> n13
+  %% drives; canonical_inferred; Mao_natureaging_2024
+  n13 -- drives --> n5
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n0 -- induces --> n8
+  %% correlates; strong_correlative; Mao_natureaging_2024
+  n7 -- correlates --o n12
+  %% correlates; strong_correlative; Mao_natureaging_2024
+  n7 -- correlates --o n13
+  %% drives; strong_correlative; Mao_natureaging_2024
+  n13 -- drives --> n11
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#55A868,stroke-width:1px;
+  linkStyle 1 stroke:#55A868,stroke-width:1px;
+  linkStyle 2 stroke:#55A868,stroke-width:1px;
+  linkStyle 3 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 4 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#55A868,stroke-width:1px;
+  linkStyle 7 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 8 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#55A868,stroke-width:1px;
+  linkStyle 12 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 13 stroke:#55A868,stroke-width:1px;
+  linkStyle 14 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 15 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 16 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;

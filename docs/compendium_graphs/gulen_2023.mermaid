@@ -1,0 +1,113 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["CGAS"]:::nucleic_acid_sensors
+  n1["DAM microglial state"]:::cell_types
+  n2["IFN MG microglial state"]:::cell_types
+  n3["IRF3"]:::genes
+  n4["ND MG microglial state"]:::cell_types
+  n5["NF-kB"]:::pathways
+  n6["SASP"]:::pathways
+  n7["STING1"]:::nucleic_acid_sensors
+  n8["TBK1"]:::genes
+  n9["TNF"]:::genes
+  n10["VDAC oligomerization"]:::mechanisms
+  n11["cGAMP"]:::default
+  n12["cellular senescence"]:::mechanisms
+  n13["cognitive decline"]:::mechanisms
+  n14["cytoplasmic mtDNA"]:::mechanisms
+  n15["hippocampal neuron loss"]:::mechanisms
+  n16["microglial activation"]:::mechanisms
+  n17["mitochondrial dysfunction"]:::mechanisms
+  n18["neurodegeneration"]:::mechanisms
+  n19["tissue inflammation"]:::mechanisms
+  n20["type I IFN"]:::pathways
+  %% induces; direct_measured; Gulen_nature_2023
+  n12 -- induces --> n17
+  %% drives; canonical_inferred; Gulen_nature_2023
+  n17 -- drives --> n10
+  %% forms_pore_for; perturbation_supported; Gulen_nature_2023
+  n10 -- forms pore for --> n14
+  %% activates; perturbation_supported; Gulen_nature_2023
+  n14 -- activates --> n0
+  %% produces; direct_measured; Gulen_nature_2023
+  n0 -- produces --> n11
+  %% activates; canonical_inferred; Gulen_nature_2023
+  n11 -- activates --> n7
+  %% activates; direct_measured; Gulen_nature_2023
+  n7 -- activates --> n8
+  %% activates; canonical_inferred; Gulen_nature_2023
+  n8 -- activates --> n3
+  %% drives; canonical_inferred; Gulen_nature_2023
+  n3 -- drives --> n20
+  %% drives; canonical_inferred; Gulen_nature_2023
+  n7 -- drives --> n5
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n7 -- drives --> n6
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n7 -- drives --> n19
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n7 -- drives --> n16
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n16 -- drives --> n18
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n18 -- drives --> n13
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n0 -- drives --> n16
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n0 -- drives --> n1
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n0 -- drives --> n2
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n0 -- drives --> n4
+  %% upregulates; perturbation_supported; Gulen_nature_2023
+  n0 -- upregulates --> n9
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n9 -- drives --> n15
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n15 -- drives --> n13
+  %% does_not_drive; perturbation_supported; Gulen_nature_2023
+  n20 -- does not drive --- n15
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#55A868,stroke-width:1px;
+  linkStyle 1 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 2 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 3 stroke:#55A868,stroke-width:1px;
+  linkStyle 4 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 6 stroke:#55A868,stroke-width:1px;
+  linkStyle 7 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 8 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 9 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#55A868,stroke-width:1px;
+  linkStyle 12 stroke:#55A868,stroke-width:1px;
+  linkStyle 13 stroke:#55A868,stroke-width:1px;
+  linkStyle 14 stroke:#55A868,stroke-width:1px;
+  linkStyle 15 stroke:#55A868,stroke-width:1px;
+  linkStyle 16 stroke:#55A868,stroke-width:1px;
+  linkStyle 17 stroke:#55A868,stroke-width:1px;
+  linkStyle 18 stroke:#55A868,stroke-width:1px;
+  linkStyle 19 stroke:#55A868,stroke-width:1px;
+  linkStyle 20 stroke:#55A868,stroke-width:1px;
+  linkStyle 21 stroke:#55A868,stroke-width:1px;
+  linkStyle 22 stroke:#CCCCCC,stroke-width:1px;

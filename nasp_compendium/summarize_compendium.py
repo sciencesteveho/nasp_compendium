@@ -5,6 +5,7 @@ from __future__ import annotations
 import dataclasses
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -28,8 +29,8 @@ COMPENDIUM_DIR: Path = (
     Path(__file__).resolve().parent.parent / "docs" / "compendium"
 )
 
-GRAPH_FONT: str = "Helvetica"
-SVG_FONT_FAMILY: str = "Helvetica, 'Nimbus Sans', Arial, sans-serif"
+GRAPH_FONT: str = "Arial"
+GRAPH_FONT_SIZE: str = "5"
 COMPACT_NONCONSTRAINING_RELS: frozenset[str] = frozenset(
     {
         "contains",
@@ -61,13 +62,19 @@ class Compendium:
     edges: list[dict[str, Any]]
 
     @classmethod
-    def from_dir(cls, directory: Path) -> Compendium:
+    def from_dir(
+        cls,
+        directory: Path,
+        *,
+        include_gold: bool = False,
+    ) -> Compendium:
         """Load every .md file in directory into one compendium. On collision
         (same paper id appearing in more than one file), the alphabetically
         last file wins.
 
         Args:
           directory: Directory containing per-paper compendium files.
+          include_gold: Whether to load held-out `.gold.md` files.
 
         Returns:
           `Compendium` aggregating all papers and edges.
@@ -85,7 +92,7 @@ class Compendium:
         edges: list[dict[str, Any]] = []
 
         for md_path in sorted(directory.glob("*.md")):
-            if md_path.name.endswith(".gold.md"):
+            if md_path.name.endswith(".gold.md") and not include_gold:
                 continue
             file_papers, file_edges = parse_md(md_path)
             papers |= file_papers
@@ -305,9 +312,10 @@ def _compact_edge_legend_label(
     rows = [
         (
             f'<TR><TD ALIGN="RIGHT"><FONT FACE="{GRAPH_FONT}" '
-            f'POINT-SIZE="7" COLOR="{color}">{symbol}</FONT></TD>'
+            f'POINT-SIZE="{GRAPH_FONT_SIZE}" COLOR="{color}">'
+            f"{symbol}</FONT></TD>"
             f'<TD ALIGN="LEFT"><FONT FACE="{GRAPH_FONT}" '
-            f'POINT-SIZE="7">{label}</FONT></TD></TR>'
+            f'POINT-SIZE="{GRAPH_FONT_SIZE}">{label}</FONT></TD></TR>'
         )
         for color, symbol, label in legend_rows
     ]
@@ -335,7 +343,7 @@ def _add_compact_edge_legend(
         fillcolor="#FFFFFF",
         color="#BBBBBB",
         fontname=GRAPH_FONT,
-        margin="0.03,0.025",
+        margin="0.03225,0.026875",
     )
     if anchor_node is not None:
         diagram.edge(
@@ -530,16 +538,16 @@ def render(
         "rankdir": rankdir,
         "splines": "spline",
         "fontname": GRAPH_FONT,
-        "fontnames": "ps",
+        "fontsize": GRAPH_FONT_SIZE,
         "fontpath": graph_font_path,
         "ordering": "out",
         "remincross": "true",
         "outputorder": "edgesfirst",
         "overlap": "prism",
-        "sep": "+0.12",
-        "esep": "+0.08",
-        "nodesep": "0.10",
-        "ranksep": "0.18 equally",
+        "sep": "+0.129",
+        "esep": "+0.086",
+        "nodesep": "0.1075",
+        "ranksep": "0.1935 equally",
         "pack": "true",
         "packmode": "node",
         "packmargin": "0",
@@ -553,16 +561,16 @@ def render(
         "shape": "box",
         "style": "rounded,filled",
         "fontname": GRAPH_FONT,
-        "fontsize": "5",
+        "fontsize": GRAPH_FONT_SIZE,
         "penwidth": "0.65",
-        "margin": "0.018,0.010",
+        "margin": "0.01935,0.01075",
         "width": "0.01",
         "height": "0.01",
         "fixedsize": "false",
     }
     edge_attr = {
         "fontname": GRAPH_FONT,
-        "fontsize": "4.5",
+        "fontsize": GRAPH_FONT_SIZE,
         "penwidth": "0.65",
         "arrowsize": "0.28",
         "minlen": "1",
@@ -572,10 +580,10 @@ def render(
         graph_attr |= {
             "splines": "spline",
             "overlap": "false",
-            "sep": "+0.022",
-            "esep": "+0.010",
-            "nodesep": "0.045",
-            "ranksep": "0.10",
+            "sep": "+0.02365",
+            "esep": "+0.01075",
+            "nodesep": "0.048375",
+            "ranksep": "0.1075",
             "pack": "true",
             "packmode": "node",
             "concentrate": "false",
@@ -585,15 +593,13 @@ def render(
         }
         node_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "5.0",
-            "margin": "0.018,0.010",
+            "margin": "0.01935,0.01075",
             "width": "0.01",
             "height": "0.01",
             "penwidth": "0.68",
         }
         edge_attr |= {
             "fontname": GRAPH_FONT,
-            "fontsize": "4.2",
             "arrowsize": "0.24",
             "penwidth": "0.60",
             "minlen": "1",
@@ -602,10 +608,10 @@ def render(
         graph_attr |= {
             "splines": "spline",
             "overlap": "false",
-            "sep": "+0.028",
-            "esep": "+0.014",
-            "nodesep": "0.050",
-            "ranksep": "0.105",
+            "sep": "+0.0301",
+            "esep": "+0.01505",
+            "nodesep": "0.05375",
+            "ranksep": "0.112875",
             "pack": "true",
             "packmode": "node",
             "concentrate": "false",
@@ -614,26 +620,32 @@ def render(
             "pad": "0",
         }
         node_attr |= {
-            "fontsize": "4.8",
-            "margin": "0.017,0.010",
+            "margin": "0.018275,0.01075",
             "penwidth": "0.62",
         }
         edge_attr |= {
-            "fontsize": "3.2",
             "arrowsize": "0.24",
             "penwidth": "0.58",
             "minlen": "1",
         }
 
     requested_format = output_format.lower()
+    svg_converter_available = can_convert_svg()
+    if requested_format == "pdf" and not svg_converter_available:
+        raise FileNotFoundError(
+            "PDF graph rendering requires 'rsvg-convert' so Arial text can "
+            "be converted to fixed vector outlines. Install librsvg and retry."
+        )
     render_format = (
         "svg"
-        if requested_format == "png" and can_convert_svg_to_png()
+        if requested_format in {"svg", "pdf"}
+        or (requested_format == "png" and svg_converter_available)
         else output_format
     )
     diagram = graphviz.Digraph(
         name="nasp_compendium",
         format=render_format,
+        renderer="cairo" if render_format == "svg" else None,
         engine=selected_layout_engine,
         graph_attr=graph_attr,
         node_attr=node_attr,
@@ -736,33 +748,53 @@ def render(
     # if compact:
     #     _add_compact_edge_legend(diagram, _highest_degree_node(edges))
 
-    rendered_path = Path(
-        diagram.render(filename=str(output_stem), cleanup=True)
-    )
-    if render_format.lower() == "svg":
-        postprocess_svg(rendered_path)
-        if requested_format == "png":
-            png_path = output_stem.with_suffix(".png")
-            convert_svg_to_png(rendered_path, png_path)
-            rendered_path.unlink()
-            rendered_path = png_path
+    if render_format == "svg" and requested_format != "svg":
+        with tempfile.TemporaryDirectory(
+            prefix="nasp_compendium_graph_"
+        ) as temporary_dir:
+            svg_path = Path(temporary_dir) / "graph.svg"
+            diagram.render(outfile=str(svg_path), cleanup=True)
+            postprocess_svg(svg_path)
+            output_path = output_stem.with_suffix(f".{requested_format}")
+            convert_svg(
+                svg_path,
+                output_path,
+                output_format=requested_format,
+            )
+        rendered_path = output_path
+    else:
+        rendered_path = Path(
+            diagram.render(
+                outfile=str(output_stem.with_suffix(f".{render_format}")),
+                cleanup=True,
+            )
+        )
+        if render_format == "svg":
+            postprocess_svg(rendered_path)
     print(f"  Wrote {rendered_path}")
 
 
-def can_convert_svg_to_png() -> bool:
-    """Return whether a local SVG converter is available for PNG output."""
+def can_convert_svg() -> bool:
+    """Return whether `rsvg-convert` is available for SVG conversion."""
     return shutil.which("rsvg-convert") is not None
 
 
-def convert_svg_to_png(svg_path: Path, png_path: Path) -> None:
-    """Convert a post-processed SVG to PNG."""
+def convert_svg(
+    svg_path: Path,
+    output_path: Path,
+    *,
+    output_format: str,
+) -> None:
+    """Convert an outlined SVG to `output_format`."""
+    if output_format not in {"pdf", "png"}:
+        raise ValueError(f"Unsupported SVG conversion format: {output_format}")
     subprocess.run(
         [
             "rsvg-convert",
             "--format",
-            "png",
+            output_format,
             "--output",
-            str(png_path),
+            str(output_path),
             str(svg_path),
         ],
         check=True,
@@ -773,9 +805,7 @@ def postprocess_svg(
     svg_path: Path,
     dash_patterns: dict[str, str] | None = None,
 ) -> None:
-    """Post-process Graphviz SVG output for deterministic browser/raster
-    style.
-    """
+    """Post-process Graphviz SVG dash styling."""
     if dash_patterns is None:
         dash_patterns = {
             'stroke-dasharray="5,2"': 'stroke-dasharray="2,1.2"',
@@ -783,14 +813,6 @@ def postprocess_svg(
         }
 
     text = svg_path.read_text()
-    text = text.replace(
-        'font-family="Helvetica,sans-Serif"',
-        f'font-family="{SVG_FONT_FAMILY}"',
-    )
-    text = text.replace(
-        'font-family="sans-Serif"',
-        f'font-family="{SVG_FONT_FAMILY}"',
-    )
     for original, replacement in dash_patterns.items():
         text = text.replace(original, replacement)
     svg_path.write_text(text)

@@ -1,4 +1,17 @@
-"""Score curated NASP drafts against gold compendium files."""
+"""Score curated NASP drafts against gold compendium files.
+
+The headline metric is core-tier endpoint recovery, with biologically
+equivalent gold representations collapsed into one recall unit. Relationship,
+polarity, and evidence agreement remain stricter diagnostics layered on the
+endpoint match.
+
+Matching normalizes node and relationship strings with the same
+`normalize_term` used by the vocabulary gate, so mechanical variants (case,
+plurals, `_accumulation`/`_signaling` suffixes) do not count a correct edge as
+both missed and extra. Each draft edge pairs with at most one gold edge, so a
+differently-worded-but-correct edge is classified once (relationship-only,
+evidence-only, or direction difference) rather than penalized twice.
+"""
 
 from __future__ import annotations
 
@@ -8,6 +21,29 @@ from pathlib import Path
 from typing import Any
 
 import yaml  # type: ignore
+
+from nasp_compendium.vocab_tiers import normalize_term
+
+
+_CORRELATIVE_RELS: frozenset[str] = frozenset(
+    {"correlates", "negatively_correlates", "does_not_correlate"}
+)
+
+_RELATION_POLARITY: dict[str, str] = {
+    "activates": "positive",
+    "causes": "positive",
+    "correlates": "positive",
+    "drives": "positive",
+    "induces": "positive",
+    "required_for": "positive",
+    "upregulates": "positive",
+    "downregulates": "negative",
+    "inhibits": "negative",
+    "negatively_correlates": "negative",
+    "suppresses": "negative",
+    "does_not_correlate": "absent",
+    "does_not_drive": "absent",
+}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -33,10 +69,24 @@ class EdgeRecord:
         """Return the directed source-target endpoints."""
         return (self.source, self.target)
 
+    @property
+    def norm_endpoints(self) -> tuple[str, str]:
+        """Return normalized source-target endpoints for matching."""
+        return (normalize_term(self.source), normalize_term(self.target))
+
+    @property
+    def norm_triple(self) -> tuple[str, str, str]:
+        """Return the normalized source-target-relationship triple."""
+        return (
+            normalize_term(self.source),
+            normalize_term(self.target),
+            normalize_term(self.rel),
+        )
+
 
 @dataclasses.dataclass(frozen=True)
 class EdgeMismatch:
-    """A paired draft/gold mismatch sharing some edge identity."""
+    """A paired draft/gold match sharing normalized endpoints."""
 
     gold: EdgeRecord
     draft: EdgeRecord
@@ -51,13 +101,23 @@ class PaperScore:
     gold_path: str
     gold_total: int
     draft_total: int
-    recovered_total: int
+    endpoint_recovered: int
+    triple_recovered: int
+    exact_recovered: int
+    relationship_mismatches: list[EdgeMismatch]
+    polarity_mismatches: list[EdgeMismatch]
+    evidence_mismatches: list[EdgeMismatch]
+    symmetric_direction_differences: list[EdgeMismatch]
     missed: list[EdgeRecord]
     extra: list[EdgeRecord]
-    relationship_mismatches: list[EdgeMismatch]
-    evidence_mismatches: list[EdgeMismatch]
-    symmetric_correlation_differences: list[EdgeMismatch]
-    dropped_gold_defects: list[EdgeRecord]
+    excluded_gold_defects: list[EdgeRecord]
+    core_units: int = 0
+    core_recovered: int = 0
+    supporting_units: int = 0
+    supporting_recovered: int = 0
+    shortcut_violations: list[EdgeMismatch] = dataclasses.field(
+        default_factory=list
+    )
 
 
 @dataclasses.dataclass(frozen=True)
@@ -68,33 +128,43 @@ class ScoreReport:
 
     @property
     def gold_total(self) -> int:
-        """Return total scored gold triples."""
+        """Return total scored gold edges."""
         return sum(paper.gold_total for paper in self.papers)
 
     @property
     def draft_total(self) -> int:
-        """Return total draft triples."""
+        """Return total draft edges."""
         return sum(paper.draft_total for paper in self.papers)
 
     @property
-    def recovered_total(self) -> int:
-        """Return total exact recovered triples."""
-        return sum(paper.recovered_total for paper in self.papers)
+    def endpoint_recovered_total(self) -> int:
+        """Return total gold edges recovered at the endpoint level."""
+        return sum(paper.endpoint_recovered for paper in self.papers)
+
+    @property
+    def triple_recovered_total(self) -> int:
+        """Return total gold edges recovered with matching relationship."""
+        return sum(paper.triple_recovered for paper in self.papers)
+
+    @property
+    def exact_recovered_total(self) -> int:
+        """Return total gold edges recovered with matching triple+evidence."""
+        return sum(paper.exact_recovered for paper in self.papers)
 
     @property
     def missed_total(self) -> int:
-        """Return total missed gold triples."""
+        """Return total gold edges with no endpoint match."""
         return sum(len(paper.missed) for paper in self.papers)
 
     @property
     def extra_total(self) -> int:
-        """Return total extra draft triples."""
+        """Return total draft edges with no endpoint match."""
         return sum(len(paper.extra) for paper in self.papers)
 
     @property
-    def dropped_gold_defects_total(self) -> int:
-        """Return total excluded gold-defect triples."""
-        return sum(len(paper.dropped_gold_defects) for paper in self.papers)
+    def excluded_gold_defects_total(self) -> int:
+        """Return total excluded gold-defect edges."""
+        return sum(len(paper.excluded_gold_defects) for paper in self.papers)
 
     @property
     def relationship_mismatches_total(self) -> int:
@@ -102,32 +172,84 @@ class ScoreReport:
         return sum(len(paper.relationship_mismatches) for paper in self.papers)
 
     @property
+    def polarity_mismatches_total(self) -> int:
+        """Return total relationship mismatches that change polarity."""
+        return sum(len(paper.polarity_mismatches) for paper in self.papers)
+
+    @property
     def evidence_mismatches_total(self) -> int:
-        """Return total exact triples with mismatched evidence strength."""
+        """Return total matched triples with mismatched evidence strength."""
         return sum(len(paper.evidence_mismatches) for paper in self.papers)
 
     @property
-    def symmetric_correlation_differences_total(self) -> int:
+    def symmetric_direction_differences_total(self) -> int:
         """Return total reversed symmetric-correlation pairs."""
         return sum(
-            len(paper.symmetric_correlation_differences)
-            for paper in self.papers
+            len(paper.symmetric_direction_differences) for paper in self.papers
         )
 
     @property
-    def ordinary_missed_total(self) -> int:
-        """Return missed edges excluding relationship/symmetric pairs."""
-        return sum(len(ordinary_missed_edges(paper)) for paper in self.papers)
+    def endpoint_recall(self) -> float:
+        """Return endpoint recall over scored gold edges."""
+        return _ratio(self.endpoint_recovered_total, self.gold_total)
 
     @property
-    def ordinary_extra_total(self) -> int:
-        """Return extra edges excluding relationship/symmetric pairs."""
-        return sum(len(ordinary_extra_edges(paper)) for paper in self.papers)
+    def endpoint_precision(self) -> float:
+        """Return endpoint precision over draft edges."""
+        return _ratio(self.endpoint_recovered_total, self.draft_total)
 
     @property
-    def evidence_exact_recovered_total(self) -> int:
-        """Return recovered triples that also match evidence strength."""
-        return self.recovered_total - self.evidence_mismatches_total
+    def core_units_total(self) -> int:
+        """Return total core recall units after equivalence collapsing."""
+        return sum(paper.core_units for paper in self.papers)
+
+    @property
+    def core_recovered_total(self) -> int:
+        """Return total recovered core recall units."""
+        return sum(paper.core_recovered for paper in self.papers)
+
+    @property
+    def supporting_units_total(self) -> int:
+        """Return total supporting units after equivalence collapsing."""
+        return sum(paper.supporting_units for paper in self.papers)
+
+    @property
+    def supporting_recovered_total(self) -> int:
+        """Return total recovered supporting recall units."""
+        return sum(paper.supporting_recovered for paper in self.papers)
+
+    @property
+    def shortcut_violations_total(self) -> int:
+        """Return total draft edges matching forbidden shortcuts."""
+        return sum(len(paper.shortcut_violations) for paper in self.papers)
+
+    @property
+    def core_recall(self) -> float:
+        """Return headline core-tier recall."""
+        return _ratio(self.core_recovered_total, self.core_units_total)
+
+    @property
+    def supporting_recall(self) -> float:
+        """Return separately reported supporting-tier recall."""
+        return _ratio(
+            self.supporting_recovered_total,
+            self.supporting_units_total,
+        )
+
+    @property
+    def relationship_recall(self) -> float:
+        """Return signed relationship recall over scored gold edges."""
+        return _ratio(self.triple_recovered_total, self.gold_total)
+
+    @property
+    def relationship_precision(self) -> float:
+        """Return signed relationship precision over draft edges."""
+        return _ratio(self.triple_recovered_total, self.draft_total)
+
+    @property
+    def exact_recall(self) -> float:
+        """Return relationship-and-evidence recall over scored gold edges."""
+        return _ratio(self.exact_recovered_total, self.gold_total)
 
 
 def score_paths(
@@ -136,7 +258,7 @@ def score_paths(
     *,
     draft_glob: str = "*.md",
     gold_glob: str = "*.gold.md",
-    drop_gold_defects: bool = False,
+    drop_gold_defects: bool = True,
 ) -> ScoreReport:
     """Score one draft/gold file pair or directories of pairs.
 
@@ -145,7 +267,7 @@ def score_paths(
       gold_path: Gold file or directory.
       draft_glob: Glob used when `draft_path` is a directory.
       gold_glob: Glob used when `gold_path` is a directory.
-      drop_gold_defects: Whether to remove gold edges annotated as defects.
+      drop_gold_defects: Whether to exclude gold edges flagged as defects.
 
     Returns:
       ScoreReport containing per-paper scores.
@@ -174,7 +296,7 @@ def score_pair(
     gold_file: Path,
     *,
     paper_id: str | None = None,
-    drop_gold_defects: bool = False,
+    drop_gold_defects: bool = True,
 ) -> PaperScore:
     """Score one draft file against one gold file.
 
@@ -182,27 +304,43 @@ def score_pair(
       draft_file: Draft YAML-in-Markdown file.
       gold_file: Gold YAML-in-Markdown file.
       paper_id: Optional paper id for reporting.
-      drop_gold_defects: Whether to remove gold edges annotated as defects.
+      drop_gold_defects: Whether to exclude gold edges flagged as defects.
 
     Returns:
       PaperScore for the pair.
     """
-    draft_edges = _load_edges(draft_file)
+    draft_loaded = _load_edges(draft_file)
     raw_gold_edges = _load_edges(gold_file)
+    draft_edges = [
+        edge.record
+        for edge in draft_loaded
+        if not edge.is_forbidden and not edge.is_excluded
+    ]
 
-    dropped_gold_defects: list[EdgeRecord] = []
-    gold_edges: list[EdgeRecord] = []
+    excluded_gold_defects: list[EdgeRecord] = []
+    forbidden_edges: list[_LoadedEdge] = []
+    scored_gold: list[_LoadedEdge] = []
     for edge in raw_gold_edges:
-        if drop_gold_defects and _is_gold_defect(edge):
-            dropped_gold_defects.append(edge)
+        if drop_gold_defects and edge.is_excluded:
+            excluded_gold_defects.append(edge.record)
+        elif edge.is_forbidden:
+            forbidden_edges.append(edge)
         else:
-            gold_edges.append(edge)
+            scored_gold.append(edge)
 
-    recovered_keys = {edge.triple for edge in draft_edges} & {
-        edge.triple for edge in gold_edges
-    }
-    missed = [edge for edge in gold_edges if edge.triple not in recovered_keys]
-    extra = [edge for edge in draft_edges if edge.triple not in recovered_keys]
+    gold_edges = [edge.record for edge in scored_gold]
+    match = _match_edges(draft_edges, gold_edges)
+    extra, shortcut_violations = _split_shortcut_violations(
+        match.extra,
+        forbidden_edges,
+    )
+    core_units, core_recovered, supporting_units, supporting_recovered = (
+        _tier_units(scored_gold, match.recovered_gold_indices)
+    )
+    missed = _missed_after_equiv_collapse(
+        scored_gold,
+        match.recovered_gold_indices,
+    )
 
     return PaperScore(
         paper_id=paper_id or _paper_key_from_path(draft_file),
@@ -210,15 +348,254 @@ def score_pair(
         gold_path=str(gold_file),
         gold_total=len(gold_edges),
         draft_total=len(draft_edges),
-        recovered_total=len(recovered_keys),
+        endpoint_recovered=len(match.pairs),
+        triple_recovered=match.triple_recovered,
+        exact_recovered=match.exact_recovered,
+        relationship_mismatches=match.relationship_mismatches,
+        polarity_mismatches=match.polarity_mismatches,
+        evidence_mismatches=match.evidence_mismatches,
+        symmetric_direction_differences=match.symmetric_direction_differences,
         missed=missed,
         extra=extra,
-        relationship_mismatches=_relationship_mismatches(missed, extra),
-        evidence_mismatches=_evidence_mismatches(gold_edges, draft_edges),
-        symmetric_correlation_differences=_symmetric_correlation_differences(
-            missed, extra
-        ),
-        dropped_gold_defects=dropped_gold_defects,
+        excluded_gold_defects=excluded_gold_defects,
+        core_units=core_units,
+        core_recovered=core_recovered,
+        supporting_units=supporting_units,
+        supporting_recovered=supporting_recovered,
+        shortcut_violations=shortcut_violations,
+    )
+
+
+@dataclasses.dataclass(frozen=True)
+class _LoadedEdge:
+    """An edge record plus optional gold-scoring metadata."""
+
+    record: EdgeRecord
+    is_excluded: bool
+    tier: str = "core"
+    equiv_group: str = ""
+    is_forbidden: bool = False
+
+
+@dataclasses.dataclass
+class _MatchResult:
+    """Structured output of one-to-one draft/gold matching."""
+
+    pairs: list[EdgeMismatch]
+    triple_recovered: int
+    exact_recovered: int
+    relationship_mismatches: list[EdgeMismatch]
+    polarity_mismatches: list[EdgeMismatch]
+    evidence_mismatches: list[EdgeMismatch]
+    symmetric_direction_differences: list[EdgeMismatch]
+    missed: list[EdgeRecord]
+    extra: list[EdgeRecord]
+    recovered_gold_indices: set[int]
+
+
+def _match_edges(
+    draft_edges: list[EdgeRecord],
+    gold_edges: list[EdgeRecord],
+) -> _MatchResult:
+    """Pair gold and draft edges by endpoint, best signed matches first.
+
+    Builds every gold/draft candidate that shares normalized endpoints (or
+    reversed endpoints for symmetric correlative relationships), ranks pairs by
+    match quality, and greedily assigns so each gold and draft edge is used at
+    most once. Exact signed relationships outrank same-endpoint alternatives.
+    """
+    candidates: list[tuple[int, int, int, bool]] = []
+    for gold_index, gold_edge in enumerate(gold_edges):
+        for draft_index, draft_edge in enumerate(draft_edges):
+            endpoint_match, reversed_direction = _endpoints_match(
+                gold_edge, draft_edge
+            )
+            if not endpoint_match:
+                continue
+            rank = _pair_rank(gold_edge, draft_edge, reversed_direction)
+            candidates.append(
+                (rank, gold_index, draft_index, reversed_direction)
+            )
+
+    candidates.sort(key=lambda item: item[0], reverse=True)
+    used_gold: set[int] = set()
+    used_draft: set[int] = set()
+
+    pairs: list[EdgeMismatch] = []
+    relationship_mismatches: list[EdgeMismatch] = []
+    polarity_mismatches: list[EdgeMismatch] = []
+    evidence_mismatches: list[EdgeMismatch] = []
+    symmetric_direction_differences: list[EdgeMismatch] = []
+    triple_recovered = 0
+    exact_recovered = 0
+
+    for _, gold_index, draft_index, reversed_direction in candidates:
+        if gold_index in used_gold or draft_index in used_draft:
+            continue
+        used_gold.add(gold_index)
+        used_draft.add(draft_index)
+        gold_edge = gold_edges[gold_index]
+        draft_edge = draft_edges[draft_index]
+        mismatch = EdgeMismatch(gold=gold_edge, draft=draft_edge)
+        pairs.append(mismatch)
+
+        if reversed_direction:
+            symmetric_direction_differences.append(mismatch)
+        if not _relations_match(gold_edge.rel, draft_edge.rel):
+            relationship_mismatches.append(mismatch)
+            if _is_polarity_mismatch(gold_edge.rel, draft_edge.rel):
+                polarity_mismatches.append(mismatch)
+            continue
+        triple_recovered += 1
+        if gold_edge.evidence_strength == draft_edge.evidence_strength:
+            exact_recovered += 1
+        else:
+            evidence_mismatches.append(mismatch)
+
+    missed = [
+        edge for index, edge in enumerate(gold_edges) if index not in used_gold
+    ]
+    extra = [
+        edge
+        for index, edge in enumerate(draft_edges)
+        if index not in used_draft
+    ]
+    return _MatchResult(
+        pairs=pairs,
+        triple_recovered=triple_recovered,
+        exact_recovered=exact_recovered,
+        relationship_mismatches=relationship_mismatches,
+        polarity_mismatches=polarity_mismatches,
+        evidence_mismatches=evidence_mismatches,
+        symmetric_direction_differences=symmetric_direction_differences,
+        missed=missed,
+        extra=extra,
+        recovered_gold_indices=set(used_gold),
+    )
+
+
+def _tier_units(
+    scored_gold: list[_LoadedEdge],
+    recovered_gold_indices: set[int],
+) -> tuple[int, int, int, int]:
+    """Return tiered unit and recovery counts after equivalence collapsing."""
+    groups: dict[str, dict[str, bool]] = {}
+    for index, edge in enumerate(scored_gold):
+        key = edge.equiv_group or f"__singleton_{index}"
+        entry = groups.setdefault(
+            key,
+            {"has_core": False, "recovered": False},
+        )
+        if edge.tier == "core":
+            entry["has_core"] = True
+        if index in recovered_gold_indices:
+            entry["recovered"] = True
+
+    core_units = core_recovered = 0
+    supporting_units = supporting_recovered = 0
+    for entry in groups.values():
+        if entry["has_core"]:
+            core_units += 1
+            core_recovered += int(entry["recovered"])
+        else:
+            supporting_units += 1
+            supporting_recovered += int(entry["recovered"])
+    return core_units, core_recovered, supporting_units, supporting_recovered
+
+
+def _missed_after_equiv_collapse(
+    scored_gold: list[_LoadedEdge],
+    recovered_gold_indices: set[int],
+) -> list[EdgeRecord]:
+    """Return unmatched gold edges, excluding satisfied group alternates."""
+    satisfied_groups = {
+        edge.equiv_group
+        for index, edge in enumerate(scored_gold)
+        if edge.equiv_group and index in recovered_gold_indices
+    }
+    return [
+        edge.record
+        for index, edge in enumerate(scored_gold)
+        if index not in recovered_gold_indices
+        and edge.equiv_group not in satisfied_groups
+    ]
+
+
+def _split_shortcut_violations(
+    extra: list[EdgeRecord],
+    forbidden_edges: list[_LoadedEdge],
+) -> tuple[list[EdgeRecord], list[EdgeMismatch]]:
+    """Split unmatched draft edges into extras and forbidden shortcuts."""
+    forbidden_by_endpoints: dict[tuple[str, str], EdgeRecord] = {}
+    for edge in forbidden_edges:
+        forbidden_by_endpoints.setdefault(
+            edge.record.norm_endpoints,
+            edge.record,
+        )
+
+    remaining: list[EdgeRecord] = []
+    violations: list[EdgeMismatch] = []
+    for draft_edge in extra:
+        gold_edge = forbidden_by_endpoints.get(draft_edge.norm_endpoints)
+        if gold_edge is None:
+            remaining.append(draft_edge)
+        else:
+            violations.append(EdgeMismatch(gold=gold_edge, draft=draft_edge))
+    return remaining, violations
+
+
+def _endpoints_match(
+    gold_edge: EdgeRecord,
+    draft_edge: EdgeRecord,
+) -> tuple[bool, bool]:
+    """Return whether endpoints match and whether the match is reversed.
+
+    Reversed matches are only allowed for symmetric correlative relationships,
+    where direction carries no biological meaning.
+    """
+    if gold_edge.norm_endpoints == draft_edge.norm_endpoints:
+        return True, False
+    both_correlative = (
+        gold_edge.rel in _CORRELATIVE_RELS
+        and draft_edge.rel in _CORRELATIVE_RELS
+    )
+    reversed_match = gold_edge.norm_endpoints == (
+        draft_edge.norm_endpoints[1],
+        draft_edge.norm_endpoints[0],
+    )
+    if both_correlative and reversed_match:
+        return True, True
+    return False, False
+
+
+def _pair_rank(
+    gold_edge: EdgeRecord,
+    draft_edge: EdgeRecord,
+    _reversed_direction: bool,
+) -> int:
+    """Return a match-quality rank so better pairs are assigned first."""
+    if _relations_match(gold_edge.rel, draft_edge.rel):
+        if gold_edge.evidence_strength == draft_edge.evidence_strength:
+            return 5
+        return 4
+    if not _is_polarity_mismatch(gold_edge.rel, draft_edge.rel):
+        return 3
+    return 2
+
+
+def _relations_match(gold_rel: str, draft_rel: str) -> bool:
+    """Return whether relation labels match after mechanical normalization."""
+    return normalize_term(gold_rel) == normalize_term(draft_rel)
+
+
+def _is_polarity_mismatch(gold_rel: str, draft_rel: str) -> bool:
+    """Return whether two controlled relations assert different polarities."""
+    gold_polarity = _RELATION_POLARITY.get(gold_rel)
+    draft_polarity = _RELATION_POLARITY.get(draft_rel)
+    return (
+        gold_polarity is not None
+        and draft_polarity is not None
+        and gold_polarity != draft_polarity
     )
 
 
@@ -233,21 +610,36 @@ def format_score_report(
         "# NASP compendium score",
         "",
         (
-            f"Total: recovered {report.recovered_total}/{report.gold_total}; "
-            f"evidence-matched recovered "
-            f"{report.evidence_exact_recovered_total}/{report.gold_total}; "
-            f"draft edges {report.draft_total}; missed {report.missed_total}; "
-            f"extra {report.extra_total}; "
-            f"dropped gold defects {report.dropped_gold_defects_total}."
+            f"Core recall: {report.core_recovered_total}/"
+            f"{report.core_units_total} ({report.core_recall:.0%}); "
+            f"supporting recall: {report.supporting_recovered_total}/"
+            f"{report.supporting_units_total} "
+            f"({report.supporting_recall:.0%}); forbidden-shortcut "
+            f"violations: {report.shortcut_violations_total}."
         ),
         (
-            "Non-overlapping: "
-            f"ordinary missed {report.ordinary_missed_total}; "
-            f"ordinary extra {report.ordinary_extra_total}; "
-            f"relationship-only {report.relationship_mismatches_total}; "
-            f"evidence-only {report.evidence_mismatches_total}; "
-            "symmetric-correlation direction "
-            f"{report.symmetric_correlation_differences_total}."
+            f"Relationship recall: {report.triple_recovered_total}/"
+            f"{report.gold_total} ({report.relationship_recall:.0%}); "
+            f"relationship precision: {report.triple_recovered_total}/"
+            f"{report.draft_total} ({report.relationship_precision:.0%})."
+        ),
+        (
+            f"Evidence-matched exact recall: {report.exact_recovered_total}/"
+            f"{report.gold_total} ({report.exact_recall:.0%}); endpoint "
+            f"overlap (diagnostic only): {report.endpoint_recovered_total}/"
+            f"{report.gold_total} recall, {report.endpoint_recovered_total}/"
+            f"{report.draft_total} precision."
+        ),
+        (
+            f"Missed (no endpoint match): {report.missed_total}; "
+            f"extra (no endpoint match): {report.extra_total}; "
+            f"relationship-only: {report.relationship_mismatches_total}; "
+            f"polarity: {report.polarity_mismatches_total}; "
+            f"evidence-only: {report.evidence_mismatches_total}; "
+            "symmetric-correlation direction: "
+            f"{report.symmetric_direction_differences_total}; "
+            f"forbidden shortcuts: {report.shortcut_violations_total}; "
+            f"excluded gold defects: {report.excluded_gold_defects_total}."
         ),
         "",
     ]
@@ -267,6 +659,11 @@ def write_score_report(
         format_score_report(report, output_format=output_format)
     )
     return output_path
+
+
+def _ratio(numerator: int, denominator: int) -> float:
+    """Return numerator/denominator, or 0.0 when the denominator is zero."""
+    return numerator / denominator if denominator else 0.0
 
 
 def _resolve_pairs(
@@ -340,15 +737,37 @@ def _paper_key_from_path(path: Path) -> str:
     return name.lower()
 
 
-def _load_edges(path: Path) -> list[EdgeRecord]:
-    """Load normalized edge records from a YAML-in-Markdown file."""
+def _load_edges(path: Path) -> list[_LoadedEdge]:
+    """Load edge records and scoring metadata from a compendium file."""
     data = yaml.safe_load(path.read_text())
     if not isinstance(data, dict):
         return []
     edges = data.get("edges")
     if not isinstance(edges, list):
         return []
-    return [_edge_record(edge) for edge in edges if isinstance(edge, dict)]
+    return [_loaded_edge(edge) for edge in edges if isinstance(edge, dict)]
+
+
+def _loaded_edge(edge: dict[str, Any]) -> _LoadedEdge:
+    """Return one edge with parsed tier, group, and status metadata."""
+    return _LoadedEdge(
+        record=_edge_record(edge),
+        is_excluded=_is_excluded(edge),
+        tier=_edge_tier(edge),
+        equiv_group=str(edge.get("equiv_group", "")).strip(),
+        is_forbidden=_is_forbidden_shortcut(edge),
+    )
+
+
+def _edge_tier(edge: dict[str, Any]) -> str:
+    """Return an edge tier, defaulting absent or unknown values to core."""
+    tier = str(edge.get("tier", "")).strip().lower()
+    return tier if tier in {"core", "supporting"} else "core"
+
+
+def _is_forbidden_shortcut(edge: dict[str, Any]) -> bool:
+    """Return whether an edge is a forbidden-shortcut anti-edge."""
+    return str(edge.get("status", "")).strip().lower() == ("forbidden_shortcut")
 
 
 def _edge_record(edge: dict[str, Any]) -> EdgeRecord:
@@ -365,88 +784,18 @@ def _edge_record(edge: dict[str, Any]) -> EdgeRecord:
     )
 
 
-def _is_gold_defect(
-    edge: EdgeRecord,
-    defect_phrases: tuple[str, ...] = (
-        "almost certainly wrong",
-        "recommend: drop this edge",
-        "possible non-edge",
-        "placeholder",
-        "score_exclude",
-        "gold defect",
-    ),
-) -> bool:
-    """Return whether a gold edge is annotated as a scoring defect."""
-    text = " ".join(
-        [
-            edge.context,
-            edge.support,
-            edge.source,
-            edge.target,
-            edge.rel,
-        ]
-    ).lower()
-    return any(phrase in text for phrase in defect_phrases)
+def _is_excluded(edge: dict[str, Any]) -> bool:
+    """Return whether a gold edge is flagged as excluded from scoring.
 
-
-def _relationship_mismatches(
-    missed: list[EdgeRecord],
-    extra: list[EdgeRecord],
-) -> list[EdgeMismatch]:
-    """Return same-endpoint draft/gold pairs with different relations."""
-    mismatches: list[EdgeMismatch] = []
-    for gold_edge in missed:
-        mismatches.extend(
-            EdgeMismatch(gold=gold_edge, draft=draft_edge)
-            for draft_edge in extra
-            if (
-                gold_edge.endpoints == draft_edge.endpoints
-                and gold_edge.rel != draft_edge.rel
-            )
-        )
-    return mismatches
-
-
-def _evidence_mismatches(
-    gold_edges: list[EdgeRecord],
-    draft_edges: list[EdgeRecord],
-) -> list[EdgeMismatch]:
-    """Return exact triple matches with different evidence strengths."""
-    draft_by_triple = {edge.triple: edge for edge in draft_edges}
-    mismatches: list[EdgeMismatch] = []
-    for gold_edge in gold_edges:
-        draft_edge = draft_by_triple.get(gold_edge.triple)
-        if draft_edge is None:
-            continue
-        if gold_edge.evidence_strength != draft_edge.evidence_strength:
-            mismatches.append(EdgeMismatch(gold=gold_edge, draft=draft_edge))
-    return mismatches
-
-
-def _symmetric_correlation_differences(
-    missed: list[EdgeRecord],
-    extra: list[EdgeRecord],
-    *,
-    correlative_rels: frozenset[str] = frozenset(
-        {"correlates", "negatively_correlates", "does_not_correlate"}
-    ),
-) -> list[EdgeMismatch]:
-    """Return reversed-endpoint correlation pairs."""
-    differences: list[EdgeMismatch] = []
-    for gold_edge in missed:
-        if gold_edge.rel not in correlative_rels:
-            continue
-        for draft_edge in extra:
-            if draft_edge.rel != gold_edge.rel:
-                continue
-            if (
-                gold_edge.source == draft_edge.target
-                and gold_edge.target == draft_edge.source
-            ):
-                differences.append(
-                    EdgeMismatch(gold=gold_edge, draft=draft_edge)
-                )
-    return differences
+    Exclusion is a structured decision on the edge mapping: `score_exclude:
+    true` or `status: excluded`. Prose annotations are not scanned.
+    """
+    if str(edge.get("status", "")).strip().lower() == "excluded":
+        return True
+    flag = edge.get("score_exclude")
+    if isinstance(flag, bool):
+        return flag
+    return str(flag).strip().lower() in {"1", "true", "yes"}
 
 
 def _report_to_dict(report: ScoreReport) -> dict[str, Any]:
@@ -455,18 +804,32 @@ def _report_to_dict(report: ScoreReport) -> dict[str, Any]:
         "summary": {
             "gold_total": report.gold_total,
             "draft_total": report.draft_total,
-            "recovered_total": report.recovered_total,
-            "evidence_exact_recovered_total": report.evidence_exact_recovered_total,  # noqa: E501
+            "core_units_total": report.core_units_total,
+            "core_recovered_total": report.core_recovered_total,
+            "core_recall": round(report.core_recall, 4),
+            "supporting_units_total": report.supporting_units_total,
+            "supporting_recovered_total": report.supporting_recovered_total,
+            "supporting_recall": round(report.supporting_recall, 4),
+            "shortcut_violations_total": report.shortcut_violations_total,
+            "endpoint_recovered_total": report.endpoint_recovered_total,
+            "endpoint_recall": round(report.endpoint_recall, 4),
+            "endpoint_precision": round(report.endpoint_precision, 4),
+            "triple_recovered_total": report.triple_recovered_total,
+            "relationship_recall": round(report.relationship_recall, 4),
+            "relationship_precision": round(report.relationship_precision, 4),
+            "exact_recovered_total": report.exact_recovered_total,
+            "exact_recall": round(report.exact_recall, 4),
             "missed_total": report.missed_total,
             "extra_total": report.extra_total,
-            "ordinary_missed_total": report.ordinary_missed_total,
-            "ordinary_extra_total": report.ordinary_extra_total,
-            "relationship_mismatches_total": report.relationship_mismatches_total,  # noqa: E501
-            "evidence_mismatches_total": report.evidence_mismatches_total,
-            "symmetric_correlation_differences_total": (
-                report.symmetric_correlation_differences_total
+            "relationship_mismatches_total": (
+                report.relationship_mismatches_total
             ),
-            "dropped_gold_defects_total": report.dropped_gold_defects_total,
+            "polarity_mismatches_total": report.polarity_mismatches_total,
+            "evidence_mismatches_total": report.evidence_mismatches_total,
+            "symmetric_direction_differences_total": (
+                report.symmetric_direction_differences_total
+            ),
+            "excluded_gold_defects_total": report.excluded_gold_defects_total,
         },
         "papers": [_paper_to_dict(paper) for paper in report.papers],
     }
@@ -480,56 +843,39 @@ def _paper_to_dict(paper: PaperScore) -> dict[str, Any]:
         "gold_path": paper.gold_path,
         "gold_total": paper.gold_total,
         "draft_total": paper.draft_total,
-        "recovered_total": paper.recovered_total,
-        "evidence_exact_recovered_total": (
-            paper.recovered_total - len(paper.evidence_mismatches)
-        ),
-        "ordinary_missed": [
-            _edge_to_dict(edge) for edge in ordinary_missed_edges(paper)
-        ],
-        "ordinary_extra": [
-            _edge_to_dict(edge) for edge in ordinary_extra_edges(paper)
-        ],
+        "core_units": paper.core_units,
+        "core_recovered": paper.core_recovered,
+        "supporting_units": paper.supporting_units,
+        "supporting_recovered": paper.supporting_recovered,
+        "endpoint_recovered": paper.endpoint_recovered,
+        "triple_recovered": paper.triple_recovered,
+        "exact_recovered": paper.exact_recovered,
         "missed": [_edge_to_dict(edge) for edge in paper.missed],
         "extra": [_edge_to_dict(edge) for edge in paper.extra],
         "relationship_mismatches": [
             _mismatch_to_dict(mismatch)
             for mismatch in paper.relationship_mismatches
         ],
+        "polarity_mismatches": [
+            _mismatch_to_dict(mismatch)
+            for mismatch in paper.polarity_mismatches
+        ],
+        "shortcut_violations": [
+            _mismatch_to_dict(mismatch)
+            for mismatch in paper.shortcut_violations
+        ],
         "evidence_mismatches": [
             _mismatch_to_dict(mismatch)
             for mismatch in paper.evidence_mismatches
         ],
-        "symmetric_correlation_differences": [
+        "symmetric_direction_differences": [
             _mismatch_to_dict(mismatch)
-            for mismatch in paper.symmetric_correlation_differences
+            for mismatch in paper.symmetric_direction_differences
         ],
-        "dropped_gold_defects": [
-            _edge_to_dict(edge) for edge in paper.dropped_gold_defects
+        "excluded_gold_defects": [
+            _edge_to_dict(edge) for edge in paper.excluded_gold_defects
         ],
     }
-
-
-def ordinary_missed_edges(paper: PaperScore) -> list[EdgeRecord]:
-    """Return missed gold edges not explained by relation/symmetry pairs."""
-    explained = {
-        mismatch.gold.triple for mismatch in paper.relationship_mismatches
-    } | {
-        mismatch.gold.triple
-        for mismatch in paper.symmetric_correlation_differences
-    }
-    return [edge for edge in paper.missed if edge.triple not in explained]
-
-
-def ordinary_extra_edges(paper: PaperScore) -> list[EdgeRecord]:
-    """Return extra draft edges not explained by relation/symmetry pairs."""
-    explained = {
-        mismatch.draft.triple for mismatch in paper.relationship_mismatches
-    } | {
-        mismatch.draft.triple
-        for mismatch in paper.symmetric_correlation_differences
-    }
-    return [edge for edge in paper.extra if edge.triple not in explained]
 
 
 def _edge_to_dict(edge: EdgeRecord) -> dict[str, str]:
@@ -551,21 +897,29 @@ def _format_paper_score(paper: PaperScore) -> list[str]:
         f"## {paper.paper_id}",
         "",
         (
-            f"- Recovered: {paper.recovered_total}/{paper.gold_total}; "
-            f"evidence-matched recovered: "
-            f"{paper.recovered_total - len(paper.evidence_mismatches)}/"
-            f"{paper.gold_total}; draft edges: {paper.draft_total}; "
-            f"missed: {len(paper.missed)}; extra: {len(paper.extra)}; "
-            f"dropped gold defects: {len(paper.dropped_gold_defects)}"
+            f"- Core recall: {paper.core_recovered}/{paper.core_units}; "
+            f"supporting recall: {paper.supporting_recovered}/"
+            f"{paper.supporting_units}; forbidden-shortcut violations: "
+            f"{len(paper.shortcut_violations)}"
         ),
-        f"- Ordinary missed: {len(ordinary_missed_edges(paper))}",
-        f"- Ordinary extra: {len(ordinary_extra_edges(paper))}",
+        (
+            f"- Relationship-matched: {paper.triple_recovered}/"
+            f"{paper.gold_total}; "
+            f"evidence-matched (exact): {paper.exact_recovered}/"
+            f"{paper.gold_total}; endpoint overlap (diagnostic): "
+            f"{paper.endpoint_recovered}/{paper.gold_total}; "
+            f"draft edges: {paper.draft_total}"
+        ),
+        f"- Missed (no endpoint match): {len(paper.missed)}",
+        f"- Extra (no endpoint match): {len(paper.extra)}",
         f"- Relationship-only mismatches: {len(paper.relationship_mismatches)}",
+        f"- Polarity mismatches: {len(paper.polarity_mismatches)}",
         f"- Evidence-strength mismatches: {len(paper.evidence_mismatches)}",
         (
             "- Symmetric correlation direction differences: "
-            f"{len(paper.symmetric_correlation_differences)}"
+            f"{len(paper.symmetric_direction_differences)}"
         ),
+        f"- Excluded gold defects: {len(paper.excluded_gold_defects)}",
         "",
     ]
     if paper.missed:
@@ -575,6 +929,22 @@ def _format_paper_score(paper: PaperScore) -> list[str]:
     if paper.extra:
         lines.append("Extra:")
         lines.extend(f"- {_format_edge(edge)}" for edge in paper.extra)
+        lines.append("")
+    if paper.shortcut_violations:
+        lines.append("Forbidden-shortcut violations:")
+        lines.extend(
+            f"- draft {_format_edge(mismatch.draft)} | "
+            f"forbidden {_format_edge(mismatch.gold)}"
+            for mismatch in paper.shortcut_violations
+        )
+        lines.append("")
+    if paper.relationship_mismatches:
+        lines.append("Relationship-only (endpoints match, verb differs):")
+        lines.extend(
+            f"- gold {_format_edge(mismatch.gold)} | "
+            f"draft {_format_edge(mismatch.draft)}"
+            for mismatch in paper.relationship_mismatches
+        )
         lines.append("")
     return lines
 

@@ -1,13 +1,7 @@
+
 # Audit the NASP Compendium
 
-Read first:
-- `AGENTS.md`
-- `agent/analysis_prompt.md`
-- `agent/conventions.md`
-- All relevant files in `docs/compendium/`
-- Relevant PDFs from `data/literature/`
-- `nasp_compendium/summarize_compendium.py`
-- `nasp_compendium/style.py`
+See `agent/prompts/_shared.md` for the Read-first set.
 
 Task:
 - Audit the compendium for schema, naming, edge, and evidence consistency.
@@ -22,9 +16,4 @@ Output:
 - Separate hard errors, curation warnings, and optional cleanup suggestions.
 
 Checks:
-- Run `compendium validate --dir docs/compendium`.
-- If the compendium changed, run:
-  `compendium render_graph --directory docs/compendium --annotate-papers`
-- Show diffs for human review.
-- List remaining uncertainties explicitly.
-- Do not commit.
+- See `agent/prompts/_shared.md`.

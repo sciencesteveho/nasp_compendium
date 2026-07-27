@@ -17,12 +17,40 @@ inflammation, senescence, and aging-related biology.
 
 ## Usage
 
-Render the full mechanism graph:
+PDF graph output requires `rsvg-convert` from librsvg so text can be stored as
+fixed vector outlines rather than viewer-dependent font objects.
+
+`render_graph`: writes one combined figure containing every
+compendium `*.md` file:
 
 ```sh
 compendium render_graph \
-  --dir docs/compendium \
-  --out docs/compendium/nasp_pathway_map.png
+  --compendium-path docs/compendium \
+  --out figures/all_literature_graph.pdf
+```
+
+Use `--paper PAPER_ID` with `render_graph` to render a selected subset instead.
+
+</br>
+
+`render_paper_graphs` writes one figure for each compendium `*.md` file:
+```sh
+compendium render_paper_graphs \
+  --compendium-path docs/compendium \
+  --output-dir figures \
+  --format pdf
+```
+
+Both commands also accept `--annotate-papers`, `--compact`,
+`--rankdir`, `--layout-engine`, `--exclude-rel`, and
+`--no-aggregate-edges`.
+
+Generate one combined Mermaid source and one source per compendium file:
+
+```sh
+compendium render_mermaid_graphs \
+  --compendium-path docs/compendium \
+  --output-dir docs/compendium_graphs
 ```
 
 #### Optional arguments:

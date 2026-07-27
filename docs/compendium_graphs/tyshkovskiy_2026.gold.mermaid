@@ -1,0 +1,63 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["CDKN1A"]:::genes
+  n1["GPNMB"]:::genes
+  n2["IGF1"]:::genes
+  n3["LGALS3"]:::genes
+  n4["cellular senescence"]:::mechanisms
+  n5["early embryogenesis"]:::default
+  n6["heterochronic parabiosis"]:::default
+  n7["mortality"]:::mechanisms
+  n8["tissue inflammation"]:::mechanisms
+  n9["type I IFN"]:::pathways
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n0 -- correlates --o n7
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n3 -- correlates --o n7
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n1 -- correlates --o n7
+  %% negatively_correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n2 -- negatively correlates --o n7
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n9 -- correlates --o n7
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n4 -- correlates --o n7
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n8 -- correlates --o n7
+  %% negatively_correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n6 -- negatively correlates --o n7
+  %% negatively_correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n5 -- negatively correlates --o n7
+  %% does_not_drive; strong_correlative; Tyshkovskiy_Nature_2026
+  n9 -- does not drive --- n7
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 1 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 2 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 3 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 4 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 5 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 6 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 7 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 8 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 9 stroke:#CCCCCC,stroke-width:1px,stroke-dasharray:2 3;

@@ -1,0 +1,75 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["AIM2"]:::nucleic_acid_sensors
+  n1["CGAS"]:::nucleic_acid_sensors
+  n2["DNA damage"]:::mechanisms
+  n3["SPI1"]:::genes
+  n4["STING1"]:::nucleic_acid_sensors
+  n5["accelerated aging"]:::mechanisms
+  n6["cytoplasmic retroelement cDNA"]:::mechanisms
+  n7["epigenetic remodeling"]:::mechanisms
+  n8["fibrosis"]:::mechanisms
+  n9["heterochromatin organization"]:::mechanisms
+  n10["inflammasome activation"]:::mechanisms
+  n11["retrotransposon derepression"]:::mechanisms
+  n12["tissue inflammation"]:::mechanisms
+  %% binds_recruits; direct_measured; Martinez_biorxiv_2024
+  n1 -- binds recruits --> n9
+  %% suppresses; perturbation_supported; Martinez_biorxiv_2024
+  n1 -- suppresses --x n7
+  %% drives; perturbation_supported; Martinez_biorxiv_2024
+  n7 -- drives --> n11
+  %% produces; perturbation_supported; Martinez_biorxiv_2024
+  n11 -- produces --> n6
+  %% upregulates; perturbation_supported; Martinez_biorxiv_2024
+  n7 -- upregulates --> n3
+  %% drives; perturbation_supported; Martinez_biorxiv_2024
+  n3 -- drives --> n12
+  %% activates; canonical_inferred; Martinez_biorxiv_2024
+  n6 -- activates --> n0
+  %% drives; canonical_inferred; Martinez_biorxiv_2024
+  n0 -- drives --> n10
+  %% drives; canonical_inferred; Martinez_biorxiv_2024
+  n10 -- drives --> n12
+  %% induces; perturbation_supported; Martinez_biorxiv_2024
+  n6 -- induces --> n2
+  %% drives; direct_measured; Martinez_biorxiv_2024
+  n12 -- drives --> n8
+  %% drives; strong_correlative; Martinez_biorxiv_2024
+  n12 -- drives --> n5
+  %% does_not_drive; perturbation_supported; Martinez_biorxiv_2024
+  n4 -- does not drive --- n11
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#8172B3,stroke-width:1px;
+  linkStyle 1 stroke:#C44E52,stroke-width:1px;
+  linkStyle 2 stroke:#55A868,stroke-width:1px;
+  linkStyle 3 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 4 stroke:#55A868,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 7 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 8 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 12 stroke:#CCCCCC,stroke-width:1px;

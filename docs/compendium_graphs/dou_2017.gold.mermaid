@@ -1,0 +1,118 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["CGAS"]:::nucleic_acid_sensors
+  n1["DNA damage"]:::mechanisms
+  n2["IFI16"]:::nucleic_acid_sensors
+  n3["IFNB1"]:::genes
+  n4["IL1A"]:::genes
+  n5["LMNB1"]:::genes
+  n6["MAVS"]:::nucleic_acid_sensors
+  n7["RELA"]:::genes
+  n8["SASP"]:::pathways
+  n9["STING1"]:::nucleic_acid_sensors
+  n10["cGAMP"]:::default
+  n11["cellular senescence"]:::mechanisms
+  n12["cytoplasmic chromatin fragments"]:::mechanisms
+  n13["immune cell recruitment"]:::mechanisms
+  n14["immunosurveillance"]:::mechanisms
+  n15["oncogenic RAS"]:::pathways
+  n16["p38 MAPK"]:::pathways
+  n17["replicative exhaustion"]:::default
+  n18["senescence evasion"]:::mechanisms
+  n19["tumorigenesis"]:::mechanisms
+  %% downregulates; direct_measured; Dou_nature_2017
+  n11 -- downregulates --x n5
+  %% suppresses; perturbation_supported; Dou_nature_2017
+  n5 -- suppresses --x n12
+  %% binds_recruits; direct_measured; Dou_nature_2017
+  n12 -- binds recruits --> n0
+  %% produces; direct_measured; Dou_nature_2017
+  n0 -- produces --> n10
+  %% activates; canonical_inferred; Dou_nature_2017
+  n10 -- activates --> n9
+  %% activates; perturbation_supported; Dou_nature_2017
+  n9 -- activates --> n7
+  %% drives; perturbation_supported; Dou_nature_2017
+  n7 -- drives --> n8
+  %% drives; strong_correlative; Dou_nature_2017
+  n8 -- drives --> n13
+  %% required_for; perturbation_supported; Dou_nature_2017
+  n9 -- required for --> n14
+  %% suppresses; strong_correlative; Dou_nature_2017
+  n14 -- suppresses --x n19
+  %% induces; perturbation_supported; Dou_nature_2017
+  n15 -- induces --> n11
+  %% induces; perturbation_supported; Dou_nature_2017
+  n1 -- induces --> n11
+  %% induces; canonical_inferred; Dou_nature_2017
+  n17 -- induces --> n11
+  %% activates; strong_correlative; Dou_nature_2017
+  n11 -- activates --> n16
+  %% suppresses; perturbation_supported; Dou_nature_2017
+  n16 -- suppresses --x n3
+  %% induces; direct_measured; Dou_nature_2017
+  n8 -- induces --> n4
+  %% suppresses; perturbation_supported; Dou_nature_2017
+  n4 -- suppresses --x n3
+  %% retains; strong_correlative; Dou_nature_2017
+  n18 -- retains --> n12
+  %% correlates; strong_correlative; Dou_nature_2017
+  n9 -- correlates --o n8
+  %% correlates; strong_correlative; Dou_nature_2017
+  n0 -- correlates --o n8
+  %% negatively_correlates; strong_correlative; Dou_nature_2017
+  n5 -- negatively correlates --o n8
+  %% does_not_correlate; strong_correlative; Dou_nature_2017
+  n6 -- does not correlate --- n8
+  %% does_not_drive; perturbation_supported; Dou_nature_2017
+  n2 -- does not drive --- n8
+  %% drives; perturbation_supported; Dou_nature_2017
+  n0 -- drives --> n8
+  %% drives; perturbation_supported; Dou_nature_2017
+  n12 -- drives --> n8
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#C44E52,stroke-width:1px;
+  linkStyle 1 stroke:#C44E52,stroke-width:1px;
+  linkStyle 2 stroke:#8172B3,stroke-width:1px;
+  linkStyle 3 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 4 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#55A868,stroke-width:1px;
+  linkStyle 7 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 8 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 9 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#55A868,stroke-width:1px;
+  linkStyle 12 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 13 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 14 stroke:#C44E52,stroke-width:1px;
+  linkStyle 15 stroke:#55A868,stroke-width:1px;
+  linkStyle 16 stroke:#C44E52,stroke-width:1px;
+  linkStyle 17 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 18 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 19 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 20 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 21 stroke:#CCCCCC,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 22 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 23 stroke:#55A868,stroke-width:1px;
+  linkStyle 24 stroke:#55A868,stroke-width:1px;

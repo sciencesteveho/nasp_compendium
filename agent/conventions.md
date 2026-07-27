@@ -1,3 +1,4 @@
+
 # NASP compendium conventions
 
 `agent/vocabulary.yaml` is the machine-readable source of truth for
@@ -7,95 +8,14 @@ terms should be warned by validation, documented in the audit report, reviewed
 by a human curator, and then added to `vocabulary.yaml` if accepted.
 
 
-## Paper scope and claim provenance
+## File format
 
-Add `paper_scope` to each paper metadata block when curating new drafts. Use
-`mechanism_paper` or `perturbation_paper` when the paper directly perturbs and
-measures a mechanism. Use `cohort_correlation_paper`, `atlas_resource`,
-`biomarker_validation_paper`, or `review_or_resource` when the paper mainly
-reports associations, signatures, resources, or literature synthesis. Use
-`mixed_mechanism_and_correlation` when both mechanistic perturbation and
-correlative branches are graph-useful.
-
-For new curation drafts, add a top-level `claims:` block before `edges:`. Each
-claim should be one atomic paper-supported statement with `claim_id`,
-`evidence_location`, `claim`, `assay`, `disposition`, `branch_type`,
-`graph_candidate`, and `support`. Use `disposition: edge` when the claim should
-become a graph edge, `disposition: negative` for explicit negative/specificity
-findings, `disposition: context_only` when the claim explains an edge but
-should not be an endpoint-level relationship, and `disposition: insufficient`
-when the paper mentions a possible mechanism without enough support to encode
-it. Use `branch_type` to classify the claim as `main_spine`, `sensor_branch`,
-`inflammatory_output`, `cohort_association`, `state_reversal`,
-`negative_specificity`, `organismal_outcome`, or `context_only`. Set
-`graph_candidate: true` when the claim should be considered for graph output,
-even if it is later rejected; set it false for assay/background/context claims.
-Each edge may then list `support_claims:` to identify the claim records that
-justify the exact edge. Claims marked `edge` or `negative` should either be
-referenced by an edge or explicitly changed to another disposition before
-finalization. This preserves figure-level provenance and makes audit cheaper.
-Existing compendium files without claim records remain valid; new drafts should
-include them.
-
-Whenever possible, add structured causal-support fields to each claim:
-
-  - `perturbation`: the experimental perturbation, if any (`CGAS KO`,
-    `siRNA SPI1`, `ZCCHC3 loss`, `none`, etc.)
-  - `measured_readout`: the measured molecular/cellular/organismal readout
-    (`phospho-TBK1`, `IFNB1 qPCR`, `L1 cDNA smiFISH`, `survival model`, etc.)
-  - `affected_entities`: candidate graph nodes directly supported by the
-    claim
-
-These fields are not graph nodes; they are audit metadata. They let validation
-distinguish perturbation-supported edges from canonical continuity edges. An
-edge labeled `perturbation_supported` should link to at least one claim with a
-real perturbation and measured readout. A `canonical_inferred` edge linked to a
-claim with both a perturbation and measured readout should be reviewed for
-possible under-calling.
-
-When one claim supports multiple chain edges, or when exact support is
-ambiguous, add a top-level `claim_edge_matrix:` block after `claims:`. Each
-matrix record should name one `claim_id` and list `mapped_edges:` with exact
-`source`, `target`, `rel`, and `evidence_strength`. This turns
-`support_claims` from traceability into a typed support contract: a broad claim
-can no longer silently justify a collapsed branch, skipped intermediate, or
-overconfident evidence label.
-
-Add a top-level `adjudications:` block after the first `review_packet` pass when
-review findings remain. This is the pre-freeze state-machine checkpoint: a draft
-is not final merely because validation passed. Each adjudication should include:
-
-  - `issue_id`: stable local identifier, such as `lian_hidden_inflammatory_output`
-  - `issue_type`: one of `hidden_graph_candidate`, `topology_lint`,
-    `shortcut_warning`, `verb_warning`, `evidence_strength_warning`,
-    `reagent_endpoint_warning`, `broad_claim_reuse`,
-    `gold_or_scope_disagreement`, or `scope_density_warning`
-  - `decision`: one of `emit_edge`, `revise_edges`, `keep_context`,
-    `keep_insufficient`, `keep_as_is`, `needs_human_review`, or
-    `reject_as_gold_defect`
-  - `rationale`: brief explanation of the decision
-  - optional `claim_id`, `edge`, `emitted_edges`, and `remove_edges` fields to
-    tie the decision to exact claims and edges
-
-Adjudications must be specific enough to prevent `keep_as_is` from becoming a
-bypass. A `verb_warning` or `evidence_strength_warning` kept as-is must include
-`rejected_alternative` and `convention_rule`. A high-priority
-`hidden_graph_candidate` kept out of the graph must include
-`nearest_intermediate_search:` with `searched: true` and
-`candidate_edges_considered:`. A `scope_density_warning` must either reduce the
-draft to core edges or explicitly justify `curation_density: expanded`.
-
-Use adjudications to resolve hidden graph candidates, branch omissions, topology
-lints, reagent endpoints, verb-normalization warnings, evidence-strength
-warnings, density warnings, and broad claim reuse before freezing the draft. The
-review packet should report `READY_FOR_FREEZE` only after blocking findings have
-either been fixed or adjudicated with the required metadata.
-
-Use `entity_resolution:` in drafts to document ambiguous naming decisions. Each
-entry should record the raw term, canonical term if used, status, and rationale.
-Keep reagents, doses, cell-line-specific readouts, and assay-only terms in
-context rather than promoting them to graph nodes unless they are reusable
-biological entities.
+Each `.md` is plain YAML with two top-level keys: `paper` and `edges`. That is
+the whole schema. A curation draft is done when the `edges:` list is correct
+under the rules below — there is no separate claims, adjudication, or
+entity-resolution layer to fill in. Keep reagents, doses, cell-line-specific
+readouts, and assay-only terms in edge `context` rather than promoting them to
+graph nodes unless they are reusable biological entities.
 
 ## Entity naming
 
@@ -344,11 +264,11 @@ Additional calibration anti-examples:
     VDAC branch. Use `mitochondrial_dysfunction drives VDAC_oligomerization`
     and `VDAC_oligomerization forms_pore_for cytoplasmic_mtDNA` when that pore
     mechanism is the supported claim.
-  - `cytoplasmic_mt_dsRNA activates DDX58` collapses the Lopez-Polo
-    pathway-level sensing step. Use
-    `cytoplasmic_mt_dsRNA activates cytosolic_RNA_sensing` followed by
-    `cytosolic_RNA_sensing activates DDX58/IFIH1` when the paper supports the
-    broader RNA-sensing program plus named sensors.
+  - Choose ligand-to-sensor topology from the resolution of the experiment.
+    Use direct ligand-to-sensor edges when individual sensor engagement is
+    supported. A grouped `*_sensing` step may be retained when the experiment
+    establishes a combined sensing program but does not isolate which named
+    sensor engages the ligand; state the combined perturbation in `context`.
   - `CGAS drives accelerated_aging`, `CGAS drives inflammaging`, or similar
     direct gene-to-organism phenotype edges are shortcuts when tissue-level
     outputs are supported. Route organismal phenotypes through nodes such as
@@ -450,7 +370,7 @@ or do not connect it to the phenotype, keep it in context instead of creating a
 node.
 
 Do an evidence-strength audit after drafting. For each edge, check the exact
-relationship against the exact experiment and the linked claim metadata:
+relationship against the exact experiment:
 directly measured activation, binding, product formation, localization, or
 abundance change is `direct_measured`; loss- or gain-of-function support with a
 recorded perturbation is `perturbation_supported`; organism/cohort association
@@ -461,29 +381,20 @@ support, and do not downgrade a paper-specific phospho/activation/readout that
 changes under upstream perturbation to canonical inference merely because the
 intermediate itself was not separately knocked down.
 
-After evidence labeling, run a claim-disposition checkpoint: every claim must
-be marked `edge`, `negative`, `context_only`, or `insufficient`; every `edge`
-or `negative` claim should be linked by at least one edge; every
-`graph_candidate: true` claim left as `context_only` or `insufficient` should
-have an explicit rejection rationale in support; and every edge should be
-linked to claims that justify the specific source, target, relationship, and
-evidence strength. If one broad claim supports more than three edges, split it
-into separate atomic claims or add a `claim_edge_matrix` entry before
-finalization.
-
 Run a parallel-branch audit before finalizing. For every regulator/motif branch
 and every sensor branch, ask whether it converges directly on the same program
 or supports a distinct molecular route. Do not merge a motif/regulatory arm
 with an inflammasome/sensor arm unless the paper explicitly connects those
 entities by perturbation or direct readout.
 
-Run topology lints before freezing. Do not insert a generic process node between
-a directly measured ligand and the specific sensor proteins that instantiate
-that process; for example, do not make `cytosolic_RNA_sensing` activate `DDX58`
-or `IFIH1` when `cytoplasmic_retroelement_RNA` is the supported ligand. Prefer
-direct ligand-to-sensor edges and keep the broader sensing process in context or
-as a grouping term. Experimental reagents such as `dsDNA90` are context-only
-unless a curator explicitly adjudicates why reagent-as-endpoint is graph useful.
+Review topology before freezing. Prefer direct ligand-to-sensor edges when the
+paper resolves individual ligand-sensor engagement. Do not force direct edges
+from a combined perturbation that only establishes a broader sensing program;
+in that case a generic process node may group the named sensors, with the
+experimental limitation stated in `context`. Conversely, do not add a generic
+process merely to reproduce canonical wiring when direct sensor evidence is
+available. Keep experimental reagents such as `dsDNA90` in context unless the
+paper treats the specific reagent as a reusable biological trigger.
 A broad inflammatory-output claim rejected as a shortcut does not discharge the
 branch audit; search for the nearest supported non-shortcut intermediate edge.
 
@@ -516,14 +427,13 @@ chain per branch (IFN suppression, in vivo readout, cancer/cohort
 associations), one chain for specificity controls. Single-edge chains are
 fine when the unique claim of a sub-experiment reduces to one atomic edge.
 
-## File structure
+## Paper block contents
 
-Each `.md` is plain YAML with two top-level keys, `paper` and `edges`. The
-`paper` block lists the most important entities of each type for browsability
-(`genes`, `pathways`, `cell_types`, `mechanisms`, `model_systems`,
-`evidence_type`). Edge endpoints may include entities not declared in the
-paper block (small molecules, transient states); the paper block is a curated
-summary, not an exhaustive declaration list.
+The `paper` block lists the most important entities of each type for
+browsability (`genes`, `pathways`, `cell_types`, `mechanisms`,
+`model_systems`, `evidence_type`). Edge endpoints may include entities not
+declared in the paper block (small molecules, transient states); the paper
+block is a curated summary, not an exhaustive declaration list.
 
 The `evidence_type` field is for what was actually done in the paper
 (experimental methods), not for what kind of edge it produces. Use

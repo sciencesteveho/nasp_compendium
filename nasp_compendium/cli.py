@@ -6,7 +6,6 @@ import argparse
 import sys
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
 
 import graphviz  # type: ignore
 
@@ -17,6 +16,7 @@ from nasp_compendium import review_packet
 from nasp_compendium import score_compendium
 from nasp_compendium import summarize_compendium
 from nasp_compendium import validate_compendium
+from nasp_compendium.render_mermaid import write_mermaid_graphs
 
 
 COMPENDIUM_DIR: Path = (
@@ -25,6 +25,10 @@ COMPENDIUM_DIR: Path = (
 
 MARKER_DOCS_DIR: Path = (
     Path(__file__).resolve().parent.parent / "docs" / "marker_genes"
+)
+
+MERMAID_GRAPH_DIR: Path = (
+    Path(__file__).resolve().parent.parent / "docs" / "compendium_graphs"
 )
 
 
@@ -37,6 +41,8 @@ def _build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     _add_render_graph_parser(subparsers)
+    _add_render_paper_graphs_parser(subparsers)
+    _add_render_mermaid_graphs_parser(subparsers)
     _add_render_docs_parser(subparsers)
     _add_trace_parser(subparsers)
     _add_validate_parser(subparsers)
@@ -54,17 +60,16 @@ def _add_render_graph_parser(
     """Register the `render_graph` subcommand."""
     render_graph_parser = subparsers.add_parser(
         "render_graph",
-        help="Render the compendium as a Graphviz pathway diagram.",
+        help="Render all compendium files together as one pathway diagram.",
     )
     render_graph_parser.add_argument(
-        "--dir",
-        "--directory",
-        dest="directory",
+        "--compendium-path",
+        dest="compendium_path",
         default=None,
         type=Path,
         help=(
-            "Compendium directory of per-paper Markdown files "
-            f"(default: {COMPENDIUM_DIR})."
+            "Path to the directory of per-paper compendium Markdown files "
+            f"(default: {COMPENDIUM_DIR}; includes .gold.md files)."
         ),
     )
     render_graph_parser.add_argument(
@@ -84,27 +89,7 @@ def _add_render_graph_parser(
         default=None,
         help="Graphviz output format (svg, pdf, png).",
     )
-    render_graph_parser.add_argument(
-        "--rankdir",
-        default="LR",
-        choices=("LR", "TB"),
-        help="Layout direction (TB=top-bottom, LR=left-right).",
-    )
-    render_graph_parser.add_argument(
-        "--layout-engine",
-        default=None,
-        choices=("dot", "fdp", "sfdp", "neato"),
-        help=(
-            "Graphviz layout engine. Defaults to dot. Use fdp, sfdp, or "
-            "neato only for exploratory network-style layouts."
-        ),
-    )
-    render_graph_parser.add_argument(
-        "--annotate-papers",
-        dest="annotate_papers",
-        action="store_true",
-        help="Annotate each edge with a short paper citation.",
-    )
+    _add_graph_layout_arguments(render_graph_parser)
     render_graph_parser.add_argument(
         "--paper",
         "--papers",
@@ -116,7 +101,66 @@ def _add_render_graph_parser(
             "comma-separated, e.g. --paper Dou_nature_2017,DeCecco_nature_2019."
         ),
     )
-    render_graph_parser.add_argument(
+
+
+def _add_render_paper_graphs_parser(
+    subparsers: argparse._SubParsersAction,
+) -> None:
+    """Register the `render_paper_graphs` subcommand."""
+    parser = subparsers.add_parser(
+        "render_paper_graphs",
+        help="Render one pathway diagram per compendium Markdown file.",
+    )
+    parser.add_argument(
+        "--compendium-path",
+        dest="compendium_path",
+        default=None,
+        type=Path,
+        help=(
+            "Path to the directory of per-paper compendium Markdown files "
+            f"(default: {COMPENDIUM_DIR}; includes .gold.md files)."
+        ),
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=Path("compendium_graphs"),
+        type=Path,
+        help=("Directory for per-paper figures (default: compendium_graphs)."),
+    )
+    parser.add_argument(
+        "--format",
+        dest="output_format",
+        default="png",
+        choices=("svg", "pdf", "png"),
+        help="Graphviz output format (default: png).",
+    )
+    _add_graph_layout_arguments(parser)
+
+
+def _add_graph_layout_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add options shared by combined and per-paper graph rendering."""
+    parser.add_argument(
+        "--rankdir",
+        default="LR",
+        choices=("LR", "TB"),
+        help="Layout direction (TB=top-bottom, LR=left-right).",
+    )
+    parser.add_argument(
+        "--layout-engine",
+        default=None,
+        choices=("dot", "fdp", "sfdp", "neato"),
+        help=(
+            "Graphviz layout engine. Defaults to dot. Use fdp, sfdp, or "
+            "neato only for exploratory network-style layouts."
+        ),
+    )
+    parser.add_argument(
+        "--annotate-papers",
+        dest="annotate_papers",
+        action="store_true",
+        help="Annotate each edge with a short paper citation.",
+    )
+    parser.add_argument(
         "--exclude-rel",
         "--exclude-edge-type",
         dest="excluded_rels",
@@ -127,20 +171,61 @@ def _add_render_graph_parser(
             "comma-separated; spaces and hyphens are normalized to underscores."
         ),
     )
-    render_graph_parser.add_argument(
+    parser.add_argument(
         "--no-aggregate-edges",
         dest="aggregate_edges",
         action="store_false",
         default=True,
         help="Render duplicate source-target-rel edges separately.",
     )
-    render_graph_parser.add_argument(
+    parser.add_argument(
         "--compact",
         action="store_true",
         help=(
             "Use compact pathway-map mode: left-to-right layout, hidden edge "
             "labels, and a visual edge legend."
         ),
+    )
+
+
+def _add_render_mermaid_graphs_parser(
+    subparsers: argparse._SubParsersAction,
+) -> None:
+    """Register the `render_mermaid_graphs` subcommand."""
+    parser = subparsers.add_parser(
+        "render_mermaid_graphs",
+        help="Write combined and per-paper Mermaid flowchart sources.",
+    )
+    parser.add_argument(
+        "--compendium-path",
+        default=None,
+        type=Path,
+        help=(
+            "Path to the directory of per-paper compendium Markdown files "
+            f"(default: {COMPENDIUM_DIR}; includes .gold.md files)."
+        ),
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=MERMAID_GRAPH_DIR,
+        type=Path,
+        help=(
+            "Directory for generated Mermaid files "
+            f"(default: {MERMAID_GRAPH_DIR})."
+        ),
+    )
+    parser.add_argument(
+        "--rankdir",
+        default="LR",
+        choices=("LR", "TB"),
+        help="Flow direction (TB=top-bottom, LR=left-right).",
+    )
+    parser.add_argument(
+        "--no-aggregate-edges",
+        dest="aggregate_edges",
+        action="store_false",
+        default=True,
+        help="Write duplicate source-target-relationship edges separately.",
     )
 
 
@@ -327,8 +412,13 @@ def _add_score_parser(
     )
     score_parser.add_argument(
         "--drop-gold-defects",
-        action="store_true",
-        help="Exclude gold edges annotated as acknowledged defects.",
+        dest="drop_gold_defects",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Exclude gold edges flagged with score_exclude/status: excluded "
+            "(default: on; use --no-drop-gold-defects to score them)."
+        ),
     )
     score_parser.add_argument(
         "--format",
@@ -352,15 +442,20 @@ def _run_regenerate(args: argparse.Namespace) -> None:
 
 def _load_compendium(
     directory: Path | None,
-) -> Any:
+    *,
+    include_gold: bool = False,
+) -> summarize_compendium.Compendium:
     """Load the compendium from `directory` or the package default."""
     resolved = directory or COMPENDIUM_DIR
-    return summarize_compendium.Compendium.from_dir(resolved)
+    return summarize_compendium.Compendium.from_dir(
+        resolved,
+        include_gold=include_gold,
+    )
 
 
 def _run_render_graph(args: argparse.Namespace) -> None:
     """Dispatch the `render_graph` subcommand."""
-    compendium = _load_compendium(args.directory)
+    compendium = _load_compendium(args.compendium_path, include_gold=True)
     compendium = compendium.filtered(
         paper_ids=_parse_csv_values(args.paper_ids),
         excluded_rels=_parse_rel_values(args.excluded_rels),
@@ -383,6 +478,63 @@ def _run_render_graph(args: argparse.Namespace) -> None:
     except graphviz.ExecutableNotFound:
         _print_graphviz_missing_executable()
         sys.exit(1)
+
+
+def _run_render_paper_graphs(args: argparse.Namespace) -> None:
+    """Dispatch the `render_paper_graphs` subcommand."""
+    compendium_path = args.compendium_path or COMPENDIUM_DIR
+    if not compendium_path.exists() or not compendium_path.is_dir():
+        raise FileNotFoundError(
+            f"Compendium directory not found: {compendium_path}"
+        )
+    compendium_paths = sorted(compendium_path.glob("*.md"))
+    if not compendium_paths:
+        raise FileNotFoundError(
+            f"No compendium Markdown files found in: {compendium_path}"
+        )
+
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        for compendium_path in compendium_paths:
+            papers, edges = summarize_compendium.parse_md(compendium_path)
+            compendium = summarize_compendium.Compendium(
+                papers=papers,
+                edges=edges,
+            ).filtered(
+                excluded_rels=_parse_rel_values(args.excluded_rels),
+            )
+            output_name = compendium_path.name.removesuffix(".md")
+            summarize_compendium.render(
+                compendium,
+                output_stem=args.output_dir / output_name,
+                output_format=args.output_format,
+                rankdir=args.rankdir,
+                layout_engine=args.layout_engine,
+                annotate_papers=args.annotate_papers,
+                aggregate_edges=args.aggregate_edges,
+                compact=args.compact,
+            )
+    except graphviz.ExecutableNotFound:
+        _print_graphviz_missing_executable()
+        sys.exit(1)
+
+    print(
+        f"  Rendered {len(compendium_paths)} per-paper graph(s) "
+        f"in {args.output_dir}"
+    )
+
+
+def _run_render_mermaid_graphs(args: argparse.Namespace) -> None:
+    """Dispatch the `render_mermaid_graphs` subcommand."""
+    generated_paths = write_mermaid_graphs(
+        compendium_path=args.compendium_path or COMPENDIUM_DIR,
+        output_dir=args.output_dir,
+        rankdir=args.rankdir,
+        aggregate_edges=args.aggregate_edges,
+    )
+    print(
+        f"  Wrote {len(generated_paths)} Mermaid graph(s) to {args.output_dir}"
+    )
 
 
 def _run_render_docs(args: argparse.Namespace) -> None:
@@ -503,6 +655,8 @@ def main() -> None:
     """
     dispatch: dict[str, Callable[[argparse.Namespace], None]] = {
         "render_graph": _run_render_graph,
+        "render_paper_graphs": _run_render_paper_graphs,
+        "render_mermaid_graphs": _run_render_mermaid_graphs,
         "render_docs": _run_render_docs,
         "trace": _run_trace,
         "validate": _run_validate,

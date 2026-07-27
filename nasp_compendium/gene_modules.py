@@ -14,6 +14,7 @@ from urllib.parse import unquote
 from urllib.parse import urlparse
 
 import pandas as pd
+from anndata import AnnData  # type: ignore
 
 from nasp_compendium.types import AnnDataLike
 from nasp_compendium.types import GeneIdOutput
@@ -54,10 +55,7 @@ def _project_root_from_direct_url(direct_url_text: str | None) -> Path | None:
         return None
 
     parsed = urlparse(url)
-    if parsed.scheme != "file":
-        return None
-
-    return Path(unquote(parsed.path))
+    return None if parsed.scheme != "file" else Path(unquote(parsed.path))
 
 
 def _distribution_project_root(
@@ -80,7 +78,7 @@ def _distribution_installed_panel_path(
         distribution = metadata.distribution(distribution_name)
     except metadata.PackageNotFoundError:
         return None
-    return Path(distribution.locate_file(str(_INSTALLED_MARKER_PANEL_PATH)))
+    return Path(distribution.locate_file(str(_INSTALLED_MARKER_PANEL_PATH)))  # type: ignore
 
 
 def _default_panel_path_candidates() -> list[Path]:
@@ -91,10 +89,12 @@ def _default_panel_path_candidates() -> list[Path]:
         candidates.append(Path(env_path))
 
     module_path = Path(__file__).resolve()
-    candidates.append(
-        module_path.parent.parent / "data" / _MARKER_PANEL_FILENAME
+    candidates.extend(
+        (
+            module_path.parent.parent / "data" / _MARKER_PANEL_FILENAME,
+            Path(sys.prefix) / _INSTALLED_MARKER_PANEL_PATH,
+        )
     )
-    candidates.append(Path(sys.prefix) / _INSTALLED_MARKER_PANEL_PATH)
     if installed_panel_path := _distribution_installed_panel_path():
         candidates.append(installed_panel_path)
 
@@ -113,10 +113,8 @@ def _default_panel_path(*, require_exists: bool = True) -> Path:
         if candidate.exists():
             return candidate
 
-    fallback = candidates[0]
     if not require_exists:
-        return fallback
-
+        return candidates[0]
     candidate_lines = "\n".join(f"  - {candidate}" for candidate in candidates)
     raise FileNotFoundError(
         "Marker-gene TSV not found in default locations:\n"
@@ -257,7 +255,7 @@ class GeneModules:
         scorer: str | None = None,
         *,
         panel_path: str | Path | None = None,
-        adata: AnnDataLike | None = None,
+        adata: AnnData | AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
         output: GeneIdOutput | None = None,
         strict: bool = False,
@@ -292,7 +290,7 @@ class GeneModules:
         module: str,
         *,
         panel_path: str | Path | None = None,
-        adata: AnnDataLike | None = None,
+        adata: AnnData | AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
         output: GeneIdOutput = "symbols",
         directions: Iterable[str] | None = None,
@@ -328,7 +326,7 @@ class GeneModules:
         *,
         panel_path: str | Path | None = None,
         module: str | None = None,
-        adata: AnnDataLike | None = None,
+        adata: AnnData | AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
         output: GeneIdOutput = "symbols",
         strict: bool = False,
@@ -360,7 +358,7 @@ class GeneModules:
     @classmethod
     def validate_dataset(
         cls,
-        adata: AnnDataLike,
+        adata: AnnData | AnnDataLike,
         *,
         panel_path: str | Path | None = None,
         module: str | None = None,
@@ -378,7 +376,7 @@ class GeneModules:
         module: str,
         scorer: str | None = None,
         *,
-        adata: AnnDataLike | None = None,
+        adata: AnnData | AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
         output: GeneIdOutput | None = None,
         strict: bool = False,
@@ -438,7 +436,7 @@ class GeneModules:
         self,
         module: str,
         *,
-        adata: AnnDataLike | None = None,
+        adata: AnnData | AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
         output: GeneIdOutput = "symbols",
         directions: Iterable[str] | None = None,
@@ -473,7 +471,7 @@ class GeneModules:
         sensor_type: str = "all",
         *,
         module: str | None = None,
-        adata: AnnDataLike | None = None,
+        adata: AnnData | AnnDataLike | None = None,
         gene_symbol_column: str | None = None,
         output: GeneIdOutput = "symbols",
         strict: bool = False,
@@ -507,7 +505,7 @@ class GeneModules:
 
     def validate(
         self,
-        adata: AnnDataLike,
+        adata: AnnData | AnnDataLike,
         *,
         module: str | None = None,
         gene_symbol_column: str | None = None,
@@ -709,7 +707,7 @@ class GeneModules:
         self,
         *,
         module_panel: pd.DataFrame,
-        adata: AnnDataLike | None,
+        adata: AnnData | AnnDataLike | None,
         gene_symbol_column: str | None,
         strict: bool,
     ) -> pd.DataFrame:
@@ -730,6 +728,7 @@ class GeneModules:
             adata=adata,
             gene_symbol_column=gene_symbol_column,
         )
+
         records: list[dict[str, Any]] = []
         missing_genes: list[str] = []
         for raw_row in validation.to_dict(orient="records"):
@@ -762,11 +761,11 @@ class GeneModules:
     def _build_gene_lookup(
         cls,
         *,
-        adata: AnnDataLike,
+        adata: AnnData | AnnDataLike,
         gene_symbol_column: str | None,
     ) -> dict[str, list[_GeneMatch]]:
         """Build lookup maps for dataset genes."""
-        var = adata.var
+        var = cls._var_dataframe(adata)
         var_names = pd.Index(adata.var_names).astype(str)
         if len(var_names) != len(var):
             raise ValueError("adata.var_names length does not match adata.var.")
@@ -804,6 +803,12 @@ class GeneModules:
             )
 
         return lookup
+
+    @staticmethod
+    def _var_dataframe(adata: AnnData | AnnDataLike) -> pd.DataFrame:
+        """Return `adata.var` as an in-memory DataFrame."""
+        var = adata.var
+        return var if isinstance(var, pd.DataFrame) else var.to_memory()
 
     @classmethod
     def _resolve_gene_symbol_columns(
@@ -861,7 +866,7 @@ class GeneModules:
         validation: pd.DataFrame,
         direction: str,
         output: GeneIdOutput,
-        adata: AnnDataLike | None,
+        adata: AnnData | AnnDataLike | None,
     ) -> tuple[tuple[str, ...], tuple[str, ...]]:
         """Return present and missing genes for one scoring direction."""
         rows = validation[validation["scoring_direction"] == direction].copy()
@@ -911,7 +916,7 @@ class GeneModules:
         output: GeneIdOutput | None,
         *,
         scorer: str | None,
-        adata: AnnDataLike | None,
+        adata: AnnData | AnnDataLike | None,
     ) -> GeneIdOutput:
         """Choose a gene-id output mode for module extraction."""
         if output is not None:

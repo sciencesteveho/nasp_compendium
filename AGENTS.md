@@ -45,7 +45,7 @@ pip install -e .
 Render the graph:
 
 ```bash
-compendium render_graph --directory docs/compendium --annotate-papers
+compendium render_graph --compendium-path docs/compendium --annotate-papers
 ```
 
 Trace an entity:
@@ -95,12 +95,17 @@ compendium diff OLD_PATH NEW_PATH --format text
 For curation or backfill tasks, done means:
 
 1. The relevant `.md` file parses as YAML.
-2. `compendium validate --dir docs/compendium` passes.
-3. For compendium-modifying patches, `compendium diff` is run before final
+2. A draft outside `docs/compendium/` passes
+   `compendium review_packet <draft> --out <review-packet> --gate`, which
+   validates that exact file. Do not use an unchanged compendium validation as
+   evidence that a draft is valid.
+3. If `docs/compendium/` changed, `compendium validate --dir docs/compendium`
+   passes.
+4. For compendium-modifying patches, `compendium diff` is run before final
    review so entity and edge changes are visible in text.
-4. `compendium render_graph --directory docs/compendium --annotate-papers` runs.
-5. The diff is shown for human review.
-6. Remaining uncertainties are listed explicitly.
+5. `compendium render_graph --compendium-path docs/compendium --annotate-papers` runs.
+6. The diff is shown for human review.
+7. Remaining uncertainties are listed explicitly.
 
 ## Human-gated steps
 
@@ -113,3 +118,28 @@ the existing file.
 Never copy PDFs from `data/literature/` into tracked paths.
 Never commit PDFs or extracted full-text paper files unless explicitly requested.
 Curation reports may summarize findings but must not reproduce long copyrighted passages.
+
+## Optional multi-agent paper review
+
+Use `agent/prompts/curate_paper_multi_agent.md` when independent recall and
+precision review is likely to help a complex paper. The parent remains the only
+writer: it freezes and hashes the initial draft, launches `recall_reviewer` and
+`precision_reviewer` in parallel, waits for both, adjudicates every finding,
+and produces one revised draft for human review. Reviewers must never receive
+gold-standard material or one another's findings. This workflow never promotes,
+overwrites a curated file, or commits. During blind review, render only the
+isolated revised draft as the prompt directs; do not render `docs/compendium/`.
+
+## Coding and API conventions
+
+For changes to code, tests, configuration, packaging, executable workflows,
+or technical documentation:
+
+1. Read `.agents/skills/coding-style/SKILL.md` completely.
+2. Use its routing table to read every applicable concern reference before
+   editing.
+3. Apply this root contract and all selected references together.
+
+The skill contains the repository's authoritative software-engineering and
+Python API standards. Prefer an existing codebase convention only when it is
+more specific and does not conflict with an explicit skill rule.

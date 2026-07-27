@@ -1,0 +1,534 @@
+---
+config:
+  fontFamily: Arial
+  theme: base
+  themeCSS: ".nodeLabel,.nodeLabel *,.edgeLabel,.edgeLabel *{font-family:Arial!important;font-size:5pt!important;}"
+  flowchart:
+    curve: basis
+    nodeSpacing: 24
+    rankSpacing: 36
+  themeVariables:
+    fontFamily: Arial
+    fontSize: 5pt
+---
+flowchart LR
+  n0["ADAR"]:::genes
+  n1["AIM2"]:::nucleic_acid_sensors
+  n2["ATF3"]:::genes
+  n3["BAX/BAK pore"]:::mechanisms
+  n4["CCL2"]:::genes
+  n5["CDKN1A"]:::genes
+  n6["CGAS"]:::nucleic_acid_sensors
+  n7["CXCL10"]:::genes
+  n8["DAM microglial state"]:::cell_types
+  n9["DDX58"]:::nucleic_acid_sensors
+  n10["DHX58"]:::nucleic_acid_sensors
+  n11["DNA damage"]:::mechanisms
+  n12["EIF2AK2"]:::nucleic_acid_sensors
+  n13["FOXA1"]:::genes
+  n14["GPNMB"]:::genes
+  n15["IFI16"]:::nucleic_acid_sensors
+  n16["IFIH1"]:::nucleic_acid_sensors
+  n17["IFNB1"]:::genes
+  n18["IFN MG microglial state"]:::cell_types
+  n19["IGF1"]:::genes
+  n20["IL1A"]:::genes
+  n21["IL1B"]:::genes
+  n22["IL6"]:::genes
+  n23["IRF3"]:::genes
+  n24["JAK-STAT"]:::pathways
+  n25["LGALS3"]:::genes
+  n26["LMNB1"]:::genes
+  n27["MAVS"]:::nucleic_acid_sensors
+  n28["MFN1"]:::genes
+  n29["MFN2"]:::genes
+  n30["MMP3"]:::genes
+  n31["ND MG microglial state"]:::cell_types
+  n32["NF-kB"]:::pathways
+  n33["PNPT1"]:::genes
+  n34["POLRMT"]:::genes
+  n35["RB1"]:::genes
+  n36["RBL1"]:::genes
+  n37["RELA"]:::genes
+  n38["RIG-I/MDA5-MAVS"]:::pathways
+  n39["SASP"]:::pathways
+  n40["SPI1"]:::genes
+  n41["STING1"]:::nucleic_acid_sensors
+  n42["TBK1"]:::genes
+  n43["TLR9"]:::pathways
+  n44["TNF"]:::genes
+  n45["TREX1"]:::genes
+  n46["VDAC oligomerization"]:::mechanisms
+  n47["ZC3HAV1"]:::genes
+  n48["ZCCHC3"]:::genes
+  n49["accelerated aging"]:::mechanisms
+  n50["aging"]:::mechanisms
+  n51["cGAMP"]:::default
+  n52["cellular senescence"]:::mechanisms
+  n53["cognitive decline"]:::mechanisms
+  n54["cytoplasmic chromatin fragments"]:::mechanisms
+  n55["cytoplasmic mtDNA"]:::mechanisms
+  n56["cytoplasmic mt dsRNA"]:::mechanisms
+  n57["cytoplasmic retroelement RNA"]:::mechanisms
+  n58["cytoplasmic retroelement cDNA"]:::mechanisms
+  n59["cytosolic RNA sensing"]:::mechanisms
+  n60["early embryogenesis"]:::default
+  n61["epigenetic remodeling"]:::mechanisms
+  n62["fibrosis"]:::mechanisms
+  n63["heterochromatin organization"]:::mechanisms
+  n64["heterochronic parabiosis"]:::default
+  n65["hippocampal neuron loss"]:::mechanisms
+  n66["immune cell recruitment"]:::mechanisms
+  n67["immunosurveillance"]:::mechanisms
+  n68["inflammaging"]:::mechanisms
+  n69["inflammasome activation"]:::mechanisms
+  n70["microglial activation"]:::mechanisms
+  n71["mitochondrial dysfunction"]:::mechanisms
+  n72["mortality"]:::mechanisms
+  n73["neurodegeneration"]:::mechanisms
+  n74["oncogenic RAS"]:::pathways
+  n75["p38 MAPK"]:::pathways
+  n76["replicative exhaustion"]:::default
+  n77["retrotransposon derepression"]:::mechanisms
+  n78["senescence evasion"]:::mechanisms
+  n79["tissue inflammation"]:::mechanisms
+  n80["tumorigenesis"]:::mechanisms
+  n81["type I IFN"]:::pathways
+  %% induces; strong_correlative; DeCecco_nature_2019
+  n52 -- induces --> n61
+  %% suppresses; perturbation_supported; DeCecco_nature_2019
+  n35 -- suppresses --x n77
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n13 -- drives --> n77
+  %% suppresses; perturbation_supported; DeCecco_nature_2019
+  n45 -- suppresses --x n77
+  %% produces; direct_measured; DeCecco_nature_2019, Martinez_biorxiv_2024
+  n77 -- produces --> n58
+  %% activates; perturbation_supported; DeCecco_nature_2019
+  n58 -- activates --> n6
+  %% produces; canonical_inferred; Dou_nature_2017, Lian_natcomms_2018, DeCecco_nature_2019, Gulen_nature_2023, Qin_commsbio_2024
+  n6 -- produces --> n51
+  %% activates; canonical_inferred; Dou_nature_2017, Lian_natcomms_2018, DeCecco_nature_2019, Gulen_nature_2023, Qin_commsbio_2024
+  n51 -- activates --> n41
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n41 -- drives --> n81
+  %% activates; perturbation_supported; DeCecco_nature_2019
+  n81 -- activates --> n24
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n24 -- drives --> n39
+  %% required_for; perturbation_supported; DeCecco_nature_2019
+  n77 -- required for --> n81
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n41 -- upregulates --> n22
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n41 -- upregulates --> n4
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n41 -- upregulates --> n30
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n24 -- upregulates --> n22
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n24 -- upregulates --> n4
+  %% upregulates; perturbation_supported; DeCecco_nature_2019
+  n24 -- upregulates --> n30
+  %% induces; strong_correlative; DeCecco_nature_2019
+  n52 -- induces --> n77
+  %% drives; strong_correlative; DeCecco_nature_2019
+  n77 -- drives --> n81
+  %% drives; strong_correlative; Dou_nature_2017, DeCecco_nature_2019
+  n39 -- drives --> n66
+  %% drives; strong_correlative; DeCecco_nature_2019
+  n66 -- drives --> n79
+  %% does_not_correlate; strong_correlative; DeCecco_nature_2019
+  n52 -- does not correlate --- n36
+  %% does_not_drive; perturbation_supported; DeCecco_nature_2019
+  n81 -- does not drive --- n21
+  %% drives; perturbation_supported; DeCecco_nature_2019
+  n58 -- drives --> n81
+  %% downregulates; direct_measured; Dou_nature_2017
+  n52 -- downregulates --x n26
+  %% suppresses; perturbation_supported; Dou_nature_2017
+  n26 -- suppresses --x n54
+  %% binds_recruits; direct_measured; Dou_nature_2017
+  n54 -- binds recruits --> n6
+  %% activates; perturbation_supported; Dou_nature_2017
+  n41 -- activates --> n37
+  %% drives; perturbation_supported; Dou_nature_2017
+  n37 -- drives --> n39
+  %% required_for; perturbation_supported; Dou_nature_2017
+  n41 -- required for --> n67
+  %% suppresses; strong_correlative; Dou_nature_2017
+  n67 -- suppresses --x n80
+  %% induces; perturbation_supported; Dou_nature_2017
+  n74 -- induces --> n52
+  %% induces; perturbation_supported; Dou_nature_2017
+  n11 -- induces --> n52
+  %% induces; canonical_inferred; Dou_nature_2017
+  n76 -- induces --> n52
+  %% activates; strong_correlative; Dou_nature_2017
+  n52 -- activates --> n75
+  %% suppresses; perturbation_supported; Dou_nature_2017
+  n75 -- suppresses --x n17
+  %% induces; direct_measured; Dou_nature_2017
+  n39 -- induces --> n20
+  %% suppresses; perturbation_supported; Dou_nature_2017
+  n20 -- suppresses --x n17
+  %% retains; strong_correlative; Dou_nature_2017
+  n78 -- retains --> n54
+  %% correlates; strong_correlative; Dou_nature_2017
+  n41 -- correlates --o n39
+  %% correlates; strong_correlative; Dou_nature_2017
+  n6 -- correlates --o n39
+  %% negatively_correlates; strong_correlative; Dou_nature_2017
+  n26 -- negatively correlates --o n39
+  %% does_not_correlate; strong_correlative; Dou_nature_2017
+  n27 -- does not correlate --- n39
+  %% does_not_drive; perturbation_supported; Dou_nature_2017
+  n15 -- does not drive --- n39
+  %% drives; perturbation_supported; Dou_nature_2017
+  n6 -- drives --> n39
+  %% drives; perturbation_supported; Dou_nature_2017
+  n54 -- drives --> n39
+  %% induces; direct_measured; Gulen_nature_2023
+  n52 -- induces --> n71
+  %% drives; canonical_inferred; Gulen_nature_2023
+  n71 -- drives --> n46
+  %% forms_pore_for; perturbation_supported; Gulen_nature_2023
+  n46 -- forms pore for --> n55
+  %% activates; perturbation_supported; Gulen_nature_2023, LopezPolo_natcomms_2024
+  n55 -- activates --> n6
+  %% activates; direct_measured; Lian_natcomms_2018, Gulen_nature_2023, Qin_commsbio_2024
+  n41 -- activates --> n42
+  %% activates; canonical_inferred; Lian_natcomms_2018, Gulen_nature_2023, Mao_natureaging_2024, Qin_commsbio_2024
+  n42 -- activates --> n23
+  %% drives; canonical_inferred; Gulen_nature_2023
+  n23 -- drives --> n81
+  %% drives; canonical_inferred; Gulen_nature_2023
+  n41 -- drives --> n32
+  %% drives; perturbation_supported; Gulen_nature_2023, LopezPolo_natcomms_2024
+  n41 -- drives --> n39
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n41 -- drives --> n79
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n41 -- drives --> n70
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n70 -- drives --> n73
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n73 -- drives --> n53
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n6 -- drives --> n70
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n6 -- drives --> n8
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n6 -- drives --> n18
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n6 -- drives --> n31
+  %% upregulates; perturbation_supported; Gulen_nature_2023
+  n6 -- upregulates --> n44
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n44 -- drives --> n65
+  %% drives; perturbation_supported; Gulen_nature_2023
+  n65 -- drives --> n53
+  %% does_not_drive; perturbation_supported; Gulen_nature_2023
+  n81 -- does not drive --- n65
+  %% binds_recruits; direct_measured; Lian_natcomms_2018
+  n48 -- binds recruits --> n6
+  %% activates; perturbation_supported; Lian_natcomms_2018
+  n48 -- activates --> n6
+  %% induces; perturbation_supported; Lian_natcomms_2018, Mao_natureaging_2024, Qin_commsbio_2024
+  n23 -- induces --> n81
+  %% activates; perturbation_supported; Lian_natcomms_2018, Qin_commsbio_2024
+  n41 -- activates --> n32
+  %% does_not_drive; perturbation_supported; Lian_natcomms_2018
+  n48 -- does not drive --- n24
+  %% induces; direct_measured; LopezPolo_natcomms_2024
+  n52 -- induces --> n56
+  %% produces; perturbation_supported; LopezPolo_natcomms_2024
+  n34 -- produces --> n56
+  %% downregulates; direct_measured; LopezPolo_natcomms_2024
+  n52 -- downregulates --x n33
+  %% suppresses; perturbation_supported; LopezPolo_natcomms_2024
+  n33 -- suppresses --x n56
+  %% downregulates; direct_measured; LopezPolo_natcomms_2024
+  n52 -- downregulates --x n0
+  %% suppresses; perturbation_supported; LopezPolo_natcomms_2024
+  n0 -- suppresses --x n59
+  %% upregulates; direct_measured; LopezPolo_natcomms_2024
+  n52 -- upregulates --> n9
+  %% upregulates; direct_measured; LopezPolo_natcomms_2024
+  n52 -- upregulates --> n16
+  %% forms_pore_for; perturbation_supported; LopezPolo_natcomms_2024
+  n3 -- forms pore for --> n56
+  %% forms_pore_for; perturbation_supported; LopezPolo_natcomms_2024
+  n3 -- forms pore for --> n55
+  %% activates; direct_measured; LopezPolo_natcomms_2024
+  n56 -- activates --> n59
+  %% activates; perturbation_supported; LopezPolo_natcomms_2024
+  n59 -- activates --> n9
+  %% activates; perturbation_supported; LopezPolo_natcomms_2024
+  n59 -- activates --> n16
+  %% activates; perturbation_supported; LopezPolo_natcomms_2024, Mao_natureaging_2024
+  n9 -- activates --> n27
+  %% activates; perturbation_supported; LopezPolo_natcomms_2024, Mao_natureaging_2024
+  n16 -- activates --> n27
+  %% drives; perturbation_supported; LopezPolo_natcomms_2024
+  n27 -- drives --> n81
+  %% drives; perturbation_supported; LopezPolo_natcomms_2024
+  n27 -- drives --> n39
+  %% activates; canonical_inferred; LopezPolo_natcomms_2024
+  n6 -- activates --> n41
+  %% drives; perturbation_supported; LopezPolo_natcomms_2024
+  n28 -- drives --> n56
+  %% drives; perturbation_supported; LopezPolo_natcomms_2024
+  n28 -- drives --> n27
+  %% drives; perturbation_supported; LopezPolo_natcomms_2024
+  n28 -- drives --> n39
+  %% suppresses; perturbation_supported; LopezPolo_natcomms_2024
+  n29 -- suppresses --x n56
+  %% suppresses; perturbation_supported; LopezPolo_natcomms_2024
+  n29 -- suppresses --x n27
+  %% suppresses; perturbation_supported; LopezPolo_natcomms_2024
+  n29 -- suppresses --x n39
+  %% required_for; perturbation_supported; LopezPolo_natcomms_2024
+  n34 -- required for --> n39
+  %% does_not_drive; direct_measured; LopezPolo_natcomms_2024
+  n52 -- does not drive --- n10
+  %% does_not_drive; perturbation_supported; LopezPolo_natcomms_2024
+  n12 -- does not drive --- n39
+  %% upregulates; perturbation_supported; LopezPolo_natcomms_2024
+  n27 -- upregulates --> n7
+  %% drives; perturbation_supported; LopezPolo_natcomms_2024
+  n52 -- drives --> n39
+  %% upregulates; direct_measured; Mao_natureaging_2024
+  n52 -- upregulates --> n2
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n61 -- induces --> n77
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n2 -- induces --> n77
+  %% does_not_drive; direct_measured; Mao_natureaging_2024
+  n2 -- does not drive --- n81
+  %% produces; direct_measured; Mao_natureaging_2024
+  n77 -- produces --> n57
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n57 -- activates --> n9
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n57 -- activates --> n16
+  %% activates; perturbation_supported; Mao_natureaging_2024
+  n27 -- activates --> n42
+  %% drives; canonical_inferred; Mao_natureaging_2024
+  n81 -- drives --> n39
+  %% induces; perturbation_supported; Mao_natureaging_2024
+  n2 -- induces --> n52
+  %% correlates; strong_correlative; Mao_natureaging_2024
+  n50 -- correlates --o n77
+  %% correlates; strong_correlative; Mao_natureaging_2024
+  n50 -- correlates --o n81
+  %% drives; strong_correlative; Mao_natureaging_2024
+  n81 -- drives --> n68
+  %% binds_recruits; direct_measured; Martinez_biorxiv_2024
+  n6 -- binds recruits --> n63
+  %% suppresses; perturbation_supported; Martinez_biorxiv_2024
+  n6 -- suppresses --x n61
+  %% drives; perturbation_supported; Martinez_biorxiv_2024
+  n61 -- drives --> n77
+  %% upregulates; perturbation_supported; Martinez_biorxiv_2024
+  n61 -- upregulates --> n40
+  %% drives; perturbation_supported; Martinez_biorxiv_2024
+  n40 -- drives --> n79
+  %% activates; canonical_inferred; Martinez_biorxiv_2024
+  n58 -- activates --> n1
+  %% drives; canonical_inferred; Martinez_biorxiv_2024
+  n1 -- drives --> n69
+  %% drives; canonical_inferred; Martinez_biorxiv_2024
+  n69 -- drives --> n79
+  %% induces; perturbation_supported; Martinez_biorxiv_2024
+  n58 -- induces --> n11
+  %% drives; direct_measured; Martinez_biorxiv_2024
+  n79 -- drives --> n62
+  %% drives; strong_correlative; Martinez_biorxiv_2024
+  n79 -- drives --> n49
+  %% does_not_drive; perturbation_supported; Martinez_biorxiv_2024
+  n41 -- does not drive --- n77
+  %% binds_recruits; direct_measured; Qin_commsbio_2024
+  n47 -- binds recruits --> n41
+  %% activates; perturbation_supported; Qin_commsbio_2024
+  n47 -- activates --> n41
+  %% drives; perturbation_supported; Qin_commsbio_2024
+  n32 -- drives --> n79
+  %% does_not_drive; perturbation_supported; Qin_commsbio_2024
+  n47 -- does not drive --- n51
+  %% suppresses; perturbation_supported; Qin_commsbio_2024
+  n47 -- suppresses --x n38
+  %% does_not_drive; perturbation_supported; Qin_commsbio_2024
+  n47 -- does not drive --- n43
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n5 -- correlates --o n72
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n25 -- correlates --o n72
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n14 -- correlates --o n72
+  %% negatively_correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n19 -- negatively correlates --o n72
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n81 -- correlates --o n72
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n52 -- correlates --o n72
+  %% correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n79 -- correlates --o n72
+  %% negatively_correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n64 -- negatively correlates --o n72
+  %% negatively_correlates; strong_correlative; Tyshkovskiy_Nature_2026
+  n60 -- negatively correlates --o n72
+  %% does_not_drive; strong_correlative; Tyshkovskiy_Nature_2026
+  n81 -- does not drive --- n72
+
+  classDef default fill:#F2F2F2,stroke:#666666,color:#111111,font-family:Arial,font-size:5pt;
+  classDef cell_types fill:#FADBD8,stroke:#C44E52,color:#111111,font-family:Arial,font-size:5pt;
+  classDef evidence_type fill:#EAEDED,stroke:#937860,color:#111111,font-family:Arial,font-size:5pt;
+  classDef genes fill:#DCE6F2,stroke:#4C72B0,color:#111111,font-family:Arial,font-size:5pt;
+  classDef mechanisms fill:#E2EFDA,stroke:#55A868,color:#111111,font-family:Arial,font-size:5pt;
+  classDef model_systems fill:#E8DAEF,stroke:#8172B3,color:#111111,font-family:Arial,font-size:5pt;
+  classDef nucleic_acid_sensors fill:#FFF2CC,stroke:#B45F06,color:#111111,font-family:Arial,font-size:5pt;
+  classDef pathways fill:#FCE4D6,stroke:#DD8452,color:#111111,font-family:Arial,font-size:5pt;
+  linkStyle 0 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 1 stroke:#C44E52,stroke-width:1px;
+  linkStyle 2 stroke:#55A868,stroke-width:1px;
+  linkStyle 3 stroke:#C44E52,stroke-width:1px;
+  linkStyle 4 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 5 stroke:#55A868,stroke-width:1px;
+  linkStyle 6 stroke:#4C72B0,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 7 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 8 stroke:#55A868,stroke-width:1px;
+  linkStyle 9 stroke:#55A868,stroke-width:1px;
+  linkStyle 10 stroke:#55A868,stroke-width:1px;
+  linkStyle 11 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 12 stroke:#55A868,stroke-width:1px;
+  linkStyle 13 stroke:#55A868,stroke-width:1px;
+  linkStyle 14 stroke:#55A868,stroke-width:1px;
+  linkStyle 15 stroke:#55A868,stroke-width:1px;
+  linkStyle 16 stroke:#55A868,stroke-width:1px;
+  linkStyle 17 stroke:#55A868,stroke-width:1px;
+  linkStyle 18 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 19 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 20 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 21 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 22 stroke:#CCCCCC,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 23 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 24 stroke:#55A868,stroke-width:1px;
+  linkStyle 25 stroke:#C44E52,stroke-width:1px;
+  linkStyle 26 stroke:#C44E52,stroke-width:1px;
+  linkStyle 27 stroke:#8172B3,stroke-width:1px;
+  linkStyle 28 stroke:#55A868,stroke-width:1px;
+  linkStyle 29 stroke:#55A868,stroke-width:1px;
+  linkStyle 30 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 31 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 32 stroke:#55A868,stroke-width:1px;
+  linkStyle 33 stroke:#55A868,stroke-width:1px;
+  linkStyle 34 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 35 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 36 stroke:#C44E52,stroke-width:1px;
+  linkStyle 37 stroke:#55A868,stroke-width:1px;
+  linkStyle 38 stroke:#C44E52,stroke-width:1px;
+  linkStyle 39 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 40 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 41 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 42 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 43 stroke:#CCCCCC,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 44 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 45 stroke:#55A868,stroke-width:1px;
+  linkStyle 46 stroke:#55A868,stroke-width:1px;
+  linkStyle 47 stroke:#55A868,stroke-width:1px;
+  linkStyle 48 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 49 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 50 stroke:#55A868,stroke-width:1px;
+  linkStyle 51 stroke:#55A868,stroke-width:1px;
+  linkStyle 52 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 53 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 54 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 55 stroke:#55A868,stroke-width:1px;
+  linkStyle 56 stroke:#55A868,stroke-width:1px;
+  linkStyle 57 stroke:#55A868,stroke-width:1px;
+  linkStyle 58 stroke:#55A868,stroke-width:1px;
+  linkStyle 59 stroke:#55A868,stroke-width:1px;
+  linkStyle 60 stroke:#55A868,stroke-width:1px;
+  linkStyle 61 stroke:#55A868,stroke-width:1px;
+  linkStyle 62 stroke:#55A868,stroke-width:1px;
+  linkStyle 63 stroke:#55A868,stroke-width:1px;
+  linkStyle 64 stroke:#55A868,stroke-width:1px;
+  linkStyle 65 stroke:#55A868,stroke-width:1px;
+  linkStyle 66 stroke:#55A868,stroke-width:1px;
+  linkStyle 67 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 68 stroke:#8172B3,stroke-width:1px;
+  linkStyle 69 stroke:#55A868,stroke-width:1px;
+  linkStyle 70 stroke:#55A868,stroke-width:1px;
+  linkStyle 71 stroke:#55A868,stroke-width:1px;
+  linkStyle 72 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 73 stroke:#55A868,stroke-width:1px;
+  linkStyle 74 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 75 stroke:#C44E52,stroke-width:1px;
+  linkStyle 76 stroke:#C44E52,stroke-width:1px;
+  linkStyle 77 stroke:#C44E52,stroke-width:1px;
+  linkStyle 78 stroke:#C44E52,stroke-width:1px;
+  linkStyle 79 stroke:#55A868,stroke-width:1px;
+  linkStyle 80 stroke:#55A868,stroke-width:1px;
+  linkStyle 81 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 82 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 83 stroke:#55A868,stroke-width:1px;
+  linkStyle 84 stroke:#55A868,stroke-width:1px;
+  linkStyle 85 stroke:#55A868,stroke-width:1px;
+  linkStyle 86 stroke:#55A868,stroke-width:1px;
+  linkStyle 87 stroke:#55A868,stroke-width:1px;
+  linkStyle 88 stroke:#55A868,stroke-width:1px;
+  linkStyle 89 stroke:#55A868,stroke-width:1px;
+  linkStyle 90 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 91 stroke:#55A868,stroke-width:1px;
+  linkStyle 92 stroke:#55A868,stroke-width:1px;
+  linkStyle 93 stroke:#55A868,stroke-width:1px;
+  linkStyle 94 stroke:#C44E52,stroke-width:1px;
+  linkStyle 95 stroke:#C44E52,stroke-width:1px;
+  linkStyle 96 stroke:#C44E52,stroke-width:1px;
+  linkStyle 97 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 98 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 99 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 100 stroke:#55A868,stroke-width:1px;
+  linkStyle 101 stroke:#55A868,stroke-width:1px;
+  linkStyle 102 stroke:#55A868,stroke-width:1px;
+  linkStyle 103 stroke:#55A868,stroke-width:1px;
+  linkStyle 104 stroke:#55A868,stroke-width:1px;
+  linkStyle 105 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 106 stroke:#4C72B0,stroke-width:1px;
+  linkStyle 107 stroke:#55A868,stroke-width:1px;
+  linkStyle 108 stroke:#55A868,stroke-width:1px;
+  linkStyle 109 stroke:#55A868,stroke-width:1px;
+  linkStyle 110 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 111 stroke:#55A868,stroke-width:1px;
+  linkStyle 112 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 113 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 114 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 115 stroke:#8172B3,stroke-width:1px;
+  linkStyle 116 stroke:#C44E52,stroke-width:1px;
+  linkStyle 117 stroke:#55A868,stroke-width:1px;
+  linkStyle 118 stroke:#55A868,stroke-width:1px;
+  linkStyle 119 stroke:#55A868,stroke-width:1px;
+  linkStyle 120 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 121 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 122 stroke:#55A868,stroke-width:1px,stroke-dasharray:5 3;
+  linkStyle 123 stroke:#55A868,stroke-width:1px;
+  linkStyle 124 stroke:#55A868,stroke-width:1px;
+  linkStyle 125 stroke:#55A868,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 126 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 127 stroke:#8172B3,stroke-width:1px;
+  linkStyle 128 stroke:#55A868,stroke-width:1px;
+  linkStyle 129 stroke:#55A868,stroke-width:1px;
+  linkStyle 130 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 131 stroke:#C44E52,stroke-width:1px;
+  linkStyle 132 stroke:#CCCCCC,stroke-width:1px;
+  linkStyle 133 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 134 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 135 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 136 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 137 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 138 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 139 stroke:#999999,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 140 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 141 stroke:#C44E52,stroke-width:1px,stroke-dasharray:2 3;
+  linkStyle 142 stroke:#CCCCCC,stroke-width:1px,stroke-dasharray:2 3;

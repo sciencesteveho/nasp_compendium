@@ -56,15 +56,22 @@ venv.bak/
 # Private facing local directories
 development/
 data/literature/
-agent/reports/
 figures/
 
-# Agent generated artifacts
+# Agent generated artifacts. Keep calibration inputs/results reproducible while
+# leaving regenerable review packets and other working reports local.
 nasp_compendium.egg-info/
+agent/reports/*
+agent/reports/audits/
+agent/reports/curation_runs/
 agent/reports/audits/*
-!agent/reports/audits/.gitkeep
 agent/reports/curation_runs/*
-!agent/reports/curation_runs/.gitkeep
+agent/reports/curation_runs/*.post_patch.draft.md
+agent/reports/audits/calibration_*.score.json
+agent/reports/audits/calibration_*_post_patch.md
+agent/reports/audits/holdout_test_*.score.json
+agent/reports/audits/holdout_test_*.md
+agent/calibration
 
 # Python/local caches
 __pycache__/
@@ -73,4 +80,3 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .DS_Store
-

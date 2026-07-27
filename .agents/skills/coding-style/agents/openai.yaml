@@ -1,0 +1,4 @@
+interface:
+  display_name: "NASP Coding Style"
+  short_description: "Apply NASP software-engineering standards"
+  default_prompt: "Use $coding-style to implement this NASP Compendium change with the repository's software-engineering standards."
