@@ -40,8 +40,20 @@ not authorize copying an abstraction or feature the task does not need.
 2. Determine task-specific behavioral and engineering contracts.
 3. Implement the smallest correct change under the selected references.
 4. Validate from the narrowest relevant check outward.
-5. Re-read the diff and hand off exact validation results plus a suggested
+5. Audit module-level assignments and mutable class attributes in every changed
+   file using the ownership test in `core-engineering.md`.
+6. Re-read the diff and hand off exact validation results plus a suggested
    Conventional Commit message.
+
+For every new or changed test, first state: "If this user-visible, public API,
+or operational behavior regresses, this test fails." Reject a claim that only
+restates the implementation, such as a literal being assigned, a collaborator
+being called, or an internal representation remaining unchanged. If no concrete
+functional regression can be named, do not add the test. A code change does not
+automatically require a new test; use existing tests and static or smoke
+validation for trivial wiring, imports, declarative configuration, and
+equivalent refactors. Apply the `Assertion Contracts` harmless-change check
+before editing and again during final diff review.
 
 Do not substitute a reference summary for reading the selected file. Do not
 weaken a rule merely because the current module layout changes.

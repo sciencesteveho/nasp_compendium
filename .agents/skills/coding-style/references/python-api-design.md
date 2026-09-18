@@ -51,6 +51,7 @@ table = pd.concat(frames)
   private helpers below. Keep CLI `main()` near the bottom beside its guard.
 - A package exporting public names must expose them explicitly from
   `__init__.py` and list them in `__all__`.
+- Re-export only names intentionally supported as package-level API.
 - Put `__all__` after imports/module globals and before definitions. Exclude
   internal and implementation-only names.
 - Omit `__all__` when nothing is intentionally exported; never add an empty

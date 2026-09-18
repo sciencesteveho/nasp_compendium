@@ -6,6 +6,7 @@
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | CMPK2 | mt_na_biogenesis | cGAS-STING | Active | positive | Broad | low | IFN_I_OUTPUT | [10.1038/s41586-018-0372-z](https://doi.org/10.1038/s41586-018-0372-z) |  |  |  |
 | POLRMT | mt_na_biogenesis | cGAS-STING | Active | positive | Broad | low |  | [10.1016/j.celrep.2022.111178](https://doi.org/10.1016/j.celrep.2022.111178) |  |  |  |
+| SLC25A33 | mt_na_biogenesis | cGAS-STING | Early | positive | Broad | medium |  | [10.1038/s42255-021-00385-9](https://doi.org/10.1038/s42255-021-00385-9) |  |  |  |
 | PNPT1 | mt_na_restraint | cGAS-STING | Early | inverse | Broad | medium |  | [10.1038/s41586-018-0363-0](https://doi.org/10.1038/s41586-018-0363-0) |  |  |  |
 | REXO2 | mt_na_restraint | cGAS-STING | Early | inverse | Broad | medium |  | [10.1093/nar/gkaa302](https://doi.org/10.1093/nar/gkaa302) |  |  |  |
 | TFAM | mt_na_restraint | cGAS-STING | Early | inverse | Broad | medium | AGING_HALLMARKS | [10.1038/nature14156](https://doi.org/10.1038/nature14156) |  |  |  |

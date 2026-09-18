@@ -55,6 +55,7 @@
 | APOBEC3A | te_restriction_factor | RLR | Early | positive | Immune-enriched | medium |  | [10.1093/nar/gkj416](https://doi.org/10.1093/nar/gkj416) |  |  |  |
 | APOBEC3B | te_restriction_factor | RLR | Early | positive | Immune-enriched | low |  | [10.1093/nar/gkj416](https://doi.org/10.1093/nar/gkj416) |  |  |  |
 | MOV10 | te_restriction_factor | Multi | Early | positive | Broad | low |  | [10.1371/journal.pgen.1002941](https://doi.org/10.1371/journal.pgen.1002941) |  |  |  |
+| TRIM41 | te_restriction_factor | cGAS-STING | Early | positive | Broad | low |  | [10.1038/s41467-023-43001-y](https://doi.org/10.1038/s41467-023-43001-y) |  |  |  |
 | ZNF91 | te_restriction_factor | Multi | Early | positive | Broad | high |  | [10.1038/nature13760](https://doi.org/10.1038/nature13760) |  |  |  |
 | ATF7IP | te_silencing |  | Active | positive | Broad | high |  | [10.1093/nar/gkae1165](https://doi.org/10.1093/nar/gkae1165) | MCAF1 |  |  |
 | DNMT1 | te_silencing | Multi | Early | positive | Broad | medium |  | [10.1038/s41594-021-00603-8](https://doi.org/10.1038/s41594-021-00603-8) |  |  |  |

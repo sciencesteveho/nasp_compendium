@@ -25,6 +25,7 @@
 - Prefer small, focused functions that compose cleanly over monoliths.
 - Prefer small, reusable modules with one clear purpose over catch-all modules.
   Create a module only when it adds reusable value and has a clear scope.
+- Do not use single-consumer mixins solely to split a class across files.
 - Apply modularity pragmatically. Support a plausible next analysis when that
   clarifies current scientific logic or a concrete extension; avoid speculative
   indirection.
@@ -76,13 +77,32 @@ def prepare_records(
 
 ## Constants and Configuration
 
+- Keep module scope limited to imports, a logger, `__all__`, type aliases, and
+  genuinely shared immutable constants. Treat mutable class attributes and
+  registries as global state too; an underscore, `ClassVar`, or uppercase name
+  changes visibility or notation, not ownership or mutability.
+- Before retaining or adding a module or class constant, identify its owning
+  concept and verify one of these conditions:
+  1. At least two independent runtime consumers require exactly the same stable
+     value, and this module is their authoritative owner.
+  2. The name captures stable scientific or domain meaning that an unexplained
+     literal would lose.
+  Definition plus one use, tuple expansion, cleanup derived from a producer,
+  and tests of the same implementation do not count as independent consumers.
 - Avoid globals used only once. Keep incidental values local or make them
-  function defaults.
+  function defaults. Do not move a value to a class attribute or a zero-argument
+  helper merely to disguise global configuration.
 - Repeated column names, generated keys, delimiters, and filenames usually
-  belong as keyword-only defaults on the function that owns the output.
-- A module constant is justified when independent call sites share one stable
-  value or its name captures important scientific/domain meaning that a literal
-  does not, even with one current use.
+  belong as keyword-only defaults on the function that owns the output. When a
+  coherent configuration must travel through multiple stages, instantiate a
+  frozen dataclass at the workflow boundary and pass it explicitly.
+- Do not keep mutable lists, dictionaries, sets, palettes, registries, or
+  configuration objects at module or class scope. Construct them per call or
+  per instance. A justified shared collection must be immutable to callers.
+- Give schemas, filenames, and artifact plans one authoritative owner. Derive
+  downstream manifests, cleanup targets, and empty outputs from that owner or
+  from artifacts actually produced; do not maintain parallel module registries
+  that can drift.
 - Put shared physical parameters, thresholds, and tuning values in a dedicated
   constants module, grouped by purpose.
 - Name constants in `UPPER_SNAKE_CASE` and annotate their types.
@@ -109,6 +129,14 @@ def fetch_records(url: str, *, retries: int = 3) -> list[Record]:
 
 Promote `retries` to a shared constant only when independent callers must use
 the same stable policy or the name carries important domain meaning.
+
+Before handoff, inspect every module-level assignment and mutable class
+attribute added or retained in changed files. Remove or relocate each value
+that fails the ownership test above, and check that the refactor did not create
+a second schema, filename list, palette, or configuration source of truth.
+Use a text or AST scan over the changed Python paths to enumerate candidates;
+do not treat passing Ruff, typing, or tests as evidence that this audit passed,
+because those checks generally permit module and class state.
 
 ## Git and Handoff
 
