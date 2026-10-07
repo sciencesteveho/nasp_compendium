@@ -220,8 +220,8 @@ def test_render_index_embeds_overlap_heatmap() -> None:
 def _write_docs_panel(path: Path) -> None:
     """Write a marker panel with every column the docs renderer requires."""
     header = (
-        "gene_symbol\tmodule_id\tmodule_class\tsensor_family\tactivation_tier"
-        "\tscoring_direction\tcell_type_breadth\tdetectability\talso_in_module"
+        "gene_symbol\tmodule_id\tmodule_class\tsensor_family"
+        "\tscoring_direction\tsc_detectability\talso_in_module"
         "\tdoi\taliases\tsensor\tpanel_source"
     )
     rows = [
@@ -232,8 +232,7 @@ def _write_docs_panel(path: Path) -> None:
         ("DDX58", "NASP_RNA_SENSING", "rna_sensing_core", "rna_sensor"),
     ]
     lines = [
-        f"{gene}\t{module}\t{module_class}\t\tEarly\tpositive\tBroad\tlow\t\t\t"
-        f"\t{sensor}\t"
+        f"{gene}\t{module}\t{module_class}\t\tpositive\tlow\t\t\t\t{sensor}\t"
         for gene, module, module_class, sensor in rows
     ]
     path.write_text("\n".join([header, *lines]) + "\n")
@@ -287,10 +286,8 @@ def test_module_page_shows_every_panel_field(tmp_path: Path) -> None:
             "module_id": ["NASP_DNA_SENSING"],
             "module_class": ["dna_sensing_core"],
             "sensor_family": ["cGAS-STING"],
-            "activation_tier": ["Early"],
             "scoring_direction": ["positive"],
-            "cell_type_breadth": ["Broad"],
-            "detectability": ["low"],
+            "sc_detectability": ["low"],
             "also_in_module": ["SENESCENCE"],
             "doi": [""],
             "aliases": ["MB21D1"],

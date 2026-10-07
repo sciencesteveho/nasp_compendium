@@ -1,8 +1,8 @@
 # Protein sources
 
-Inputs to the `uniprot_id`, `monomer_kDa` and `n_string_sensor_partners`
-columns of `data/marker_genes.tsv`. Snapshot the sources, then add or refresh
-the columns in place from the repository root:
+Inputs to the `uniprot_id`, `monomer_kDa`, `n_string_sensor_partners` and
+`n_string_partners` columns of `data/marker_genes.tsv`. Snapshot the sources,
+then add or refresh the columns in place from the repository root:
 
 ```sh
 python -m nasp_compendium.protein_annotation fetch
@@ -19,7 +19,7 @@ panel; `annotate` alone leaves new genes without these columns.
 | --- | --- |
 | `protein_sequences.tsv` | Canonical sequence mass (Da) and length from the [EBI Proteins API](https://www.ebi.ac.uk/proteins/api/doc/), a UniProtKB mirror, for every HGNC-listed accession of a panel gene |
 | `string_ids.tsv` | [STRING](https://string-db.org) protein for each chosen accession, mapped by accession or, where STRING lacks the accession, by gene symbol (`matched_by`) |
-| `string_network.tsv` | STRING physical-network edges among the panel proteins with combined score ≥ 0.15 |
+| `string_partners.tsv.gz` | Every STRING physical-network partner, anywhere in the human proteome, of each panel protein with combined score ≥ 0.15 |
 
 UniProt and STRING data are released under CC BY 4.0.
 
@@ -37,5 +37,8 @@ UniProt and STRING data are released under CC BY 4.0.
   protein. STRING scores combine experimental, curated-database and
   text-mining evidence, so a count marks candidate partners, not confirmed
   complexes.
-- The counts replace the earlier pilot values for the 38 sensors, whose STRING
-  method could not be reproduced.
+- `n_string_partners` counts all distinct physical partners at the same
+  threshold. It largely tracks how well studied a protein is (BRD4 has 1,511),
+  so it serves mainly as context for the sensor count.
+- The sensor counts replace the earlier pilot values for the 38 sensors, whose
+  STRING method could not be reproduced.

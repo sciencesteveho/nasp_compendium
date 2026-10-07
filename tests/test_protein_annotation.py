@@ -4,16 +4,16 @@ from __future__ import annotations
 
 import pandas as pd
 
-from nasp_compendium.protein_annotation import count_sensor_partners
+from nasp_compendium.protein_annotation import count_string_partners
 from nasp_compendium.protein_annotation import select_canonical_proteins
 
 
 def _partner_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Return proteins, STRING ids and a network for three sensors.
 
-    G links to sensors S1 and S2, to S3 below the 0.4 threshold, and to the
-    non-sensor H. The G-S1 edge is listed in both directions. U has no STRING
-    entry.
+    G links to sensors S1 and S2, to S3 below the 0.4 threshold, to the
+    non-sensor H, and to x, a protein outside the panel. The G-S1 edge is
+    listed in both directions. U has no STRING entry.
     """
     proteins = pd.DataFrame(
         {
@@ -29,32 +29,43 @@ def _partner_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     )
     network = pd.DataFrame(
         {
-            "string_id_a": ["g", "s1", "g", "g", "g", "s1"],
-            "string_id_b": ["s1", "g", "s2", "s3", "h", "s2"],
-            "score": [0.9, 0.9, 0.5, 0.3, 0.99, 0.8],
+            "string_id_a": ["g", "s1", "g", "g", "g", "s1", "g"],
+            "string_id_b": ["s1", "g", "s2", "s3", "h", "s2", "x"],
+            "score": [0.9, 0.9, 0.5, 0.3, 0.99, 0.8, 0.7],
         }
     )
     return proteins, string_ids, network
 
 
-def test_count_sensor_partners_counts_distinct_sensors_above_threshold() -> (
+def test_count_string_partners_counts_distinct_sensors_above_threshold() -> (
     None
 ):
     """Each gene counts the distinct other sensors it links to at 0.4+."""
     proteins, string_ids, network = _partner_inputs()
 
-    partners = count_sensor_partners(
+    partners = count_string_partners(
         proteins, string_ids, network, ["S1", "S2", "S3"], min_score=0.4
     ).set_index("gene_symbol")["n_string_sensor_partners"]
 
     assert partners[["G", "S1", "S2", "S3", "H"]].tolist() == [2, 1, 1, 0, 0]
 
 
-def test_count_sensor_partners_leaves_unmapped_genes_missing() -> None:
+def test_count_string_partners_counts_every_partner_above_threshold() -> None:
+    """The overall count includes non-sensor and off-panel partners."""
+    proteins, string_ids, network = _partner_inputs()
+
+    partners = count_string_partners(
+        proteins, string_ids, network, ["S1", "S2", "S3"], min_score=0.4
+    ).set_index("gene_symbol")["n_string_partners"]
+
+    assert partners[["G", "S1", "S2", "S3", "H"]].tolist() == [4, 2, 2, 0, 1]
+
+
+def test_count_string_partners_leaves_unmapped_genes_missing() -> None:
     """A gene absent from STRING is missing rather than zero partners."""
     proteins, string_ids, network = _partner_inputs()
 
-    partners = count_sensor_partners(
+    partners = count_string_partners(
         proteins, string_ids, network, ["S1", "S2", "S3"]
     ).set_index("gene_symbol")["n_string_sensor_partners"]
 

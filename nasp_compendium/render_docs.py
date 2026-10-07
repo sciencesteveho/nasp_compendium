@@ -28,10 +28,8 @@ def _read_marker_table(input_path: Path) -> pd.DataFrame:
         "module_id",
         "module_class",
         "sensor_family",
-        "activation_tier",
         "scoring_direction",
-        "cell_type_breadth",
-        "detectability",
+        "sc_detectability",
         "also_in_module",
         "doi",
         "aliases",
@@ -105,10 +103,8 @@ def render_module(
         "module_id": "Module",
         "module_class": "Module Class",
         "sensor_family": "Sensor Family",
-        "activation_tier": "Activation Tier",
         "scoring_direction": "Scoring Direction",
-        "cell_type_breadth": "Cell Type Breadth",
-        "detectability": "Detectability",
+        "sc_detectability": "Single-Cell Detectability",
         "also_in_module": "Also in Module(s)",
         "doi": "DOI",
         "aliases": "Aliases",
@@ -121,6 +117,7 @@ def render_module(
         "uniprot_id": "UniProt ID",
         "monomer_kDa": "Monomer (kDa)",
         "n_string_sensor_partners": "STRING Sensor Partners",
+        "n_string_partners": "STRING Partners",
     }
     columns = [
         str(column)

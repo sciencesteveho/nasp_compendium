@@ -1,5 +1,5 @@
 {
-  "retrieved": "2026-10-07T21:44:26",
+  "retrieved": "2026-10-07T22:10:56",
   "script": "nasp_compendium/protein_annotation.py",
   "string_version": "12.5",
   "string_network_type": "physical",
@@ -10,7 +10,7 @@
     "accession": 567,
     "symbol": 2
   },
-  "n_string_edges": 4919,
+  "n_string_partner_rows": 78134,
   "files": {
     "protein_sequences": {
       "path": "protein_sequences.tsv",
@@ -20,9 +20,9 @@
       "path": "string_ids.tsv",
       "md5": "7057db734dc10aa619c213f4b01bdd6f"
     },
-    "string_network": {
-      "path": "string_network.tsv",
-      "md5": "18ef88b4f165d4e607203ef48859cbfb"
+    "string_partners": {
+      "path": "string_partners.tsv.gz",
+      "md5": "5e66b60426fabfdd53332206b5c0c783"
     }
   }
 }

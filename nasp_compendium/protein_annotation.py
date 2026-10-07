@@ -1,15 +1,16 @@
-"""Annotate marker genes with UniProt proteins, mass and STRING sensor partners.
+"""Annotate marker genes with UniProt proteins, mass and STRING partners.
 
 Each gene's UniProt accession comes from HGNC. When HGNC lists several, the
 longest protein is used (DDIT3's CHOP rather than its upstream-ORF peptide,
 CDKN2A's p16INK4a rather than p14ARF). monomer_kDa is that canonical
 sequence's mass from the EBI Proteins API, a UniProtKB mirror.
 
-n_string_sensor_partners counts the distinct DNA or RNA sensors tagged in the
-panel that share a STRING physical-network edge with the gene at or above a
-combined score (default 0.4, STRING's medium confidence). A sensor's own
-protein is not counted. The count is blank when STRING has no entry for the
-gene's protein, which differs from zero partners.
+n_string_partners counts the distinct human proteins that share a STRING
+physical-network edge with the gene's protein at or above a combined score
+(default 0.4, STRING's medium confidence). n_string_sensor_partners counts
+only the DNA or RNA sensors tagged in the panel among them. A protein is never
+its own partner. Both are blank when STRING has no entry for the protein,
+which differs from zero partners.
 
 Snapshot the sources once, then annotate the panel offline from them:
 
@@ -42,10 +43,10 @@ from nasp_compendium.marker_panel_annotation import write_marker_panel
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    "count_sensor_partners",
+    "count_string_partners",
     "fetch_protein_sequences",
     "fetch_string_ids",
-    "fetch_string_network",
+    "fetch_string_partners",
     "list_uniprot_candidates",
     "select_canonical_proteins",
 ]
@@ -117,7 +118,7 @@ def select_canonical_proteins(
     ).reset_index(drop=True)
 
 
-def count_sensor_partners(
+def count_string_partners(
     proteins: pd.DataFrame,
     string_ids: pd.DataFrame,
     network: pd.DataFrame,
@@ -125,18 +126,23 @@ def count_sensor_partners(
     *,
     min_score: float = 0.4,
 ) -> pd.DataFrame:
-    """Count each gene's distinct sensor partners in a STRING network.
+    """Count each gene's distinct STRING partners, among sensors and overall.
+
+    Edges are undirected, so an edge listed in both directions counts once,
+    and a protein is never its own partner.
 
     Args:
       proteins: gene_symbol and uniprot_id, one row per gene.
       string_ids: accession and string_id for proteins STRING maps.
-      network: string_id_a, string_id_b and combined score in [0, 1].
+      network: string_id_a, string_id_b and combined score in [0, 1]. Overall
+        counts are complete only when it lists every partner of the panel
+        proteins, as `fetch_string_partners` does.
       sensor_genes: Gene symbols whose proteins count as sensors.
       min_score: Lowest combined score counted as an edge.
 
     Returns:
-      gene_symbol and n_string_sensor_partners, missing for genes whose
-      protein has no STRING entry.
+      gene_symbol, n_string_sensor_partners and n_string_partners; both
+      counts are missing for genes whose protein has no STRING entry.
     """
     nodes = proteins.merge(
         string_ids, left_on="uniprot_id", right_on="accession", how="left"
@@ -156,20 +162,20 @@ def count_sensor_partners(
             edges.set_axis(["partner", "protein"], axis=1),
         ]
     )
-    pairs = pairs.loc[
-        pairs["partner"].isin(sensor_ids)
-        & (pairs["protein"] != pairs["partner"])
-    ]
-    counts = pairs.drop_duplicates()["protein"].value_counts()
+    pairs = pairs.loc[pairs["protein"] != pairs["partner"]].drop_duplicates()
+    counts_by_protein = {
+        "n_string_sensor_partners": pairs.loc[
+            pairs["partner"].isin(sensor_ids), "protein"
+        ].value_counts(),
+        "n_string_partners": pairs["protein"].value_counts(),
+    }
 
-    n_partners = nodes["string_id"].map(counts).fillna(0).astype("Int64")
-    n_partners[nodes["string_id"].isna()] = pd.NA
-    return pd.DataFrame(
-        {
-            "gene_symbol": nodes["gene_symbol"],
-            "n_string_sensor_partners": n_partners,
-        }
-    )
+    partners = pd.DataFrame({"gene_symbol": nodes["gene_symbol"]})
+    for column, counts in counts_by_protein.items():
+        n_partners = nodes["string_id"].map(counts).fillna(0).astype("Int64")
+        n_partners[nodes["string_id"].isna()] = pd.NA
+        partners[column] = n_partners
+    return partners
 
 
 def fetch_protein_sequences(
@@ -251,36 +257,40 @@ def fetch_string_ids(
     ).loc[:, ["identifier", "string_id"]]
 
 
-def fetch_string_network(
+def fetch_string_partners(
     string_ids: Iterable[str],
     *,
     species: int = 9606,
     network_type: str = "physical",
     required_score: int = 150,
+    limit: int = 100_000,
     url: str = "https://string-db.org/api",
-    timeout: float = 300,
+    timeout: float = 600,
 ) -> pd.DataFrame:
-    """Fetch STRING edges among the given proteins.
+    """Fetch every STRING partner of the given proteins, proteome-wide.
 
     Args:
       string_ids: STRING protein identifiers.
       species: NCBI taxon.
       network_type: "physical" or "functional".
       required_score: Lowest combined score, on STRING's 0-1000 scale.
+      limit: Most partners returned per protein; the default exceeds the
+        number of human proteins, so no partner is dropped.
       url: STRING API root.
       timeout: Seconds to wait for the response.
 
     Returns:
-      string_id_a, string_id_b, the preferred names and combined score in
-      [0, 1].
+      string_id_a (a queried protein), string_id_b (its partner), their
+      preferred names and the combined score in [0, 1].
     """
     network = _post_string_tsv(
-        f"{url}/tsv/network",
+        f"{url}/tsv/interaction_partners",
         {
             "identifiers": "\r".join(dict.fromkeys(string_ids)),
             "species": species,
             "network_type": network_type,
             "required_score": required_score,
+            "limit": limit,
         },
         timeout=timeout,
     )
@@ -382,7 +392,7 @@ def _file_md5(path: Path) -> str:
 
 
 def _fetch_sources(args: argparse.Namespace) -> None:
-    """Snapshot protein masses, STRING identifiers and the STRING network."""
+    """Snapshot protein masses, STRING identifiers and STRING partners."""
     panel, _ = read_marker_panel(args.marker_genes)
     candidates = list_uniprot_candidates(
         panel["gene_symbol"], _load_hgnc_uniprot(args.hgnc)
@@ -391,7 +401,7 @@ def _fetch_sources(args: argparse.Namespace) -> None:
     sequences = fetch_protein_sequences(candidates["accession"])
     proteins = select_canonical_proteins(candidates, sequences)
     string_ids = _map_proteins_to_string(proteins)
-    network = fetch_string_network(
+    partners = fetch_string_partners(
         string_ids["string_id"], required_score=args.required_score
     )
 
@@ -399,11 +409,16 @@ def _fetch_sources(args: argparse.Namespace) -> None:
     outputs = {
         "protein_sequences": args.source_dir / "protein_sequences.tsv",
         "string_ids": args.source_dir / "string_ids.tsv",
-        "string_network": args.source_dir / "string_network.tsv",
+        "string_partners": args.source_dir / "string_partners.tsv.gz",
     }
     sequences.to_csv(outputs["protein_sequences"], sep="\t", index=False)
     string_ids.to_csv(outputs["string_ids"], sep="\t", index=False)
-    network.to_csv(outputs["string_network"], sep="\t", index=False)
+    partners.to_csv(
+        outputs["string_partners"],
+        sep="\t",
+        index=False,
+        compression={"method": "gzip", "mtime": 0},
+    )
 
     manifest = {
         "retrieved": dt.datetime.now().isoformat(timespec="seconds"),
@@ -414,7 +429,7 @@ def _fetch_sources(args: argparse.Namespace) -> None:
         "n_genes": int(candidates["gene_symbol"].nunique()),
         "n_accessions": int(candidates["accession"].nunique()),
         "n_string_mapped": string_ids["matched_by"].value_counts().to_dict(),
-        "n_string_edges": len(network),
+        "n_string_partner_rows": len(partners),
         "files": {
             name: {
                 "path": os.path.relpath(path, args.source_dir),
@@ -427,10 +442,10 @@ def _fetch_sources(args: argparse.Namespace) -> None:
         json.dumps(manifest, indent=2) + "\n"
     )
     logger.info(
-        "Saved %d sequences, %d STRING ids and %d edges to %s",
+        "Saved %d sequences, %d STRING ids and %d partner rows to %s",
         len(sequences),
         len(string_ids),
-        len(network),
+        len(partners),
         args.source_dir,
     )
 
@@ -440,7 +455,7 @@ def _annotate_marker_panel(
     *,
     sensor_type: str = "dna_rna",
 ) -> None:
-    """Write uniprot_id, monomer_kDa and n_string_sensor_partners columns."""
+    """Write uniprot_id, monomer_kDa and the STRING partner-count columns."""
     out_path = args.out or args.marker_genes
     panel, line_terminator = read_marker_panel(args.marker_genes)
 
@@ -450,10 +465,10 @@ def _annotate_marker_panel(
         ),
         pd.read_csv(args.source_dir / "protein_sequences.tsv", sep="\t"),
     )
-    partners = count_sensor_partners(
+    partners = count_string_partners(
         proteins,
         pd.read_csv(args.source_dir / "string_ids.tsv", sep="\t"),
-        pd.read_csv(args.source_dir / "string_network.tsv", sep="\t"),
+        pd.read_csv(args.source_dir / "string_partners.tsv.gz", sep="\t"),
         GeneModules(args.marker_genes).get_sensors(sensor_type),
         min_score=args.min_score,
     )
@@ -500,7 +515,7 @@ def _parse_arguments() -> argparse.Namespace:
     subparsers = parser.add_subparsers(required=True)
 
     fetch = subparsers.add_parser(
-        "fetch", help="Snapshot protein masses and the STRING network."
+        "fetch", help="Snapshot protein masses and STRING partners."
     )
     fetch.add_argument(
         "--required-score",
