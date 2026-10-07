@@ -20,8 +20,10 @@ inflammation, senescence, and aging-related biology.
 PDF graph output requires `rsvg-convert` from librsvg so text can be stored as
 fixed vector outlines rather than viewer-dependent font objects.
 
-`render_graph`: writes one combined figure containing every
-compendium `*.md` file:
+`render_graph` writes a combined figure from accepted compendium records.
+All ordinary graph commands exclude `.gold.md` evaluation references and
+forbidden/excluded rows. To extract and review a new paper, start with the
+[paper extraction workflow](../agent/README.md).
 
 ```sh
 compendium render_graph \
@@ -33,7 +35,7 @@ Use `--paper PAPER_ID` with `render_graph` to render a selected subset instead.
 
 </br>
 
-`render_paper_graphs` writes one figure for each compendium `*.md` file:
+`render_paper_graphs` writes one figure for each accepted compendium file:
 ```sh
 compendium render_paper_graphs \
   --compendium-path docs/compendium \
@@ -45,7 +47,7 @@ Both commands also accept `--annotate-papers`, `--compact`,
 `--rankdir`, `--layout-engine`, `--exclude-rel`, and
 `--no-aggregate-edges`.
 
-Generate one combined Mermaid source and one source per compendium file:
+Generate one combined Mermaid source and one source per accepted file:
 
 ```sh
 compendium render_mermaid_graphs \

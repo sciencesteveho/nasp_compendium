@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import collections
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -25,8 +24,8 @@ def build_review_packet(input_path: Path) -> str:
     if not input_path.exists():
         raise FileNotFoundError(f"Review input not found: {input_path}")
 
-    data_by_path = _load_review_data(input_path)
     validation_result = _validate_input(input_path)
+    data_by_path = _load_review_data(input_path) if validation_result.ok else {}
 
     lines: list[str] = ["# NASP curation review packet", ""]
     lines.extend(_format_validation_summary(validation_result))
@@ -80,9 +79,8 @@ def _load_review_data(
     data_by_path: dict[Path, dict[str, Any]] = {}
     for path in paths:
         if (
-            path.name.endswith(".gold.md")
-            or path.suffix not in reviewable_suffixes
-        ):
+            input_path.is_dir() and path.name.endswith(".gold.md")
+        ) or path.suffix not in reviewable_suffixes:
             continue
         data = yaml.safe_load(path.read_text())
         if isinstance(data, dict):
@@ -91,15 +89,11 @@ def _load_review_data(
 
 
 def _validate_input(input_path: Path) -> validate_compendium.ValidationResult:
-    """Run existing directory validation for a file or directory input."""
+    """Validate the exact input without relying on filename conventions."""
     if input_path.is_dir():
         return validate_compendium.validate_directory(input_path)
 
-    with tempfile.TemporaryDirectory() as temporary_directory:
-        temporary_path = Path(temporary_directory)
-        copied_path = temporary_path / input_path.name
-        copied_path.write_text(input_path.read_text())
-        return validate_compendium.validate_directory(temporary_path)
+    return validate_compendium.validate_file(input_path)
 
 
 def _format_validation_summary(

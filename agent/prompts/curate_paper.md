@@ -1,43 +1,52 @@
+# Extract one paper
 
-# Curate a Paper Into the NASP Compendium
+Inputs: paper PDF, paper ID, and any available supplementary PDFs.
+Read `agent/extraction_contract.md` and `agent/vocabulary.yaml`.
+Do not read golds, previous extractions, audit answers or calibration reports
+when producing a fresh extraction. No renderer source-code reading is required.
 
-See `agent/prompts/_shared.md` for the Read-first set.
+1. Prepare a new ignored run:
 
-Task:
-- Curate one paper from its PDF in `data/literature/`.
-- Before drafting edges, scan relevant curated files in `docs/compendium/` for
-  style and chain organization, and use them as the format template.
-- Produce a `paper` block and an `edges` list following `agent/conventions.md`.
-  That is the whole output format; there is no claims, adjudication, or
-  entity-resolution layer.
-- The rules for what becomes a node, what stays in `context`, which
-  relationship and evidence-strength verb to use, and how to organize chains
-  all live in `agent/conventions.md`. Apply them; do not restate them here.
-  `agent/curation_lessons.md` covers the recurring judgment failures to watch
-  for. The reminders below are the ones worth repeating at drafting time:
-  - Recover graph-useful branch edges (in vivo outcomes, cohort/correlation
-    arms, cell-state transitions, specificity controls), not just the spine.
-  - Preserve directly supported intermediates; do not write shortcut edges that
-    collapse a supported chain. Route organismal phenotypes through tissue-level
-    outcomes rather than a direct `gene -> organismal_phenotype` edge.
-  - Include negative and specificity findings as explicit
-    `does_not_correlate` / `does_not_drive` edges.
-  - Assign `evidence_strength` edge-by-edge from the actual experiment, not
-    copied from the assay type.
-  - Canonicalize every node name against the existing compendium and
-    `agent/vocabulary.yaml` before drafting; if a canonical synonym exists, use
-    it. New terms surface as validation warnings for later human review.
-  - Put reagent, dose, tissue, cell line, timing, and perturbation details in
-    `context`; give every edge an exact `support` (figure/extended-data panel).
+   ```sh
+   compendium prepare_paper data/literature/PAPER.pdf \
+     --paper-id author_2026 --run-dir agent/reports/curation_runs/RUN \
+     --supplement data/literature/SUPPLEMENT.pdf
+   ```
 
-Output:
-- Write the draft curation (a `paper` block + `edges` list) to
-  `agent/reports/curation_runs/`.
-- Write any uncertainty notes or curation concerns to `agent/reports/audits/`.
-- If asked to update the compendium, add or edit the relevant file in `docs/compendium/`.
+   Omit `--supplement` when unavailable. Inspect `run.json`, indexed page text
+   and sparse-text pages. Check the PDF title/version and whether cited
+   supplementary material is present. Missing material is a visible limitation.
 
-Checks:
-- See `agent/prompts/_shared.md`.
-- Run the exact-draft review gate before presenting the draft as ready. Only
-  validate `docs/compendium/` after a file there has actually been added or
-  changed.
+2. Read source-first. Identify central experiments, resolved intermediates,
+   branches and relevant controls before naming nodes. Inspect decisive figures
+   with `compendium render_page PDF PAGE --out RUN/page-N.png`. Keep concise
+   working findings and unresolved interpretations in `RUN/notes.md`; no
+   exhaustive figure presentation or second claims schema is required.
+
+3. Write `RUN/draft.md` using the contract. For each edge check the actual
+   intervention/readout, direction, evidence, context and page/panel locator.
+   Revisit Results once for omitted core findings. Background continuity and
+   associations must be distinguished from paper-established mechanisms.
+
+4. Run the exact draft gate, fix blockers, then freeze the evidence review:
+
+   ```sh
+   compendium review_packet RUN/draft.md --out RUN/packet.md --gate
+   compendium review_paper RUN RUN/draft.md --supplements complete \
+     --notes-file RUN/notes.md --model OBSERVED_MODEL
+   ```
+
+   Set supplements to `missing` with specifics or `not_applicable` when checked.
+   For no in-scope findings, explain why in notes and use `review_paper
+   --no-findings`; it performs the exact gate with that explicit disposition.
+   Record only observable model/settings/time/cost; do not invent telemetry.
+
+5. Inspect the generated `reviews/review-NNNN/review.html`: select claims,
+   follow page evidence, check signs and inferred/association controls, and
+   inspect the proposed collective graph and text diff. Repair the working
+   draft and rerun; prior review revisions remain frozen.
+
+Hand off the latest review link, scientific uncertainties and proposed changes.
+Human approval is required for promotion into `docs/compendium/`; never commit.
+For an approved promotion, copy the reviewed record, validate the collection,
+show `compendium diff` and render the updated graph. Keep source assets local.

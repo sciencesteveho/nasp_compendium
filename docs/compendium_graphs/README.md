@@ -9,10 +9,16 @@ compendium render_mermaid_graphs \
   --output-dir docs/compendium_graphs
 ```
 
-`all_literature_graph.mermaid` combines every source file. The remaining
-`.mermaid` files correspond one-to-one with compendium files; held-out inputs
-retain `.gold` in the generated filename so they cannot overwrite a regular
-paper graph with the same stem.
+`all_literature_graph.mermaid` combines accepted records only. Ordinary graph
+generation excludes `.gold.md` references, forbidden shortcuts and excluded
+claims. The current accepted collection contains Gulen; candidate records
+enter it only after scientific approval. Per-paper files use the same rule.
+
+Earlier graph snapshots included evaluation references. They are preserved in
+[the refactor archive](../../agent/archive/pre_refactor_20261007/compendium_graphs/)
+and are not current collective-graph assertions. The
+[reference audit](../gold_review/20261007_audit.md) provides proposed corrections
+with interactive evidence reviews.
 
 Node fill and border colors preserve entity classes. Edge color preserves the
 relationship class, while solid, dashed, and dotted lines preserve evidence

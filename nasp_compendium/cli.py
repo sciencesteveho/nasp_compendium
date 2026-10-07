@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import argparse
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 import graphviz  # type: ignore
 
 from nasp_compendium import diff_compendium
+from nasp_compendium import paper_review
+from nasp_compendium import paper_sources
 from nasp_compendium import regenerate as regenerate_module
 from nasp_compendium import render_docs as render_docs_module
 from nasp_compendium import review_packet
@@ -23,16 +25,10 @@ COMPENDIUM_DIR: Path = (
     Path(__file__).resolve().parent.parent / "docs" / "compendium"
 )
 
-MARKER_DOCS_DIR: Path = (
-    Path(__file__).resolve().parent.parent / "docs" / "marker_genes"
-)
 
-MERMAID_GRAPH_DIR: Path = (
-    Path(__file__).resolve().parent.parent / "docs" / "compendium_graphs"
-)
-
-
-def _build_parser() -> argparse.ArgumentParser:
+def _build_parser(
+    handlers: Mapping[str, Callable[[argparse.Namespace], None]],
+) -> argparse.ArgumentParser:
     """Build the top-level parser with one subparser per subcommand."""
     parser = argparse.ArgumentParser(
         prog="compendium",
@@ -50,8 +46,82 @@ def _build_parser() -> argparse.ArgumentParser:
     _add_regenerate_parser(subparsers)
     _add_review_packet_parser(subparsers)
     _add_score_parser(subparsers)
+    _add_extraction_parsers(subparsers)
+    for name, subparser in subparsers.choices.items():
+        subparser.set_defaults(func=handlers[name])
 
     return parser
+
+
+def _add_extraction_parsers(subparsers: argparse._SubParsersAction) -> None:
+    """Expose the local source, figure and exact-draft review workflow."""
+    prepare = subparsers.add_parser(
+        "prepare_paper",
+        help="Index a PDF and supplements into a new local extraction run.",
+    )
+    prepare.add_argument("pdf", type=Path)
+    prepare.add_argument("--run-dir", type=Path, required=True)
+    prepare.add_argument("--paper-id", required=True)
+    prepare.add_argument("--supplement", type=Path, action="append", default=[])
+    page = subparsers.add_parser(
+        "render_page", help="Render a one-based PDF page to inspect a figure."
+    )
+    page.add_argument("pdf", type=Path)
+    page.add_argument("page", type=int)
+    page.add_argument("--out", type=Path, required=True)
+    review = subparsers.add_parser(
+        "review_paper",
+        help="Validate, freeze and visualize a source-linked draft.",
+    )
+    review.add_argument("run_dir", type=Path)
+    review.add_argument("draft", type=Path)
+    review.add_argument("--compendium-path", type=Path, default=COMPENDIUM_DIR)
+    review.add_argument(
+        "--supplements",
+        choices=("complete", "missing", "not_applicable"),
+        required=True,
+    )
+    review.add_argument("--notes-file", type=Path)
+    review.add_argument("--no-findings", action="store_true")
+    review.add_argument("--model", default="unrecorded")
+
+
+def _run_prepare_paper(args: argparse.Namespace) -> None:
+    """Prepare a new run and hash the current extraction instructions."""
+    agent_dir = Path(__file__).resolve().parent.parent / "agent"
+    print(
+        paper_sources.prepare_paper(
+            args.pdf,
+            args.run_dir,
+            supplements=args.supplement,
+            paper_id=args.paper_id,
+            instruction_paths=[
+                agent_dir / "prompts" / "curate_paper.md",
+                agent_dir / "extraction_contract.md",
+                agent_dir / "vocabulary.yaml",
+            ],
+        )
+    )
+
+
+def _run_render_page(args: argparse.Namespace) -> None:
+    """Write a page image without overwriting an earlier inspection."""
+    print(paper_sources.render_source_page(args.pdf, args.page, args.out))
+
+
+def _run_review_paper(args: argparse.Namespace) -> None:
+    """Freeze an exact draft and its evidence for scientific review."""
+    print(
+        paper_review.review_paper(
+            args.run_dir,
+            args.draft,
+            compendium_dir=args.compendium_path,
+            supplement_coverage=args.supplements,
+            notes=args.notes_file.read_text() if args.notes_file else "",
+            no_findings=args.no_findings,
+            model=args.model,
+        )
+    )
 
 
 def _add_render_graph_parser(
@@ -69,7 +139,7 @@ def _add_render_graph_parser(
         type=Path,
         help=(
             "Path to the directory of per-paper compendium Markdown files "
-            f"(default: {COMPENDIUM_DIR}; includes .gold.md files)."
+            f"(default: {COMPENDIUM_DIR}; excludes .gold.md references)."
         ),
     )
     render_graph_parser.add_argument(
@@ -118,7 +188,7 @@ def _add_render_paper_graphs_parser(
         type=Path,
         help=(
             "Path to the directory of per-paper compendium Markdown files "
-            f"(default: {COMPENDIUM_DIR}; includes .gold.md files)."
+            f"(default: {COMPENDIUM_DIR}; excludes .gold.md references)."
         ),
     )
     parser.add_argument(
@@ -192,6 +262,9 @@ def _add_render_mermaid_graphs_parser(
     subparsers: argparse._SubParsersAction,
 ) -> None:
     """Register the `render_mermaid_graphs` subcommand."""
+    graph_dir = (
+        Path(__file__).resolve().parent.parent / "docs/compendium_graphs"
+    )
     parser = subparsers.add_parser(
         "render_mermaid_graphs",
         help="Write combined and per-paper Mermaid flowchart sources.",
@@ -202,17 +275,14 @@ def _add_render_mermaid_graphs_parser(
         type=Path,
         help=(
             "Path to the directory of per-paper compendium Markdown files "
-            f"(default: {COMPENDIUM_DIR}; includes .gold.md files)."
+            f"(default: {COMPENDIUM_DIR}; excludes .gold.md references)."
         ),
     )
     parser.add_argument(
         "--output-dir",
-        default=MERMAID_GRAPH_DIR,
+        default=graph_dir,
         type=Path,
-        help=(
-            "Directory for generated Mermaid files "
-            f"(default: {MERMAID_GRAPH_DIR})."
-        ),
+        help=(f"Directory for generated Mermaid files (default: {graph_dir})."),
     )
     parser.add_argument(
         "--rankdir",
@@ -331,6 +401,9 @@ def _add_regenerate_parser(
     subparsers: argparse._SubParsersAction,
 ) -> None:
     """Register the `regenerate` subcommand."""
+    marker_docs_dir = (
+        Path(__file__).resolve().parent.parent / "docs/marker_genes"
+    )
     regenerate_parser = subparsers.add_parser(
         "regenerate",
         help="Render marker-gene docs and module figures in one pass.",
@@ -343,10 +416,10 @@ def _add_regenerate_parser(
     )
     regenerate_parser.add_argument(
         "--docs-dir",
-        default=MARKER_DOCS_DIR,
+        default=marker_docs_dir,
         type=Path,
         help="Directory to write docs and assets into "
-        f"(default: {MARKER_DOCS_DIR}).",
+        f"(default: {marker_docs_dir}).",
     )
 
 
@@ -455,7 +528,7 @@ def _load_compendium(
 
 def _run_render_graph(args: argparse.Namespace) -> None:
     """Dispatch the `render_graph` subcommand."""
-    compendium = _load_compendium(args.compendium_path, include_gold=True)
+    compendium = _load_compendium(args.compendium_path)
     compendium = compendium.filtered(
         paper_ids=_parse_csv_values(args.paper_ids),
         excluded_rels=_parse_rel_values(args.excluded_rels),
@@ -464,20 +537,16 @@ def _run_render_graph(args: argparse.Namespace) -> None:
         args.output_stem,
         args.output_format,
     )
-    try:
-        summarize_compendium.render(
-            compendium,
-            output_stem=output_stem,
-            output_format=output_format,
-            rankdir=args.rankdir,
-            layout_engine=args.layout_engine,
-            annotate_papers=args.annotate_papers,
-            aggregate_edges=args.aggregate_edges,
-            compact=args.compact,
-        )
-    except graphviz.ExecutableNotFound:
-        _print_graphviz_missing_executable()
-        sys.exit(1)
+    summarize_compendium.render(
+        compendium,
+        output_stem=output_stem,
+        output_format=output_format,
+        rankdir=args.rankdir,
+        layout_engine=args.layout_engine,
+        annotate_papers=args.annotate_papers,
+        aggregate_edges=args.aggregate_edges,
+        compact=args.compact,
+    )
 
 
 def _run_render_paper_graphs(args: argparse.Namespace) -> None:
@@ -487,36 +556,36 @@ def _run_render_paper_graphs(args: argparse.Namespace) -> None:
         raise FileNotFoundError(
             f"Compendium directory not found: {compendium_path}"
         )
-    compendium_paths = sorted(compendium_path.glob("*.md"))
+    compendium_paths = [
+        path
+        for path in sorted(compendium_path.glob("*.md"))
+        if not path.name.endswith(".gold.md")
+    ]
     if not compendium_paths:
         raise FileNotFoundError(
             f"No compendium Markdown files found in: {compendium_path}"
         )
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    try:
-        for compendium_path in compendium_paths:
-            papers, edges = summarize_compendium.parse_md(compendium_path)
-            compendium = summarize_compendium.Compendium(
-                papers=papers,
-                edges=edges,
-            ).filtered(
-                excluded_rels=_parse_rel_values(args.excluded_rels),
-            )
-            output_name = compendium_path.name.removesuffix(".md")
-            summarize_compendium.render(
-                compendium,
-                output_stem=args.output_dir / output_name,
-                output_format=args.output_format,
-                rankdir=args.rankdir,
-                layout_engine=args.layout_engine,
-                annotate_papers=args.annotate_papers,
-                aggregate_edges=args.aggregate_edges,
-                compact=args.compact,
-            )
-    except graphviz.ExecutableNotFound:
-        _print_graphviz_missing_executable()
-        sys.exit(1)
+    for compendium_path in compendium_paths:
+        papers, edges = summarize_compendium.parse_md(compendium_path)
+        compendium = summarize_compendium.Compendium(
+            papers=papers,
+            edges=edges,
+        ).filtered(
+            excluded_rels=_parse_rel_values(args.excluded_rels),
+        )
+        output_name = compendium_path.name.removesuffix(".md")
+        summarize_compendium.render(
+            compendium,
+            output_stem=args.output_dir / output_name,
+            output_format=args.output_format,
+            rankdir=args.rankdir,
+            layout_engine=args.layout_engine,
+            annotate_papers=args.annotate_papers,
+            aggregate_edges=args.aggregate_edges,
+            compact=args.compact,
+        )
 
     print(
         f"  Rendered {len(compendium_paths)} per-paper graph(s) "
@@ -555,7 +624,8 @@ def _run_validate(args: argparse.Namespace) -> None:
     directory = args.directory or COMPENDIUM_DIR
     result = validate_compendium.validate_directory(directory)
     validate_compendium.print_result(result, strict=args.strict)
-    sys.exit(result.exit_code(strict=args.strict))
+    if result.exit_code(strict=args.strict):
+        raise ValueError("Compendium validation blocked this operation.")
 
 
 def _run_diff(args: argparse.Namespace) -> None:
@@ -576,7 +646,7 @@ def _run_review_packet(args: argparse.Namespace) -> None:
             print(f"  Pre-freeze gate blocked by {len(blockers)} issue(s).")
             for blocker in blockers[:20]:
                 print(f"    - {blocker}")
-            sys.exit(1)
+            raise ValueError("Draft review blocked; fix the reported errors.")
 
 
 def _run_score(args: argparse.Namespace) -> None:
@@ -664,12 +734,18 @@ def main() -> None:
         "regenerate": _run_regenerate,
         "review_packet": _run_review_packet,
         "score": _run_score,
+        "prepare_paper": _run_prepare_paper,
+        "render_page": _run_render_page,
+        "review_paper": _run_review_paper,
     }
-    parser = _build_parser()
+    parser = _build_parser(dispatch)
     args = parser.parse_args()
     try:
-        dispatch[args.command](args)
-    except FileNotFoundError as exc:
+        args.func(args)
+    except graphviz.ExecutableNotFound:
+        _print_graphviz_missing_executable()
+        sys.exit(1)
+    except (FileNotFoundError, FileExistsError, ValueError, ImportError) as exc:
         print(f"  {exc}")
         sys.exit(1)
 

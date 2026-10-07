@@ -17,10 +17,6 @@ from nasp_compendium.vocab_tiers import load_vocabulary
 from nasp_compendium.vocab_tiers import validate_draft_terms
 
 
-VOCABULARY_PATH: Path = (
-    Path(__file__).resolve().parent.parent / "agent" / "vocabulary.yaml"
-)
-
 VOCABULARY_FIELDS: tuple[str, ...] = (
     "nucleic_acid_sensors",
     "pathways",
@@ -74,19 +70,19 @@ class ValidationResult:
         return 1 if self.errors or (strict and self.warnings) else 0
 
 
-def validate_directory(directory: Path) -> ValidationResult:
+def validate_directory(
+    directory: Path, *, vocabulary_path: Path | None = None
+) -> ValidationResult:
     """Validate every Markdown compendium file in `directory`.
 
     Args:
       directory: Directory containing per-paper YAML-in-Markdown files.
+      vocabulary_path: Reviewed vocabulary; defaults to the repository copy.
 
     Returns:
       ValidationResult containing hard errors and warnings.
     """
     errors: list[ValidationIssue] = []
-    warnings: list[ValidationIssue] = []
-    data_by_path: dict[Path, dict[str, Any]] = {}
-
     if not directory.exists() or not directory.is_dir():
         errors.append(
             ValidationIssue(
@@ -94,21 +90,74 @@ def validate_directory(directory: Path) -> ValidationResult:
                 f"Compendium directory not found: {directory}",
             )
         )
-        return ValidationResult(errors=errors, warnings=warnings)
+        return ValidationResult(errors=errors, warnings=[])
+    return _validate_paths(
+        [
+            path
+            for path in sorted(directory.glob("*.md"))
+            if not path.name.endswith(".gold.md")
+        ],
+        vocabulary_path=vocabulary_path,
+    )
 
-    for path in sorted(directory.glob("*.md")):
-        if path.name.endswith(".gold.md"):
-            continue
+
+def validate_file(
+    path: Path,
+    *,
+    allow_empty_edges: bool = False,
+    vocabulary_path: Path | None = None,
+) -> ValidationResult:
+    """Validate exactly this file, including explicitly supplied gold files.
+
+    Empty edges are accepted only for an intentional no-findings disposition
+    handled by the extraction workflow. A populated paper record is mandatory.
+    """
+    return _validate_paths(
+        [path],
+        allow_empty_edges=allow_empty_edges,
+        vocabulary_path=vocabulary_path,
+    )
+
+
+def _validate_paths(
+    paths: list[Path],
+    *,
+    allow_empty_edges: bool = False,
+    vocabulary_path: Path | None = None,
+) -> ValidationResult:
+    """Validate loaded records with one vocabulary and isolated declarations."""
+    errors: list[ValidationIssue] = []
+    warnings: list[ValidationIssue] = []
+    data_by_path: dict[Path, dict[str, Any]] = {}
+    if not paths:
+        errors.append(ValidationIssue(Path("."), "No compendium files found."))
+    for path in paths:
         data = _load_yaml_file(path, errors)
         if data is not None:
             data_by_path[path] = data
 
-    vocabulary = _load_vocabulary(errors, warnings)
+    vocabulary = _load_vocabulary(errors, path=vocabulary_path)
     declared_entities = _declared_entities(data_by_path.values())
     seen_edges: dict[tuple[str, str, str, tuple[str, ...]], Path] = {}
+    seen_papers: set[str] = set()
 
     for path, data in data_by_path.items():
         _validate_file_shape(path, data, errors)
+        paper_ids = (
+            set(data["paper"]) if isinstance(data.get("paper"), dict) else set()
+        )
+        for paper_id in seen_papers & paper_ids:
+            errors.append(
+                ValidationIssue(path, f"Duplicate paper ID: {paper_id}.")
+            )
+        seen_papers.update(paper_ids)
+        if data.get("edges") == [] and not allow_empty_edges:
+            errors.append(
+                ValidationIssue(
+                    path,
+                    "Empty edges require an explicit no-findings disposition.",
+                )
+            )
         if vocabulary is not None:
             _validate_tiered_vocabulary(
                 path,
@@ -125,6 +174,7 @@ def validate_directory(directory: Path) -> ValidationResult:
             seen_edges,
             errors,
             warnings,
+            paper_ids=paper_ids,
         )
 
     _warn_skip_edges(data_by_path, warnings)
@@ -159,6 +209,9 @@ def _load_yaml_file(
     """Load a compendium file as YAML and enforce top-level mapping shape."""
     try:
         data = yaml.safe_load(path.read_text())
+    except OSError as exc:
+        errors.append(ValidationIssue(path, f"Cannot read file: {exc}"))
+        return None
     except yaml.YAMLError as exc:
         errors.append(
             ValidationIssue(path, f"Cannot parse YAML: {exc.problem or exc}")  # type: ignore
@@ -182,6 +235,47 @@ def _validate_file_shape(
         errors.append(ValidationIssue(path, "Missing 'paper'."))
     elif not isinstance(data["paper"], dict):
         errors.append(ValidationIssue(path, "'paper' is not a mapping."))
+    else:
+        if not data["paper"]:
+            errors.append(ValidationIssue(path, "'paper' must not be empty."))
+        for paper_id, paper in data["paper"].items():
+            if not isinstance(paper_id, str) or not paper_id.strip():
+                errors.append(
+                    ValidationIssue(
+                        path, "Paper IDs must be non-empty strings."
+                    )
+                )
+            if not isinstance(paper, dict):
+                errors.append(
+                    ValidationIssue(
+                        path, f"Paper {paper_id!r} is not a mapping."
+                    )
+                )
+                continue
+            for field in ("cite", "url", "summary"):
+                if (
+                    not isinstance(paper.get(field), str)
+                    or not paper[field].strip()
+                ):
+                    errors.append(
+                        ValidationIssue(
+                            path,
+                            f"Paper {paper_id!r} needs non-empty '{field}'.",
+                        )
+                    )
+            for field in ENTITY_FIELDS:
+                values = paper.get(field, [])
+                if not isinstance(values, list) or any(
+                    not isinstance(value, str) or not value.strip()
+                    for value in values
+                ):
+                    errors.append(
+                        ValidationIssue(
+                            path,
+                            f"Paper {paper_id!r} '{field}' "
+                            "must be a list of strings.",
+                        )
+                    )
 
     if "edges" not in data:
         errors.append(ValidationIssue(path, "Missing 'edges'."))
@@ -191,30 +285,30 @@ def _validate_file_shape(
 
 def _load_vocabulary(
     errors: list[ValidationIssue],
-    warnings: list[ValidationIssue],
+    *,
+    path: Path | None,
 ) -> Vocabulary | None:
     """Load tiered vocabulary from the package YAML file.
 
-    A missing vocabulary file is a non-fatal warning: tiered-vocabulary
-    checks are skipped, but edge/topology validation still runs. A present
-    but unreadable or malformed file remains a hard error, as does a file
-    missing a canonical field.
+    Missing, malformed, or incomplete vocabulary is a blocking error.
     """
-    if not VOCABULARY_PATH.exists():
-        warnings.append(
+    path = (
+        path or Path(__file__).resolve().parent.parent / "agent/vocabulary.yaml"
+    )
+    if not path.exists():
+        errors.append(
             ValidationIssue(
-                VOCABULARY_PATH,
-                "vocabulary.yaml not found; skipping tiered-vocabulary "
-                "checks. Run agent/build_vocabulary.py to generate it.",
+                path,
+                "vocabulary.yaml not found; restore the reviewed vocabulary.",
             )
         )
         return None
     try:
-        vocabulary = load_vocabulary(VOCABULARY_PATH)
-    except OSError as exc:
+        vocabulary = load_vocabulary(path)
+    except (OSError, ValueError) as exc:
         errors.append(
             ValidationIssue(
-                VOCABULARY_PATH,
+                path,
                 f"Cannot read vocabulary.yaml: {exc}",
             )
         )
@@ -222,7 +316,7 @@ def _load_vocabulary(
     except yaml.YAMLError as exc:
         errors.append(
             ValidationIssue(
-                VOCABULARY_PATH,
+                path,
                 f"Cannot parse vocabulary.yaml: {exc.problem or exc}",  # type: ignore
             )
         )
@@ -230,7 +324,7 @@ def _load_vocabulary(
 
     errors.extend(
         ValidationIssue(
-            VOCABULARY_PATH,
+            path,
             f"vocabulary.yaml canonical field {field!r} is missing.",
         )
         for field in VOCABULARY_FIELDS
@@ -248,7 +342,11 @@ def _validate_tiered_vocabulary(
     warnings: list[ValidationIssue],
 ) -> None:
     """Classify paper entries and edge endpoints through the tiered gate."""
-    proposed_terms = load_proposed_terms(data)
+    try:
+        proposed_terms = load_proposed_terms(data)
+    except ValueError as exc:
+        errors.append(ValidationIssue(path, str(exc)))
+        proposed_terms = set()
     controlled_terms = _controlled_paper_terms(data)
     endpoint_terms = _edge_endpoint_terms(data.get("edges"))
 
@@ -332,6 +430,7 @@ def _validate_edges(
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
     *,
+    paper_ids: set[str],
     required_edge_fields: tuple[str, ...] = (
         "chain_id",
         "step",
@@ -361,6 +460,16 @@ def _validate_edges(
                 )
 
         _validate_edge_values(path, label, edge, errors, warnings)
+        papers = edge.get("papers")
+        if isinstance(papers, list):
+            for paper in papers:
+                if isinstance(paper, str) and paper not in paper_ids:
+                    errors.append(
+                        ValidationIssue(
+                            path,
+                            f"{label} references undeclared paper {paper!r}.",
+                        )
+                    )
         _warn_undeclared_entities(
             path, label, edge, declared_entities, warnings
         )
@@ -508,16 +617,37 @@ def _validate_edge_values(
     errors: list[ValidationIssue],
     warnings: list[ValidationIssue],
 ) -> None:
-    """Validate controlled edge values and empty context/support warnings."""
+    """Validate required edge values without coercing invalid types."""
+    for field in (
+        "chain_id",
+        "source",
+        "target",
+        "rel",
+        "evidence_strength",
+        "context",
+        "support",
+    ):
+        value = edge.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(
+                ValidationIssue(
+                    path, f"{label} '{field}' must be a non-empty string."
+                )
+            )
+    step = edge.get("step")
+    if not isinstance(step, int) or isinstance(step, bool) or step < 1:
+        errors.append(
+            ValidationIssue(path, f"{label} 'step' must be a positive integer.")
+        )
     rel = edge.get("rel")
-    if rel is not None and rel not in REL_COLOR:
+    if isinstance(rel, str) and rel not in REL_COLOR:
         errors.append(
             ValidationIssue(path, f"{label} has unknown rel: {rel!r}.")
         )
 
     evidence_strength = edge.get("evidence_strength")
     if (
-        evidence_strength is not None
+        isinstance(evidence_strength, str)
         and evidence_strength not in EVIDENCE_STYLES
     ):
         errors.append(
@@ -529,20 +659,19 @@ def _validate_edge_values(
         )
 
     papers = edge.get("papers")
-    if papers is not None and (not isinstance(papers, list) or not papers):
+    if (
+        not isinstance(papers, list)
+        or not papers
+        or any(
+            not isinstance(paper, str) or not paper.strip() for paper in papers
+        )
+    ):
         errors.append(
             ValidationIssue(
                 path,
                 f"{label} has 'papers' that is not a non-empty list.",
             )
         )
-
-    for field in ("context", "support"):
-        value = edge.get(field)
-        if value is not None and not str(value).strip():
-            warnings.append(
-                ValidationIssue(path, f"{label} has empty {field}.")
-            )
 
     for endpoint in ("source", "target"):
         node = edge.get(endpoint)

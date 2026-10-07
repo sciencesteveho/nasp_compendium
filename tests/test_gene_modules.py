@@ -217,6 +217,67 @@ def test_render_index_embeds_overlap_heatmap() -> None:
     ) in markdown
 
 
+def _write_docs_panel(path: Path) -> None:
+    """Write a marker panel with every column the docs renderer requires."""
+    header = (
+        "gene_symbol\tmodule_id\tmodule_class\tsensor_family\tactivation_tier"
+        "\tscoring_direction\tcell_type_breadth\tdetectability\talso_in_module"
+        "\tdoi\taliases\tsensor\tpanel_source"
+    )
+    rows = [
+        ("CDKN1A", "AGING_HALLMARKS", "senescence_marker", ""),
+        ("AIM2", "INFLAMMASOME", "inflammasome_sensor", "dna_sensor"),
+        ("NLRP3", "INFLAMMASOME", "inflammasome_sensor", "inflammasome_sensor"),
+        ("CGAS", "NASP_DNA_SENSING", "dna_sensing_core", "dna_sensor"),
+        ("DDX58", "NASP_RNA_SENSING", "rna_sensing_core", "rna_sensor"),
+    ]
+    lines = [
+        f"{gene}\t{module}\t{module_class}\t\tEarly\tpositive\tBroad\tlow\t\t\t"
+        f"\t{sensor}\t"
+        for gene, module, module_class, sensor in rows
+    ]
+    path.write_text("\n".join([header, *lines]) + "\n")
+
+
+def test_render_docs_lists_na_sensor_page_first(tmp_path: Path) -> None:
+    """The docs index links the All NA sensors page ahead of every module."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_docs_panel(panel_path)
+    docs_dir = tmp_path / "docs"
+
+    render_docs.render_docs(panel_path, docs_dir)
+
+    index = (docs_dir / "index.md").read_text()
+    first_link = next(
+        line for line in index.splitlines() if line.startswith("- [")
+    )
+    label, target = first_link.removeprefix("- [").removesuffix(")").split("](")
+    assert label == "All NA sensors"
+    assert (docs_dir / target).read_text().startswith("# All NA sensors\n")
+
+
+def test_na_sensor_page_lists_only_dna_and_rna_sensors(tmp_path: Path) -> None:
+    """The All NA sensors page spans modules and omits non-NA sensors."""
+    panel_path = tmp_path / "marker_genes.tsv"
+    _write_docs_panel(panel_path)
+    docs_dir = tmp_path / "docs"
+
+    render_docs.render_docs(panel_path, docs_dir)
+
+    sensor_page = next(
+        page.read_text()
+        for page in docs_dir.glob("*.md")
+        if page.read_text().startswith("# All NA sensors\n")
+    )
+    table_rows = [
+        line
+        for line in sensor_page.splitlines()
+        if line.startswith("| ") and not line.startswith(("| Gene ", "| --- "))
+    ]
+    listed_genes = {row.split("|")[1].strip() for row in table_rows}
+    assert listed_genes == {"AIM2", "CGAS", "DDX58"}
+
+
 def test_modules_resolves_suffix_and_splits_signed_genes(
     tmp_path: Path,
 ) -> None:

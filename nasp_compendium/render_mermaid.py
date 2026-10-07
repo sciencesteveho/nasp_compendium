@@ -21,20 +21,6 @@ from nasp_compendium.summarize_compendium import node_entity_types
 from nasp_compendium.summarize_compendium import parse_md
 
 
-MERMAID_ARROW_BY_GRAPHVIZ: dict[str, str] = {
-    "normal": "-->",
-    "tee": "--x",
-    "odot": "--o",
-    "none": "---",
-    "diamond": "-->",
-}
-MERMAID_DASH_BY_EVIDENCE: dict[str, str | None] = {
-    "solid": None,
-    "dashed": "5 3",
-    "dotted": "2 3",
-}
-
-
 def render_mermaid(
     compendium: Compendium,
     *,
@@ -64,6 +50,7 @@ def render_mermaid(
             'Choose "LR" or "TB".'
         )
 
+    compendium = compendium.filtered()
     edges = (
         aggregate_duplicate_edges(compendium.edges)
         if aggregate_edges
@@ -161,7 +148,11 @@ def write_mermaid_graphs(
         raise FileNotFoundError(
             f"Compendium directory not found: {compendium_path}"
         )
-    input_paths = sorted(compendium_path.glob("*.md"))
+    input_paths = [
+        path
+        for path in sorted(compendium_path.glob("*.md"))
+        if not path.name.endswith(".gold.md")
+    ]
     if not input_paths:
         raise FileNotFoundError(
             f"No compendium Markdown files found in: {compendium_path}"
@@ -172,7 +163,7 @@ def write_mermaid_graphs(
         raise ValueError("Compendium filenames produce duplicate graph names.")
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    combined = Compendium.from_dir(compendium_path, include_gold=True)
+    combined = Compendium.from_dir(compendium_path)
     combined_path = output_dir / combined_name
     combined_path.write_text(
         render_mermaid(
@@ -216,7 +207,9 @@ def _escape_mermaid_label(label: str) -> str:
 def _mermaid_arrow(relationship: str) -> str:
     """Return the closest Mermaid arrow for `relationship`."""
     graphviz_arrow = REL_ARROWHEAD.get(relationship, DEFAULT_ARROWHEAD)
-    return MERMAID_ARROW_BY_GRAPHVIZ.get(graphviz_arrow, "-->")
+    return {"tee": "--x", "odot": "--o", "none": "---"}.get(
+        graphviz_arrow, "-->"
+    )
 
 
 def _mermaid_link_style(
@@ -231,7 +224,7 @@ def _mermaid_link_style(
         f"stroke:{color}",
         "stroke-width:1px",
     ]
-    if dash_pattern := MERMAID_DASH_BY_EVIDENCE.get(evidence_style):
+    if dash_pattern := {"dashed": "5 3", "dotted": "2 3"}.get(evidence_style):
         attributes.append(f"stroke-dasharray:{dash_pattern}")
     return f"  linkStyle {index} {','.join(attributes)};"
 

@@ -7,6 +7,7 @@ from types import MappingProxyType
 
 
 MODULE_NAME_DISPLAY: dict[str, str] = {
+    "ALL_NA_SENSORS": "All NA sensors",
     "CGAMP_TRANSPORT": "cGAMP transport",
     "ISR": "Integrated stress response",
     "NASP_DNA_SENSING": "DNA sensing",

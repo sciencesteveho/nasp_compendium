@@ -1,18 +1,12 @@
+# Audit a paper record
 
-# Audit One Compendium Paper
+Read the extraction contract and vocabulary. Prepare the source PDF and
+available supplements using the extraction workflow. Audit every edge's
+intervention, measured result, relationship, evidence and scope against the
+actual panels. Make a source-first pass for omitted central findings.
 
-See `agent/prompts/_shared.md` for the Read-first set (target: the file under audit in `docs/compendium/`).
-
-Task:
-- Audit one curated compendium file against the source PDF.
-- Check that every edge is supported, atomic, and uses canonical node names.
-- Check that negative findings are represented as explicit edges.
-- Check that edge `context` includes model, perturbation, dose, timing, cell type, and tissue details where relevant.
-- Check that `support` identifies exact figures or extended-data panels.
-
-Output:
-- Write the audit report to `agent/reports/audits/`.
-- If fixes are requested, keep edits narrow and avoid unrelated rewrites.
-
-Checks:
-- See `agent/prompts/_shared.md`.
+For each disputed item record keep/revise/remove/unresolved, a page/panel
+locator and a concise reason. Distinguish missing evidence from contradictory
+evidence. Write a candidate outside `docs/compendium/`, preserve the original,
+and run the exact gate and `review_paper` workflow. Show the original/candidate
+diff. Approval, not a passing validator, makes a reference authoritative.

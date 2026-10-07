@@ -1,0 +1,33 @@
+{
+  "created": "2026-09-28T18:37:16",
+  "script": "nasp_compendium/gene_essentiality.py",
+  "n_genes": 569,
+  "depmap_essentiality_counts": {
+    "not_common_essential": 502,
+    "common_essential": 62,
+    "not_screened": 5
+  },
+  "n_genes_with_shet": 564,
+  "inputs": {
+    "marker_genes": {
+      "path": "marker_genes.tsv",
+      "md5": "e7d93ac8e2154c8d933fbfa83f08d990"
+    },
+    "hgnc": {
+      "path": "essentiality/hgnc/hgnc_complete_set_2026-09-25.txt.gz",
+      "md5": "d418753c024e0ad44badfa2d5bee8f08"
+    },
+    "depmap_common_essentials": {
+      "path": "essentiality/depmap_26Q1/CRISPRInferredCommonEssentials.csv",
+      "md5": "f9b12f368abf7684fcd97af31e8a39a2"
+    },
+    "depmap_gene_effect": {
+      "path": "essentiality/depmap_26Q1/chronos_gene_effect_header.csv",
+      "md5": "09ca370c73b968aa5830589828719300"
+    },
+    "genebayes_shet": {
+      "path": "essentiality/genebayes/s_het_estimates.genebayes.tsv",
+      "md5": "a377c95fb1b785f740d8601905890f21"
+    }
+  }
+}

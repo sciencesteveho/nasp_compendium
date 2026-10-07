@@ -25,10 +25,6 @@ from nasp_compendium.style import REL_ARROWHEAD
 from nasp_compendium.style import REL_COLOR
 
 
-COMPENDIUM_DIR: Path = (
-    Path(__file__).resolve().parent.parent / "docs" / "compendium"
-)
-
 GRAPH_FONT: str = "Arial"
 GRAPH_FONT_SIZE: str = "5"
 COMPACT_NONCONSTRAINING_RELS: frozenset[str] = frozenset(
@@ -68,9 +64,7 @@ class Compendium:
         *,
         include_gold: bool = False,
     ) -> Compendium:
-        """Load every .md file in directory into one compendium. On collision
-        (same paper id appearing in more than one file), the alphabetically
-        last file wins.
+        """Load accepted files, rejecting colliding paper identities.
 
         Args:
           directory: Directory containing per-paper compendium files.
@@ -95,10 +89,16 @@ class Compendium:
             if md_path.name.endswith(".gold.md") and not include_gold:
                 continue
             file_papers, file_edges = parse_md(md_path)
+            if papers.keys() & file_papers.keys():
+                raise ValueError(
+                    f"Duplicate paper IDs in {md_path}: "
+                    f"{sorted(papers.keys() & file_papers.keys())}"
+                )
             papers |= file_papers
             edges.extend(file_edges)
 
-        return cls(papers=papers, edges=edges)
+        compendium = cls(papers=papers, edges=edges)
+        return compendium if include_gold else compendium.filtered()
 
     def filtered(
         self,
@@ -127,6 +127,8 @@ class Compendium:
 
         filtered_edges: list[dict[str, Any]] = []
         for edge in self.edges:
+            if not is_asserted_edge(edge):
+                continue
             if excluded_rels and str(edge.get("rel", "")) in excluded_rels:
                 continue
 
@@ -155,21 +157,35 @@ def parse_md(
 
     Returns:
       (papers, edges) where papers maps paper_id to metadata and edges is a list
-      of edge dicts. Either may be empty if its key is absent or the file is not
-      a compendium file.
+      of edge dicts. Malformed records raise instead of silently disappearing.
     """
-    try:
-        data = yaml.safe_load(path.read_text())
-    except yaml.YAMLError:
-        print(f"  Skipping {path.name}: not a YAML compendium file")
-        return {}, []
-    if not isinstance(data, dict) or (
-        "paper" not in data and "edges" not in data
+    data = yaml.safe_load(path.read_text())
+    if (
+        not isinstance(data, dict)
+        or not isinstance(data.get("paper"), dict)
+        or not isinstance(data.get("edges"), list)
     ):
-        return {}, []
-    papers = data.get("paper") or {}
-    edges = data.get("edges") or []
+        raise ValueError(
+            f"Invalid compendium record: {path}; "
+            "expected paper mapping and edges list."
+        )
+    papers = data["paper"]
+    edges = data["edges"]
+    if any(not isinstance(edge, dict) for edge in edges):
+        raise ValueError(f"Invalid edge record in {path}.")
     return papers, edges
+
+
+def is_asserted_edge(edge: dict[str, Any]) -> bool:
+    """Exclude evaluation counterexamples and withdrawn claims from graphs."""
+    return str(edge.get("status", "")).strip().lower() not in {
+        "excluded",
+        "forbidden_shortcut",
+    } and str(edge.get("score_exclude", "")).strip().lower() not in {
+        "true",
+        "yes",
+        "1",
+    }
 
 
 def format_citation(paper_id: str) -> str:
@@ -233,24 +249,32 @@ def aggregate_duplicate_edges(
 ) -> list[dict[str, Any]]:
     """Collapse render-equivalent edges into one edge with merged papers.
 
-    Edges are render-equivalent when they have the same source, target, and
-    relationship. The merged edge keeps the first edge's visual attributes and
-    combines paper citations in publication-year order.
+    Edges share a visual only when relationship and evidence strength agree.
+    Every original assertion survives in evidence_records; context and support
+    retain all distinct values. Inference never inherits an experimental style.
     """
-    by_key: dict[tuple[str, str, str], dict[str, Any]] = {}
-    order: list[tuple[str, str, str]] = []
+    by_key: dict[tuple[str, ...], dict[str, Any]] = {}
+    order: list[tuple[str, ...]] = []
 
     for edge in edges:
+        if not is_asserted_edge(edge):
+            continue
         key = (
             str(edge.get("source", "")),
             str(edge.get("target", "")),
             str(edge.get("rel", "")),
+            str(edge.get("evidence_strength", "")),
         )
         if key not in by_key:
             merged = dict(edge)
             merged["papers"] = []
+            merged["evidence_records"] = []
             by_key[key] = merged
             order.append(key)
+
+        by_key[key]["evidence_records"].extend(
+            edge.get("evidence_records", [dict(edge)])
+        )
 
         papers = by_key[key].setdefault("papers", [])
         for paper in edge.get("papers") or []:
@@ -265,6 +289,13 @@ def aggregate_duplicate_edges(
             edge.get("papers") or [],
             key=citation_sort_key,
         )
+        for field in ("context", "support"):
+            edge[field] = "\n".join(
+                dict.fromkeys(
+                    str(record.get(field, ""))
+                    for record in edge["evidence_records"]
+                )
+            )
         aggregated.append(edge)
 
     return aggregated
@@ -519,6 +550,7 @@ def render(
       graph_font_path: Graphviz font search path used for deterministic
         font resolution across platforms.
     """
+    compendium = compendium.filtered()
     if not compendium.edges:
         print("  No edges recorded. Add an 'edges:' block to a paper file.")
         return

@@ -1,9 +1,9 @@
 """Score curated NASP drafts against gold compendium files.
 
-The headline metric is core-tier endpoint recovery, with biologically
-equivalent gold representations collapsed into one recall unit. Relationship,
-polarity, and evidence agreement remain stricter diagnostics layered on the
-endpoint match.
+Core recovery requires endpoints, direction and relationship to agree, with
+equivalent reference representations collapsed into one recall unit. Endpoint
+overlap is diagnostic only. Evidence agreement is reported separately; none of
+these metrics establishes source-adjudicated biological precision.
 
 Matching normalizes node and relationship strings with the same
 `normalize_term` used by the vocabulary gate, so mechanical variants (case,
@@ -28,22 +28,6 @@ from nasp_compendium.vocab_tiers import normalize_term
 _CORRELATIVE_RELS: frozenset[str] = frozenset(
     {"correlates", "negatively_correlates", "does_not_correlate"}
 )
-
-_RELATION_POLARITY: dict[str, str] = {
-    "activates": "positive",
-    "causes": "positive",
-    "correlates": "positive",
-    "drives": "positive",
-    "induces": "positive",
-    "required_for": "positive",
-    "upregulates": "positive",
-    "downregulates": "negative",
-    "inhibits": "negative",
-    "negatively_correlates": "negative",
-    "suppresses": "negative",
-    "does_not_correlate": "absent",
-    "does_not_drive": "absent",
-}
 
 
 @dataclasses.dataclass(frozen=True)
@@ -329,17 +313,31 @@ def score_pair(
             scored_gold.append(edge)
 
     gold_edges = [edge.record for edge in scored_gold]
-    match = _match_edges(draft_edges, gold_edges)
-    extra, shortcut_violations = _split_shortcut_violations(
-        match.extra,
-        forbidden_edges,
+    # An exact asserted relationship takes precedence over an anti-edge. An
+    # endpoint-only match must not swallow a different forbidden relationship.
+    shortcut_candidates = [
+        edge
+        for edge in draft_edges
+        if not any(
+            _endpoints_match(gold, edge)[0]
+            and _relations_match(gold.rel, edge.rel)
+            for gold in gold_edges
+        )
+    ]
+    _, shortcut_violations = _split_shortcut_violations(
+        shortcut_candidates, forbidden_edges
+    )
+    forbidden_drafts = {pair.draft for pair in shortcut_violations}
+    match = _match_edges(
+        [edge for edge in draft_edges if edge not in forbidden_drafts],
+        gold_edges,
     )
     core_units, core_recovered, supporting_units, supporting_recovered = (
         _tier_units(scored_gold, match.recovered_gold_indices)
     )
     missed = _missed_after_equiv_collapse(
         scored_gold,
-        match.recovered_gold_indices,
+        match.paired_gold_indices,
     )
 
     return PaperScore(
@@ -356,7 +354,7 @@ def score_pair(
         evidence_mismatches=match.evidence_mismatches,
         symmetric_direction_differences=match.symmetric_direction_differences,
         missed=missed,
-        extra=extra,
+        extra=match.extra,
         excluded_gold_defects=excluded_gold_defects,
         core_units=core_units,
         core_recovered=core_recovered,
@@ -391,6 +389,7 @@ class _MatchResult:
     missed: list[EdgeRecord]
     extra: list[EdgeRecord]
     recovered_gold_indices: set[int]
+    paired_gold_indices: set[int]
 
 
 def _match_edges(
@@ -428,6 +427,7 @@ def _match_edges(
     symmetric_direction_differences: list[EdgeMismatch] = []
     triple_recovered = 0
     exact_recovered = 0
+    recovered_gold: set[int] = set()
 
     for _, gold_index, draft_index, reversed_direction in candidates:
         if gold_index in used_gold or draft_index in used_draft:
@@ -447,6 +447,7 @@ def _match_edges(
                 polarity_mismatches.append(mismatch)
             continue
         triple_recovered += 1
+        recovered_gold.add(gold_index)
         if gold_edge.evidence_strength == draft_edge.evidence_strength:
             exact_recovered += 1
         else:
@@ -470,7 +471,8 @@ def _match_edges(
         symmetric_direction_differences=symmetric_direction_differences,
         missed=missed,
         extra=extra,
-        recovered_gold_indices=set(used_gold),
+        recovered_gold_indices=recovered_gold,
+        paired_gold_indices=used_gold,
     )
 
 
@@ -526,17 +528,17 @@ def _split_shortcut_violations(
     forbidden_edges: list[_LoadedEdge],
 ) -> tuple[list[EdgeRecord], list[EdgeMismatch]]:
     """Split unmatched draft edges into extras and forbidden shortcuts."""
-    forbidden_by_endpoints: dict[tuple[str, str], EdgeRecord] = {}
+    forbidden_by_triple: dict[tuple[str, str, str], EdgeRecord] = {}
     for edge in forbidden_edges:
-        forbidden_by_endpoints.setdefault(
-            edge.record.norm_endpoints,
+        forbidden_by_triple.setdefault(
+            edge.record.norm_triple,
             edge.record,
         )
 
     remaining: list[EdgeRecord] = []
     violations: list[EdgeMismatch] = []
     for draft_edge in extra:
-        gold_edge = forbidden_by_endpoints.get(draft_edge.norm_endpoints)
+        gold_edge = forbidden_by_triple.get(draft_edge.norm_triple)
         if gold_edge is None:
             remaining.append(draft_edge)
         else:
@@ -590,8 +592,23 @@ def _relations_match(gold_rel: str, draft_rel: str) -> bool:
 
 def _is_polarity_mismatch(gold_rel: str, draft_rel: str) -> bool:
     """Return whether two controlled relations assert different polarities."""
-    gold_polarity = _RELATION_POLARITY.get(gold_rel)
-    draft_polarity = _RELATION_POLARITY.get(draft_rel)
+    polarity = {
+        "activates": "positive",
+        "causes": "positive",
+        "correlates": "positive",
+        "drives": "positive",
+        "induces": "positive",
+        "required_for": "positive",
+        "upregulates": "positive",
+        "downregulates": "negative",
+        "inhibits": "negative",
+        "negatively_correlates": "negative",
+        "suppresses": "negative",
+        "does_not_correlate": "absent",
+        "does_not_drive": "absent",
+    }
+    gold_polarity = polarity.get(gold_rel)
+    draft_polarity = polarity.get(draft_rel)
     return (
         gold_polarity is not None
         and draft_polarity is not None
@@ -608,6 +625,11 @@ def format_score_report(
 
     lines = [
         "# NASP compendium score",
+        "",
+        "Reference agreement only. Unmatched draft edges need source "
+        "adjudication; they are not automatically unsupported.",
+        "Core recovery requires the correct endpoints, direction and "
+        "relationship. Evidence agreement is reported separately.",
         "",
         (
             f"Core recall: {report.core_recovered_total}/"
@@ -760,7 +782,9 @@ def _loaded_edge(edge: dict[str, Any]) -> _LoadedEdge:
 
 
 def _edge_tier(edge: dict[str, Any]) -> str:
-    """Return an edge tier, defaulting absent or unknown values to core."""
+    """Keep background inference outside discovery recall denominators."""
+    if edge.get("evidence_strength") == "canonical_inferred":
+        return "supporting"
     tier = str(edge.get("tier", "")).strip().lower()
     return tier if tier in {"core", "supporting"} else "core"
 

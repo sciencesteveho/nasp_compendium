@@ -230,3 +230,71 @@ def test_default_directory_loading_still_excludes_gold_files(
     compendium = summarize_compendium.Compendium.from_dir(tmp_path)
 
     assert set(compendium.papers) == {"regular_2025"}
+
+
+def test_aggregation_preserves_per_paper_evidence() -> None:
+    """If aggregation drops evidence or upgrades inference, this fails."""
+    first = {
+        "source": "CGAS",
+        "target": "cGAMP",
+        "rel": "produces",
+        "evidence_strength": "direct_measured",
+        "papers": ["first_2025"],
+        "context": "Enzyme product measured in fibroblasts.",
+        "support": "main p. 2; Fig. 1",
+    }
+    second = first | {
+        "papers": ["second_2026"],
+        "context": "Enzyme product measured in macrophages.",
+        "support": "main p. 7; Fig. 4",
+    }
+    inferred = first | {
+        "papers": ["background_2026"],
+        "evidence_strength": "canonical_inferred",
+        "context": "Background continuity only.",
+        "support": "Introduction",
+    }
+
+    result = summarize_compendium.aggregate_duplicate_edges(
+        [first, second, inferred]
+    )
+
+    experimental = next(
+        edge
+        for edge in result
+        if edge["evidence_strength"] == "direct_measured"
+    )
+    assert set(experimental["papers"]) == {"first_2025", "second_2026"}
+    assert {
+        (record["papers"][0], record["context"], record["support"])
+        for record in experimental["evidence_records"]
+    } == {
+        ("first_2025", first["context"], first["support"]),
+        ("second_2026", second["context"], second["support"]),
+    }
+    assert any(
+        edge["papers"] == ["background_2026"]
+        and edge["evidence_strength"] == "canonical_inferred"
+        for edge in result
+    )
+    assert "evidence_records" not in first
+
+
+def test_graph_loading_removes_evaluation_counterexamples(
+    tmp_path: Path,
+) -> None:
+    """If rejected/reference-only claims become graph assertions, this fails."""
+    path = tmp_path / "accepted.md"
+    path.write_text(
+        "paper: {p: {genes: [A, B, C, D, E]}}\nedges:\n"
+        "- {source: A, target: B, rel: activates, papers: [p]}\n"
+        "- {source: A, target: C, status: ' forbidden_shortcut '}\n"
+        "- {source: A, target: D, status: excluded}\n"
+        "- {source: A, target: E, score_exclude: true}\n"
+    )
+
+    compendium = summarize_compendium.Compendium.from_dir(tmp_path)
+
+    assert {(edge["source"], edge["target"]) for edge in compendium.edges} == {
+        ("A", "B")
+    }

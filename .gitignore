@@ -58,6 +58,10 @@ development/
 data/literature/
 figures/
 
+# Agent skills stay local and are never tracked.
+.agents/skills/
+.claude/skills/
+
 # Agent generated artifacts. Keep calibration inputs/results reproducible while
 # leaving regenerable review packets and other working reports local.
 nasp_compendium.egg-info/

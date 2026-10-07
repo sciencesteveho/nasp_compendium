@@ -227,11 +227,27 @@ def load_vocabulary(path: Path) -> Vocabulary:
     """
     with path.open() as handle:
         raw = yaml.safe_load(handle) or {}
+    if not isinstance(raw, dict) or not isinstance(raw.get("canonical"), dict):
+        raise ValueError("Vocabulary needs a canonical mapping.")
     canonical_raw = raw.get("canonical", {}) or {}
+    for category, terms in canonical_raw.items():
+        if not isinstance(terms, list) or any(
+            not isinstance(term, str) or not term.strip() for term in terms
+        ):
+            raise ValueError(
+                f"Vocabulary category {category!r} must contain strings."
+            )
     canonical = {
         category: set(terms or []) for category, terms in canonical_raw.items()
     }
     drift = raw.get("drift", {}) or {}
+    if not isinstance(drift, dict) or any(
+        not isinstance(term, str)
+        or not isinstance(entry, dict)
+        or not isinstance(entry.get("replacement"), str)
+        for term, entry in drift.items()
+    ):
+        raise ValueError("Vocabulary drift entries need a string replacement.")
     return Vocabulary(canonical=canonical, drift=drift)
 
 
@@ -243,76 +259,21 @@ def load_proposed_terms(draft: dict) -> set[str]:
     treated as live proposals. A missing block yields an empty set.
     """
     records = draft.get("proposed_terms", []) or []
+    if not isinstance(records, list) or any(
+        not isinstance(record, dict)
+        or not isinstance(record.get("term"), str)
+        or not record["term"].strip()
+        or not isinstance(record.get("reason"), str)
+        or not record["reason"].strip()
+        for record in records
+    ):
+        raise ValueError(
+            "proposed_terms must be a list of records "
+            "with a non-empty term and reason."
+        )
     terminal = {"promoted", "rejected", "merged"}
     return {
         record["term"]
         for record in records
-        if record.get("status", "pending") not in terminal
+        if str(record.get("status", "pending")) not in terminal
     }
-
-
-if __name__ == "__main__":
-    vocab = Vocabulary(
-        canonical={
-            "mechanisms": {
-                "epigenetic_remodeling",
-                "retrotransposon_derepression",
-                "cytoplasmic_retroelement_cDNA",
-                "tissue_inflammation",
-            },
-            "genes": {"CGAS", "STING1", "AIM2", "SPI1"},
-        },
-        drift={
-            "cytosolic_L1_cDNA_accumulation": {
-                "replacement": "cytoplasmic_retroelement_cDNA",
-                "reason": "L1 cDNA naming drift",
-            },
-            "chromatin_accessibility": {
-                "replacement": "epigenetic_remodeling",
-                "reason": "accessibility is a readout of the remodeling state",
-            },
-        },
-    )
-    draft_proposals = {"heterochromatin_organization", "accelerated_aging"}
-    active_nodes = vocab.flat_canonical()
-
-    sample_terms = [
-        "CGAS",
-        "epigenetic_remodeling",
-        "heterochromatin_organization",
-        "accelerated_aging",
-        "chromatin_accessibility",
-        "cytosolic_L1_cDNA_accumulation",
-        "tissue_inflammation_loci",
-        "L1_chromatin_accessibility",
-    ]
-    found_errors, found_warnings = validate_draft_terms(
-        sample_terms, vocab, draft_proposals, active_nodes
-    )
-    print(f"errors ({len(found_errors)}):")
-    for verdict in found_errors:
-        print(f"  [{verdict.tier.value}] {verdict.message}")
-    print(f"warnings ({len(found_warnings)}):")
-    for verdict in found_warnings:
-        print(f"  [{verdict.tier.value}] {verdict.message}")
-
-    canonical_verdict = classify_term(
-        "CGAS", vocab, draft_proposals, active_nodes
-    )
-    assert canonical_verdict.tier is Tier.CANONICAL
-    assert not canonical_verdict.blocking
-    drift_verdict = classify_term(
-        "chromatin_accessibility", vocab, draft_proposals, active_nodes
-    )
-    assert drift_verdict.tier is Tier.DRIFT
-    assert drift_verdict.suggestion == "epigenetic_remodeling"
-    proposed_verdict = classify_term(
-        "heterochromatin_organization", vocab, draft_proposals, active_nodes
-    )
-    assert proposed_verdict.tier is Tier.PROPOSED
-    assert not proposed_verdict.blocking
-    variant_verdict = classify_term(
-        "tissue_inflammation_loci", vocab, draft_proposals, active_nodes
-    )
-    assert variant_verdict.suggestion == "tissue_inflammation"
-    print("self-tests passed")

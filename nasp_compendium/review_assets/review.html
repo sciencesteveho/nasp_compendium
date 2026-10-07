@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}} — mechanism review</title>
+<style>{{CSS}}</style>
+<header><div class="eyebrow">NASP · PAPER REVIEW</div><h1>{{TITLE}}</h1>
+<p id="summary"></p><p id="status"></p></header>
+<nav aria-label="Graph controls">
+<label>View <select id="view"><option value="paper">This paper</option><option value="collective">Proposed collective graph</option><option value="accepted">Accepted graph</option></select></label>
+<label>Paper <select id="paper"></select></label>
+<label>Entity <input id="entity" list="entities" placeholder="All entities"></label><datalist id="entities"></datalist>
+<label><input type="checkbox" id="inferred"> Inferred continuity</label>
+<label><input type="checkbox" id="associations"> Associations</label>
+<button id="minus" aria-label="Zoom out">−</button><button id="plus" aria-label="Zoom in">+</button><button id="reset">Reset</button>
+</nav>
+<p class="hint">Select an arrow or claim to inspect its experiment. Select a node to focus its neighbours. Dotted lines show associations; dashed lines show inferred continuity. Arrow labels state the relationship. Paths across papers do not establish one mechanism in one system.</p>
+<main><section aria-label="Mechanism graph"><p id="count"></p><div id="canvas"></div><div id="claims"></div></section>
+<aside aria-live="polite"><h2>Evidence</h2><div id="evidence">Select a claim.</div></aside></main>
+<details open><summary>Review notes and source coverage</summary><pre id="notes"></pre><div id="sources"></div></details>
+<details><summary>Proposed collective graph changes</summary><pre id="diff"></pre></details>
+<footer>Structural validation passed. Scientific approval is pending. <a href="draft.md">Frozen draft</a> · <a href="run.json">Provenance</a> · <a href="diff.txt">Text diff</a></footer>
+<script id="review-data" type="application/json">{{DATA}}</script><script>{{JS}}</script>
+</html>

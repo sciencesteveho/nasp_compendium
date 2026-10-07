@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 from nasp_compendium import render_docs as render_docs_module
+from nasp_compendium.display import humanize_module_name
 from nasp_compendium.visualization import gene_modules
 
 
@@ -18,9 +19,10 @@ def regenerate(
 ) -> None:
     """Render docs and figures from one marker-gene TSV in a single pass.
 
-    Writes one Sankey per module and a whole-taxonomy barplot into
-    `docs_dir/assets_subdir`, then renders the Markdown with each module's
-    Sankey embedded on its page and the summary figures on the index page.
+    Writes one Sankey per module, one for the All NA sensors page, and a
+    whole-taxonomy barplot into `docs_dir/assets_subdir`, then renders the
+    Markdown with each Sankey embedded on its page and the summary figures on
+    the index page.
 
     Args:
       input_path: Path to the marker-gene TSV source file.
@@ -34,7 +36,18 @@ def regenerate(
     assets_dir = docs_dir / assets_subdir
     assets_dir.mkdir(parents=True, exist_ok=True)
 
-    module_figures: dict[str, Path] = {}
+    sensor_page_id = render_docs_module.NA_SENSOR_PAGE_ID
+    sensor_stem = render_docs_module.module_stem(sensor_page_id)
+    sensor_figure = assets_dir / f"sankey_{sensor_stem}.png"
+    gene_modules.sensor_taxonomy_sankey(
+        input_path,
+        sensor_type=render_docs_module.NA_SENSOR_TYPE,
+        label=humanize_module_name(sensor_page_id),
+        outpath=sensor_figure,
+        cmap=cmap_sankey,
+    )
+
+    module_figures: dict[str, Path] = {sensor_page_id: sensor_figure}
     for module_id in gene_modules.list_module_ids(input_path):
         figure_path = (
             assets_dir

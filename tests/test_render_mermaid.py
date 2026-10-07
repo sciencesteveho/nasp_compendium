@@ -68,10 +68,10 @@ def test_render_mermaid_preserves_visual_encodings() -> None:
     assert "classDef genes fill:#DCE6F2,stroke:#4C72B0" in mermaid
 
 
-def test_write_mermaid_graphs_includes_combined_and_gold_sources(
+def test_write_mermaid_graphs_excludes_gold_sources(
     tmp_path: Path,
 ) -> None:
-    """Writer emits one combined graph and one graph per Markdown source."""
+    """If Mermaid publishes held-out references, this fails."""
     compendium_path = tmp_path / "compendium"
     compendium_path.mkdir()
     (compendium_path / "regular.md").write_text(
@@ -104,9 +104,8 @@ edges:
 
     assert [path.name for path in generated] == [
         "all_literature_graph.mermaid",
-        "held_out.gold.mermaid",
         "regular.mermaid",
     ]
     combined = generated[0].read_text()
     assert "CGAS" in combined
-    assert "RELA" in combined
+    assert "RELA" not in combined

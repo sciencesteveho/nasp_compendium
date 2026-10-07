@@ -23,6 +23,7 @@ from matplotlib.transforms import blended_transform_factory
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes  # type: ignore
 
 from nasp_compendium.display import humanize_module_name
+from nasp_compendium.gene_modules import GeneModules
 
 
 DIRECTION_MARKERS: dict[str, tuple[str, str]] = {
@@ -179,20 +180,16 @@ def _load_panel(
     return panel.reset_index(drop=True)
 
 
-def _order_module_genes(
-    panel: pd.DataFrame,
-    module_id: str,
-) -> pd.DataFrame:
-    """Select and order one module's genes for the Sankey layout.
+def _order_module_genes(module: pd.DataFrame) -> pd.DataFrame:
+    """Order selected panel rows for the Sankey layout.
 
     Args:
-      panel: Normalized panel from _load_panel.
-      module_id: The module_id to extract.
+      module: Rows of the normalized panel from _load_panel to draw.
 
     Returns:
-      Module rows ordered by class size (largest first), then class, then gene.
+      Rows ordered by class size (largest first), then class, then gene.
     """
-    module = panel[panel["module_id"] == module_id].copy()
+    module = module.copy()
     class_sizes = module.groupby("module_class").size()
     module["_class_size"] = module["module_class"].map(class_sizes)
     module = module.sort_values(
@@ -1083,7 +1080,7 @@ def _draw_direction_legend(
 def _plot_module_sankey(
     module: pd.DataFrame,
     *,
-    module_id: str,
+    label: str,
     outpath: str | Path,
     node_height_in: float = 0.0125,
     fig_width_in: float = 7.0,
@@ -1094,8 +1091,8 @@ def _plot_module_sankey(
     """Render per module Sankey diagram.
 
     Args:
-      module: Ordered DF from _load_module_genes.
-      module_id: The module_id label, used for the left node and title.
+      module: Ordered DF from _order_module_genes.
+      label: Display label for the left node.
       outpath: Output path for the saved figure.
       node_height_in: Vertical inches allotted per gene.
       fig_width_in: Figure width in inches.
@@ -1193,7 +1190,7 @@ def _plot_module_sankey(
     ax.text(
         x_module_left,
         module_node["y_top"] - module_node["height"] / 2.0,
-        humanize_module_name(module_id),
+        label,
         ha="right",
         va="center",
         fontsize=fontsize,
@@ -1278,13 +1275,71 @@ def module_taxonomy_sankey(
       Path to the written figure file.
     """
     panel = _load_panel(panel_path)
-    module = _order_module_genes(panel, module_id)
+    module = _order_module_genes(panel.loc[panel["module_id"] == module_id])
     if module.empty:
         raise ValueError(f"No rows found for module_id '{module_id}'.")
 
     return _plot_module_sankey(
         module,
-        module_id=module_id,
+        label=humanize_module_name(module_id),
+        outpath=outpath,
+        node_height_in=node_height_in,
+        fig_width_in=fig_width_in,
+        cmap=cmap,
+    )
+
+
+def sensor_taxonomy_sankey(
+    panel_path: str | Path,
+    *,
+    sensor_type: str,
+    label: str,
+    outpath: str | Path,
+    node_height_in: float = 0.065,
+    fig_width_in: float = 5.75,
+    cmap: str = "Set1",
+) -> Path:
+    """Plot a Sankey of sensor genes across every module they belong to.
+
+    A sensor listed in several module classes appears once under each.
+
+    Args:
+      panel_path: Path to the panel TSV.
+      sensor_type: `GeneModules.sensors` filter, such as "dna_rna".
+      label: Display label for the left node.
+      outpath: Output path for the saved figure.
+      node_height_in: Vertical inches allotted per gene.
+      fig_width_in: Figure width in inches.
+      cmap: Colormap palette for module_class nodes.
+
+    Returns:
+      Path to the written figure file.
+
+    Raises:
+      ValueError: If the panel has no genes matching `sensor_type`.
+
+    Example Usage:
+      >>> sensor_taxonomy_sankey(
+      ...     "data/marker_genes.tsv",
+      ...     sensor_type="dna_rna",
+      ...     label="All NA sensors",
+      ...     outpath="path/to/sankey_all_na_sensors.png",
+      ... )
+    """
+    sensor_genes = GeneModules(panel_path).get_sensors(sensor_type)
+    panel = _load_panel(panel_path)
+    sensors = panel.loc[panel["gene_symbol"].isin(sensor_genes)]
+    sensors = _order_module_genes(
+        sensors.drop_duplicates(subset=["gene_symbol", "module_class"])
+    )
+    if sensors.empty:
+        raise ValueError(
+            f"No genes match sensor_type '{sensor_type}' in {panel_path}."
+        )
+
+    return _plot_module_sankey(
+        sensors,
+        label=label,
         outpath=outpath,
         node_height_in=node_height_in,
         fig_width_in=fig_width_in,

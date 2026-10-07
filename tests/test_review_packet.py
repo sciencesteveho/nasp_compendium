@@ -5,6 +5,9 @@ from __future__ import annotations
 import textwrap
 from pathlib import Path
 
+import pytest
+import yaml
+
 from nasp_compendium import review_packet
 
 
@@ -58,6 +61,44 @@ def test_gate_validates_the_exact_draft(tmp_path: Path) -> None:
     blockers = review_packet.gate_blockers(draft)
 
     assert any("Missing 'paper'" in blocker for blocker in blockers)
+
+
+@pytest.mark.parametrize("suffix", [".draft.md", ".gold.md", ".yaml"])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("support", None),
+        ("support", ""),
+        ("context", []),
+        ("rel", {}),
+        ("step", True),
+        ("papers", ["unknown"]),
+        ("source", []),
+    ],
+)
+def test_malformed_exact_draft_never_passes_gate(
+    tmp_path: Path, suffix: str, field: str, value: object
+) -> None:
+    """If malformed evidence or identity passes exact review, this fails."""
+    draft = _write_draft(tmp_path / f"test{suffix}", _edge("DDX58", "IFIH1"))
+    data = yaml.safe_load(draft.read_text())
+    data["edges"][0][field] = value
+    draft.write_text(yaml.safe_dump(data))
+    assert review_packet.gate_blockers(draft)
+    assert "BLOCKED" in review_packet.build_review_packet(draft)
+
+
+@pytest.mark.parametrize(
+    "content", ["paper: {}; edges: []", "paper: {}\nedges: []", "paper: [\n"]
+)
+def test_empty_or_unparseable_output_is_blocked(
+    tmp_path: Path, content: str
+) -> None:
+    """If an empty/skipped extraction appears review-ready, this fails."""
+    draft = tmp_path / "empty.gold.md"
+    draft.write_text(content)
+    assert review_packet.gate_blockers(draft)
+    assert "BLOCKED" in review_packet.build_review_packet(draft)
 
 
 def test_context_sensitive_topology_is_advisory(tmp_path: Path) -> None:

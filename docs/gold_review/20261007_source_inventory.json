@@ -1,0 +1,159 @@
+{
+  "status": "candidate_audit_not_blind_evaluation",
+  "source_paths_are_local": true,
+  "sources": [
+    {
+      "paper": "dececco_2019",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/dececco_2019.pdf",
+      "sha256": "e66c73eb1247b884d876d7608af40a5217232755d0c07cded157520058dbab46",
+      "pages": 33,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "dou_2017",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/dou_2017.pdf",
+      "sha256": "56101bf0ee575be54ab70f94c660ad41427f940df3f5ef7593d4a66b5bbc3239",
+      "pages": 18,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "gulen_2023",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/gulen_2023.pdf",
+      "sha256": "cc45f8ffbaf2d980a09499cee39d3564ee7dfd042ce3ce21e84c268469ac2b40",
+      "pages": 28,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "jiang_2023",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/jiang_2023.pdf",
+      "sha256": "8a5bc05b77a373cfcab2491ed389d846b558ddf75d2fa343cda4841141f79b45",
+      "pages": 14,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "jiang_2023",
+      "id": "supplement_1",
+      "path": "/Users/sho3/nasp_compendium/agent/reports/curation_runs/reference_audit_20261007/jiang_2023/supplement.pdf",
+      "sha256": "22860c3fd03463c36f99f7762389d8289bd227e1139ce2edf0a9a7d2cebed6aa",
+      "pages": 20,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "lian_2018",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/lian_2018.pdf",
+      "sha256": "cb5628b6dec4972200c9dfa0fc772cc42522e58b700b3589db66cd02872b40f5",
+      "pages": 13,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "lopez_polo_2024",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/lopez_polo_2024.pdf",
+      "sha256": "77d179fbc82a07b429acd1d4cb47e0d5038e23d2af7461805d98b2ef13df0c99",
+      "pages": 17,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "lopez_polo_2024",
+      "id": "supplement_1",
+      "path": "/Users/sho3/nasp_compendium/agent/reports/curation_runs/reference_audit_20261007/lopez_polo_2024/supplement.pdf",
+      "sha256": "569662b8bf9b02be1a51bbcb090fc3bfbe10ceb37f424320b6bfdc8ef5196afe",
+      "pages": 26,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "ma_2021",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/ma_2021.pdf",
+      "sha256": "9ed1a26bc56f87dcc27b3ba77aef702903ade5164fa5406439d7aeffa0e21ab5",
+      "pages": 15,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "mao_2024",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/mao_2024.pdf",
+      "sha256": "361bbef00245c8ba59c384ac3847cf46b2089ba778822a21ae713d657a73e9b6",
+      "pages": 33,
+      "sparse_text_pages": [
+        29,
+        30,
+        31,
+        32,
+        33
+      ]
+    },
+    {
+      "paper": "martinez_2024",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/martinez_2024.pdf",
+      "sha256": "0c8fb7a17c58914c2d89b1c57358de402c116a65f6b8274b92e24fc4f8983e32",
+      "pages": 30,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "martinez_2024",
+      "id": "supplement_1",
+      "path": "/Users/sho3/nasp_compendium/agent/reports/curation_runs/reference_audit_20261007/martinez_2024/media-1.pdf",
+      "sha256": "15709f5e0b303309da538746f56754382ee99fc3fa79e88fb3eea94568543764",
+      "pages": 6,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "qin_2024",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/qin_2024.pdf",
+      "sha256": "a68ceeb7e54d62f3b3c599347932f7a7a89df3c4f831b5c70cd4d0040ac0eb39",
+      "pages": 11,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "sprenger_2021",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/sprenger_2021.pdf",
+      "sha256": "a3d2691655e875a270da5bcfa34b746dd4f795792c8d6d1aa59ece8c56634998",
+      "pages": 30,
+      "sparse_text_pages": [
+        28,
+        29,
+        30
+      ]
+    },
+    {
+      "paper": "tyshkovskiy_2026",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/tyshkovskiy_2026.pdf",
+      "sha256": "790b03ac76f55b1b297f6aef13c4f4b51261d10830ea8271bb5511ce985a0ccf",
+      "pages": 55,
+      "sparse_text_pages": []
+    },
+    {
+      "paper": "wang_2019",
+      "id": "main",
+      "path": "/Users/sho3/nasp_compendium/data/literature/wang_2019.pdf",
+      "sha256": "658f8cbee88af55c4f409c7e297ecc25bb388467146acf6cdd1110fd8ee9ac7d",
+      "pages": 13,
+      "sparse_text_pages": []
+    }
+  ],
+  "original_records": {
+    "dececco_2019": "4f54636b5a0562108ed38302e395d9d10a0dfea7358ff3800e9c716a546fe6ad",
+    "dou_2017": "53d5e0a016ef6808b344ff7cf81f964e44ac91170e2ccacb8b00486880e5000b",
+    "gulen_2023": "9cbf0fbcbf72a0d584a03b2c915a87489ff23754dc3ed487f92821a40d9a4e85",
+    "jiang_2023": "3e231e4ce027b67dacd473a282bfa60ed8cf4985f11a4b0c501a8e7d7cd6051e",
+    "lian_2018": "1a3f250e6b57566f9e9f17341a33c4925645d708d8d487951a4e14a74fc671d2",
+    "lopez_polo_2024": "af0321905695d11f4b9df2ccc797dddb9911fe0c5efde8b5f4d490feb3b9db9d",
+    "ma_2021": "494814eb6f3526447ed087e81a22c78c36fb1253fc81ae3ced0cb4091a902784",
+    "mao_2024": "b61b02c7daa8895b45805e905c83587cab8a14e21f4558297cc21f5573aafd72",
+    "martinez_2024": "53c00a220232e6834f6d9055e79565d52c30130097219a2e6baaa06d37cf1b3f",
+    "qin_2024": "9a81f80c9815809ad800cb444fc85388f48a40671af25b751839e2506bea218f",
+    "sprenger_2021": "c2e53b8f0754be934c8ea987e3b10bb5dfd8cfa642bb0c6e822661d1d5889a7d",
+    "tyshkovskiy_2026": "84a28182f4b12ee695611a2c3343a5c9d8041dd5d2258be46f659f30cc49db8b",
+    "wang_2019": "a86a1fc075ad831d98f7b1ee67518f64acb2aa421e5344f44ad46b46545e2ee4"
+  }
+}

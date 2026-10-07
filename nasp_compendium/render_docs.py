@@ -11,6 +11,13 @@ from pathlib import Path
 import pandas as pd
 
 from nasp_compendium.display import humanize_module_name
+from nasp_compendium.gene_modules import GeneModules
+
+
+# The All NA sensors page is rendered like a module page from the panel rows of
+# every gene that `GeneModules.sensors(NA_SENSOR_TYPE)` returns.
+NA_SENSOR_PAGE_ID: str = "ALL_NA_SENSORS"
+NA_SENSOR_TYPE: str = "dna_rna"
 
 
 def _read_marker_table(input_path: Path) -> pd.DataFrame:
@@ -65,6 +72,8 @@ def render_module(
     module_id: str,
     module_table: pd.DataFrame,
     figure_relpath: str | None = None,
+    *,
+    show_module_id: bool = False,
 ) -> str:
     """Render one module's genes as a single Markdown table.
 
@@ -73,6 +82,8 @@ def render_module(
       module_table: Rows belonging to this module.
       figure_relpath: Optional path to the module's Sankey figure, relative to
         the Markdown file, embedded beneath the heading.
+      show_module_id: Add a Module column naming each row's module_id, for
+        pages whose rows span several modules.
 
     Returns:
       Markdown document text for the module.
@@ -81,29 +92,36 @@ def render_module(
     lines = [f"# {module_label}", ""]
     if figure_relpath is not None:
         lines += [f"![{module_label} taxonomy]({figure_relpath})", ""]
+
+    column_headers = {
+        "gene_symbol": "Gene",
+        "module_id": "Module",
+        "module_class": "Module Class",
+        "sensor_family": "Sensor Family",
+        "activation_tier": "Activation Tier",
+        "scoring_direction": "Scoring Direction",
+        "cell_type_breadth": "Cell Type Breadth",
+        "detectability": "Detectability",
+        "also_in_module": "Also in Module(s)",
+        "doi": "DOI",
+        "aliases": "Aliases",
+        "sensor": "Is_Sensor",
+        "panel_source": "Panel Source",
+    }
+    if not show_module_id:
+        del column_headers["module_id"]
     lines += [
-        "| Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |",  # noqa: E501
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",  # noqa: E501
+        f"| {' | '.join(column_headers.values())} |",
+        f"| {' | '.join(['---'] * len(column_headers))} |",
     ]
-    display_columns = [
-        "gene_symbol",
-        "module_class",
-        "sensor_family",
-        "activation_tier",
-        "scoring_direction",
-        "cell_type_breadth",
-        "detectability",
-        "also_in_module",
-        "doi",
-        "aliases",
-        "sensor",
-        "panel_source",
-    ]
-    ordered = module_table.sort_values(["module_class", "gene_symbol"])
+
+    ordered = module_table.sort_values(
+        ["module_id", "module_class", "gene_symbol"]
+    )
     for _, row in ordered.iterrows():
         values = [
             _format_table_cell(column, str(row[column]))
-            for column in display_columns
+            for column in column_headers
         ]
         lines.append(f"| {' | '.join(values)} |")
     lines.append("")
@@ -226,11 +244,15 @@ def render_docs(
 ) -> None:
     """Render all marker-gene Markdown docs from a TSV file.
 
+    The All NA sensors page, listed first on the index, collects every module
+    row of the DNA and RNA sensor genes.
+
     Args:
       input_path: Path to the marker-gene TSV source file.
       output_dir: Directory to write the Markdown files into.
-      module_figures: Optional mapping from module_id to a Sankey figure path;
-        each is embedded on its module page as a link relative to output_dir.
+      module_figures: Optional mapping from module_id, or
+        `NA_SENSOR_PAGE_ID`, to a Sankey figure path; each is embedded on its
+        page as a link relative to output_dir.
       index_figure: Optional whole-taxonomy figure embedded on the index page.
       index_overlap_figure: Optional module shared-gene overlap heatmap
         embedded on the index page.
@@ -240,7 +262,18 @@ def render_docs(
     output_dir.mkdir(parents=True, exist_ok=True)
     module_figures = module_figures or {}
 
-    rendered_module_ids: list[str] = []
+    sensor_genes = GeneModules(input_path).get_sensors(NA_SENSOR_TYPE)
+    (output_dir / f"{_stemmify(NA_SENSOR_PAGE_ID)}.md").write_text(
+        render_module(
+            NA_SENSOR_PAGE_ID,
+            marker_table.loc[marker_table["gene_symbol"].isin(sensor_genes)],
+            _relative_figure(module_figures.get(NA_SENSOR_PAGE_ID), output_dir),
+            show_module_id=True,
+        ),
+        encoding="utf-8",
+    )
+
+    rendered_page_ids: list[str] = [NA_SENSOR_PAGE_ID]
     for module_id, module_table in marker_table.groupby("module_id", sort=True):
         module_key = str(module_id)
         figure_relpath = _relative_figure(
@@ -250,12 +283,12 @@ def render_docs(
             render_module(module_key, module_table, figure_relpath),
             encoding="utf-8",
         )
-        rendered_module_ids.append(module_key)
+        rendered_page_ids.append(module_key)
 
     index_relpath = _relative_figure(index_figure, output_dir)
     index_overlap_relpath = _relative_figure(index_overlap_figure, output_dir)
     (output_dir / index_name).write_text(
-        render_index(rendered_module_ids, index_relpath, index_overlap_relpath),
+        render_index(rendered_page_ids, index_relpath, index_overlap_relpath),
         encoding="utf-8",
     )
 

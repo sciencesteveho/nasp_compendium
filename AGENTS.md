@@ -1,134 +1,37 @@
 # NASP compendium agent instructions
 
-## Project purpose
+Curate source-supported mechanistic claims about nucleic-acid sensing in aging,
+senescence, inflammation and related disease. Accepted `docs/compendium/*.md`
+records contain YAML (`paper` + `edges`) and feed the collective graph.
 
-This repository curates mechanistic claims about nucleic-acid sensing pathways
-(NASPs) in aging, senescence, inflammaging, and related disease contexts.
+## Paper extraction and review
 
-The central artifact is a set of per-paper compendium files in
-`docs/compendium/`. These files are parsed as YAML and rendered into a
-mechanistic pathway graph.
+Start at `agent/prompts/curate_paper.md`. Read only its scientific/schema
+reference, `agent/extraction_contract.md`, and `agent/vocabulary.yaml` before
+extraction. Renderer source, historical lessons and reference answers are not
+required reading. For record audits use `agent/prompts/audit_paper.md`.
 
-## Files Codex must read before curation tasks
+Keep draft runs, extracted text and page images under ignored
+`agent/reports/curation_runs/`. Source PDFs live in `data/literature/`; never copy
+PDFs or full extracted text into tracked paths. Summarize evidence without
+reproducing long copyrighted passages.
 
-Before curating, auditing, or backfilling papers, read:
+Golds (`*.gold.md`) are evaluation references, excluded from ordinary graphs.
+Never read them as extraction examples. A user-requested reference audit may
+read its target golds; it is not a blind evaluation. Keep reference candidates
+outside `docs/compendium/` and preserve originals. Scientific approval is
+required before promotion. Never commit; the user makes all commits.
 
-- `agent/analysis_prompt.md`
-- `agent/conventions.md`
-- `agent/curation_lessons.md`
-- Relevant existing files in `docs/compendium/`
-- `nasp_compendium/summarize_compendium.py`
-- `nasp_compendium/style.py`
+Gate the exact draft before rendering or presenting it as ready. The extraction
+workflow produces a frozen graph/evidence review and a proposed collective diff.
+Show unresolved findings and source gaps explicitly. Validation does not certify
+biology. If accepted files change, validate the collection, show the diff and
+render the updated graph.
 
-## Repository layout
-
-- `docs/compendium/`: per-paper mechanistic YAML-in-Markdown files. Files
-  ending in `.gold.md` are held-out calibration targets: the tooling skips
-  them and the agent must not read them as style examples until they are
-  promoted (renamed to `.md`).
-- `agent/conventions.md`: naming, edge, and evidence conventions.
-- `docs/marker_genes/`: rendered marker-gene documentation.
-- `data/literature/`: local PDFs for curation. These files are not committed.
-- `agent/reports/curation_runs/`: draft summaries and temporary curation outputs.
-- `agent/reports/audits/`: audit reports.
-- `agent/reports/graph_diffs/`: rendered graph comparisons or notes.
-- `agent/prompts/`: reusable task prompts for Codex-assisted curation.
-
-## Core commands
-
-Install locally:
-
-```bash
-pip install -e .
-````
-
-Render the graph:
-
-```bash
-compendium render_graph --compendium-path docs/compendium --annotate-papers
-```
-
-Trace an entity:
-
-```bash
-compendium trace CGAS --directory docs/compendium
-```
-
-Validate the compendium:
-
-```bash
-compendium validate --dir docs/compendium
-```
-
-Diff compendium states for review:
-
-```bash
-compendium diff OLD_PATH NEW_PATH --format text
-```
-
-## Curation rules
-
-* Do not invent unsupported mechanistic edges.
-* Do not collapse supported intermediates into shortcut edges.
-* Negative findings are explicit edges, not omissions.
-* Prefer gene-level edges when the paper directly tests a gene.
-* Use canonical node names from `agent/conventions.md`.
-* Read `agent/curation_lessons.md` for known failure patterns and judgment calls before drafting edges.
-* Apply the node anti-pattern, marker/regulator, pore-mediated-release, and
-  no-shortcut sections in `agent/conventions.md` before emitting
-  edges; use `agent/curation_lessons.md` for the current calibration lessons.
-* Before emitting edges, apply the node-name canonicalisation,
-  regulator-promotion/marker-demotion, evidence-strength audit, branch-audit,
-  duplicate-edge, and no-shortcut-to-phenotype checks from
-  `agent/conventions.md`, `agent/curation_lessons.md`, and
-  `agent/prompts/curate_paper.md`.
-* Do not create nodes for expression states, tissue-specific outcomes, or protein modification states.
-* Put reagent, dose, tissue, cell line, timing, and perturbation details in `context`.
-* Every edge must include exact support, ideally figure panels or extended-data panels.
-* When uncertain, leave a note in the audit report instead of silently guessing.
-* Validation failure is a stop condition. Do not treat validation errors as
-  cleanup noise; fix them before diffing, rendering, or presenting a draft as
-  ready.
-
-## Done criteria
-
-For curation or backfill tasks, done means:
-
-1. The relevant `.md` file parses as YAML.
-2. A draft outside `docs/compendium/` passes
-   `compendium review_packet <draft> --out <review-packet> --gate`, which
-   validates that exact file. Do not use an unchanged compendium validation as
-   evidence that a draft is valid.
-3. If `docs/compendium/` changed, `compendium validate --dir docs/compendium`
-   passes.
-4. For compendium-modifying patches, `compendium diff` is run before final
-   review so entity and edge changes are visible in text.
-5. `compendium render_graph --compendium-path docs/compendium --annotate-papers` runs.
-6. The diff is shown for human review.
-7. Remaining uncertainties are listed explicitly.
-
-## Human-gated steps
-
-Never commit automatically and never commit. All commits must be done manually by user.
-
-Never overwrite a carefully curated existing paper file during calibration.
-For calibration, write drafts into `agent/reports/curation_runs/` and compare against
-the existing file.
-
-Never copy PDFs from `data/literature/` into tracked paths.
-Never commit PDFs or extracted full-text paper files unless explicitly requested.
-Curation reports may summarize findings but must not reproduce long copyrighted passages.
-
-## Optional multi-agent paper review
-
-Use `agent/prompts/curate_paper_multi_agent.md` when independent recall and
-precision review is likely to help a complex paper. The parent remains the only
-writer: it freezes and hashes the initial draft, launches `recall_reviewer` and
-`precision_reviewer` in parallel, waits for both, adjudicates every finding,
-and produces one revised draft for human review. Reviewers must never receive
-gold-standard material or one another's findings. This workflow never promotes,
-overwrites a curated file, or commits. During blind review, render only the
-isolated revised draft as the prompt directs; do not render `docs/compendium/`.
+Independent recall/precision review is optional; follow
+`agent/prompts/curate_paper_multi_agent.md` when explicitly selected. The parent
+is the sole writer, freezes the draft, keeps reviewers blind to references and
+each other, and adjudicates every finding against the paper.
 
 ## Coding and API conventions
 

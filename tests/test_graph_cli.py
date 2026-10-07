@@ -10,11 +10,11 @@ from nasp_compendium import cli
 from nasp_compendium import summarize_compendium
 
 
-def test_render_graph_combines_regular_and_gold_files(
+def test_render_graph_excludes_held_out_gold_files(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    """Combined rendering includes every compendium Markdown file."""
+    """If held-out references enter the collective graph, this fails."""
     compendium_dir = tmp_path / "compendium"
     compendium_dir.mkdir()
 
@@ -64,7 +64,7 @@ edges:
 
     assert rendered == [
         (
-            {"held_out_2026", "regular_2025"},
+            {"regular_2025"},
             tmp_path / "combined",
             "pdf",
         )
@@ -75,7 +75,7 @@ def test_render_paper_graphs_writes_one_output_per_markdown_file(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    """Batch rendering creates one predictably named graph per source file."""
+    """If batch rendering publishes held-out references, this fails."""
     compendium_dir = tmp_path / "compendium"
     compendium_dir.mkdir()
 
@@ -128,7 +128,6 @@ edges:
 
     assert output_dir.is_dir()
     assert rendered == [
-        ({"alpha_2025"}, output_dir / "alpha.gold", "pdf"),
         ({"beta_2026"}, output_dir / "beta", "pdf"),
     ]
 

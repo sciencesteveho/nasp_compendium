@@ -16,7 +16,14 @@ def _write_edges(path: Path, edges_yaml: str) -> Path:
     return path
 
 
-_ONE_EDGE = """
+def _edge(
+    source: str,
+    target: str,
+    rel: str = "activates",
+    evidence: str = "direct_measured",
+) -> str:
+    """Return one edge block for the test fixtures."""
+    template = """
       - chain_id: c
         step: 1
         source: {source}
@@ -28,15 +35,7 @@ _ONE_EDGE = """
         papers: [p]
 """
 
-
-def _edge(
-    source: str,
-    target: str,
-    rel: str = "activates",
-    evidence: str = "direct_measured",
-) -> str:
-    """Return one edge block for the test fixtures."""
-    return _ONE_EDGE.format(
+    return template.format(
         source=source, target=target, rel=rel, evidence=evidence
     )
 
@@ -112,6 +111,7 @@ def test_polarity_mismatch_is_not_primary_recovery(
     assert score.triple_recovered == 0
     assert len(score.relationship_mismatches) == 1
     assert len(score.polarity_mismatches) == 1
+    assert score.core_recovered == 0
 
 
 def test_evidence_mismatch_reported_separately(tmp_path: Path) -> None:
@@ -128,6 +128,7 @@ def test_evidence_mismatch_reported_separately(tmp_path: Path) -> None:
     assert score.triple_recovered == 1
     assert score.exact_recovered == 0
     assert len(score.evidence_mismatches) == 1
+    assert score.core_recovered == 1
 
 
 def test_symmetric_correlation_direction_matches(tmp_path: Path) -> None:
@@ -305,7 +306,7 @@ def test_equivalent_representation_counts_once(tmp_path: Path) -> None:
         )
         + _tagged_edge(
             "cytoplasmic_mt_dsRNA",
-            "IFIH1",
+            "RIG_I",
             equiv_group="dsrna_sensor",
         ),
     )
@@ -366,6 +367,55 @@ def test_forbidden_edge_self_match_is_clean(tmp_path: Path) -> None:
     assert score.core_recovered == 1
     assert not score.shortcut_violations
     assert not score.extra
+
+
+def test_forbidden_relation_is_not_swallowed_by_endpoint_match(
+    tmp_path: Path,
+) -> None:
+    """If a false causal claim scores as a measured association, this fails."""
+    gold = _write_edges(
+        tmp_path / "p.gold.md",
+        _edge("A", "B", "correlates")
+        + _tagged_edge("A", "B", "drives", status="forbidden_shortcut"),
+    )
+    draft = _write_edges(tmp_path / "p.md", _edge("A", "B", "drives"))
+    score = score_compendium.score_pair(draft_file=draft, gold_file=gold)
+    assert score.core_recovered == 0
+    assert len(score.shortcut_violations) == 1
+    other = _write_edges(tmp_path / "other.md", _edge("A", "B", "suppresses"))
+    assert not score_compendium.score_pair(
+        draft_file=other, gold_file=gold
+    ).shortcut_violations
+
+
+def test_shortcut_and_background_do_not_recover_resolved_steps(
+    tmp_path: Path,
+) -> None:
+    """If invented mediation or background inflates core recall, this fails."""
+    gold = _write_edges(
+        tmp_path / "p.gold.md",
+        _edge("A", "B")
+        + _edge("B", "C")
+        + _edge("X", "Y", evidence="canonical_inferred"),
+    )
+    draft = _write_edges(
+        tmp_path / "p.md",
+        _edge("A", "C") + _edge("X", "Y", evidence="canonical_inferred"),
+    )
+    score = score_compendium.score_pair(draft_file=draft, gold_file=gold)
+    assert score.core_units == 2
+    assert score.core_recovered == 0
+    assert score.supporting_recovered == 1
+
+
+def test_independent_sensor_branches_are_separate_units(tmp_path: Path) -> None:
+    """If one sensor substitutes for another tested branch, this fails."""
+    gold = _write_edges(
+        tmp_path / "p.gold.md", _edge("RNA", "DDX58") + _edge("RNA", "IFIH1")
+    )
+    draft = _write_edges(tmp_path / "p.md", _edge("RNA", "DDX58"))
+    score = score_compendium.score_pair(draft_file=draft, gold_file=gold)
+    assert (score.core_recovered, score.core_units) == (1, 2)
 
 
 def test_legacy_gold_preserves_endpoint_recall_units(tmp_path: Path) -> None:
