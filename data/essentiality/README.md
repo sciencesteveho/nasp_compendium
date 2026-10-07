@@ -1,17 +1,18 @@
 # Gene essentiality sources
 
-Inputs to the `depmap_essentiality` and `shet_post_*` columns of
-`data/marker_genes.tsv`. Add or refresh them in place from the repository root
-with:
+Inputs to the `hgnc_id`, `hgnc_symbol`, `entrez_id`, `depmap_essentiality`
+and `s_het_*` columns of `data/marker_genes.tsv`. Add or refresh them in
+place from the repository root with:
 
 ```sh
 python -m nasp_compendium.gene_essentiality
 ```
 
-The run copies curated columns verbatim, replaces any earlier annotation
-columns, and writes `marker_genes.tsv.manifest.json` beside the panel,
-recording the MD5 of every source. Rerun it after adding genes to the panel;
-new rows otherwise have empty annotation columns.
+The run copies curated columns verbatim and refreshes existing annotation
+columns where they stand, so reruns are idempotent. It writes
+`marker_genes.tsv.manifest.json` beside the panel, recording the MD5 of every
+source. Rerun it after adding genes to the panel; new rows otherwise have
+empty annotation columns.
 
 | File | Source | Retrieved | MD5 |
 | --- | --- | --- | --- |
@@ -24,18 +25,22 @@ DepMap data are released under CC BY 4.0.
 
 ## Interpretation
 
-- `depmap_essentiality` is "common_essential" when DepMap's Chronos-inferred
+- `hgnc_id`, `hgnc_symbol` and `entrez_id` resolve `gene_symbol` through
+  HGNC: approved symbols first, then previous, then alias symbols. A symbol
+  shared by several approved genes stays blank rather than guessed.
+  `hgnc_symbol` differs from `gene_symbol` for renamed genes (DDX58 is RIGI).
+- `depmap_essentiality` is "yes" when DepMap's Chronos-inferred
   common-essential list includes the gene: it is a dependency in most cancer
-  cell lines. "not_common_essential" means screened but not on that list; the
-  gene may still be a selective dependency. "not_screened" means absent from
-  the 26Q1 CRISPR gene-effect matrix (for example, mitochondrially encoded
-  genes).
+  cell lines. "no" means screened but not on that list; the gene may still be
+  a selective dependency. It is blank when the gene is absent from the 26Q1
+  CRISPR gene-effect matrix (for example, mitochondrially encoded genes) or
+  has no Entrez ID, so blank means unknown, not non-essential.
 - The screened-gene universe is the 26Q1 Chronos gene-effect header. All 1,827
   common essentials are in it by Entrez ID. One header column is unlabeled
   upstream and is skipped.
-- `shet_post_mean` is the GeneBayes posterior mean selection coefficient
-  against heterozygous loss of function (higher is more constrained), with its
-  95% credible interval. It is missing for genes GeneBayes did not estimate.
-- DepMap is matched by Entrez ID and GeneBayes by HGNC ID after resolving
-  panel symbols through HGNC, so symbol renames on either side do not drop
-  genes.
+- `s_het_mean` is the GeneBayes posterior mean selection coefficient against
+  heterozygous loss of function (higher is more constrained);
+  `s_het_lower_95` and `s_het_upper_95` bound its 95% credible interval. All
+  three are blank for genes GeneBayes did not estimate.
+- DepMap is matched by Entrez ID and GeneBayes by HGNC ID, so symbol renames on
+  either side do not drop genes.

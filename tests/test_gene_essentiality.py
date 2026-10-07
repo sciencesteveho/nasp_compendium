@@ -67,54 +67,89 @@ def test_annotation_leaves_curated_panel_bytes_unchanged(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    """Annotation only appends fields, keeping curated text and CRLF endings."""
+    """Annotation only adds fields, keeping curated text and CRLF endings."""
     arguments = _write_annotation_inputs(tmp_path)
     panel_path = tmp_path / "marker_genes.tsv"
     curated_lines = panel_path.read_bytes().split(b"\r\n")
-    n_curated_fields = len(curated_lines[0].split(b"\t"))
+    curated_columns = curated_lines[0].split(b"\t")
 
     _annotate_panel(monkeypatch, arguments)
 
-    annotated_lines = (
-        panel_path.read_bytes().removesuffix(b"\r\n").split(b"\r\n")
-    )
+    annotated_rows = [
+        line.split(b"\t")
+        for line in panel_path.read_bytes().removesuffix(b"\r\n").split(b"\r\n")
+    ]
+    curated_indices = [annotated_rows[0].index(c) for c in curated_columns]
     assert [
-        b"\t".join(line.split(b"\t")[:n_curated_fields])
-        for line in annotated_lines
+        b"\t".join(row[index] for index in curated_indices)
+        for row in annotated_rows
     ] == curated_lines
+
+
+def test_annotation_places_identifiers_after_gene_symbol(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    """HGNC and Entrez identifiers directly follow the gene_symbol column."""
+    arguments = _write_annotation_inputs(tmp_path)
+
+    _annotate_panel(monkeypatch, arguments)
+
+    annotated = pd.read_csv(tmp_path / "marker_genes.tsv", sep="\t")
+    assert annotated.columns[:4].tolist() == [
+        "gene_symbol",
+        "hgnc_id",
+        "hgnc_symbol",
+        "entrez_id",
+    ]
 
 
 def test_annotation_marks_every_panel_row_of_a_gene(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    """Each panel row carries its gene's DepMap status and s_het estimate."""
+    """Each panel row carries its gene's identifiers and essentiality."""
     arguments = _write_annotation_inputs(tmp_path)
 
     _annotate_panel(monkeypatch, arguments)
 
     annotated = pd.read_csv(tmp_path / "marker_genes.tsv", sep="\t")
-    assert annotated["depmap_essentiality"].tolist() == [
-        "not_common_essential",
-        "common_essential",
-        "common_essential",
-        "not_screened",
+    assert annotated["entrez_id"].tolist() == [115004, 51428, 51428, 4535]
+    assert annotated["depmap_essentiality"].fillna("").tolist() == [
+        "no",
+        "yes",
+        "yes",
+        "",
     ]
-    shet = annotated["shet_post_mean"].tolist()
-    assert shet[:3] == [0.00114, 0.0203, 0.0203]
-    assert math.isnan(shet[3])
+    s_het = annotated["s_het_mean"].tolist()
+    assert s_het[:3] == [0.00114, 0.0203, 0.0203]
+    assert math.isnan(s_het[3])
 
 
 def test_rerunning_annotation_leaves_panel_unchanged(
     tmp_path: Path,
     monkeypatch: Any,
 ) -> None:
-    """Annotating an already annotated panel rewrites identical bytes."""
+    """Reannotation keeps every column in place, including later additions."""
     arguments = _write_annotation_inputs(tmp_path)
     panel_path = tmp_path / "marker_genes.tsv"
     _annotate_panel(monkeypatch, arguments)
-    first_pass = panel_path.read_bytes()
+    header, *rows = panel_path.read_bytes().removesuffix(b"\r\n").split(b"\r\n")
+    kda_values = [b"58.8", b"69.8", b"69.8", b""]
+    panel_path.write_bytes(
+        b"\r\n".join(
+            [
+                header + b"\tmonomer_kDa",
+                *(
+                    row + b"\t" + kda
+                    for row, kda in zip(rows, kda_values, strict=True)
+                ),
+            ]
+        )
+        + b"\r\n"
+    )
+    extended_panel = panel_path.read_bytes()
 
     _annotate_panel(monkeypatch, arguments)
 
-    assert panel_path.read_bytes() == first_pass
+    assert panel_path.read_bytes() == extended_panel

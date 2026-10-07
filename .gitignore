@@ -56,6 +56,7 @@ venv.bak/
 # Private facing local directories
 development/
 data/literature/
+data/sensor_biophysical_annotation_pilot.tsv
 figures/
 
 # Agent skills stay local and are never tracked.

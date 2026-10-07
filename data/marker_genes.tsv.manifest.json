@@ -1,11 +1,11 @@
 {
-  "created": "2026-10-07T20:29:34",
+  "created": "2026-10-07T21:18:19",
   "script": "nasp_compendium/gene_essentiality.py",
   "n_genes": 569,
   "depmap_essentiality_counts": {
-    "not_common_essential": 502,
-    "common_essential": 62,
-    "not_screened": 5
+    "no": 502,
+    "yes": 62,
+    "unknown": 5
   },
   "n_genes_with_shet": 564,
   "inputs": {

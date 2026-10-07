@@ -5,8 +5,8 @@ Symbols are resolved through the HGNC complete set and matched to each source
 by identifier, so renamed genes still match (for example, the panel's DDX58 is
 RIGI in DepMap, and DepMap 26Q1's NCL is NUCLEOLIN in current HGNC).
 
-Add or refresh the annotation columns of the bundled marker-gene panel in
-place, leaving its curated columns unchanged:
+Add or refresh the HGNC identifier and essentiality columns of the bundled
+marker-gene panel in place, leaving its curated columns unchanged:
 
     python -m nasp_compendium.gene_essentiality
 """
@@ -293,18 +293,31 @@ def _file_md5(path: Path) -> str:
 def _annotate_marker_panel(
     args: argparse.Namespace,
     *,
-    annotation_columns: tuple[str, ...] = (
+    identifier_columns: tuple[str, ...] = (
+        "hgnc_id",
+        "hgnc_symbol",
+        "entrez_id",
+    ),
+    essentiality_columns: tuple[str, ...] = (
         "depmap_essentiality",
-        "shet_post_mean",
-        "shet_post_lower_95",
-        "shet_post_upper_95",
+        "s_het_mean",
+        "s_het_lower_95",
+        "s_het_upper_95",
     ),
 ) -> None:
     """Write the marker panel with annotation columns, and its manifest.
 
-    Curated columns are copied verbatim, keeping the panel's line endings.
-    Existing annotation columns are replaced, so reruns are idempotent. Every
-    row of a gene listed in several modules carries the same annotation.
+    Identifier columns follow gene_symbol and essentiality columns are
+    appended as a group. A missing column is inserted after the preceding
+    column of its group, and columns already present are refreshed where they
+    stand. Reruns are therefore idempotent, and curated columns, including any
+    added after the annotation, are copied verbatim with the panel's line
+    endings. Every row of a gene listed in several modules carries the same
+    annotation.
+
+    depmap_essentiality is "yes" for DepMap common essentials, "no" for other
+    screened genes, and blank when DepMap status is unknown. The s_het columns
+    hold the GeneBayes posterior mean and its 95% credible interval.
     """
     panel_path = args.marker_genes or GeneModules.default_panel_path()
     out_path = args.out or panel_path
@@ -317,9 +330,7 @@ def _annotate_marker_panel(
 
     with panel_path.open(encoding="utf-8", newline="") as handle:
         line_terminator = "\r\n" if handle.readline().endswith("\r\n") else "\n"
-    panel = pd.read_csv(
-        panel_path, sep="\t", dtype=str, keep_default_na=False
-    ).drop(columns=list(annotation_columns), errors="ignore")
+    panel = pd.read_csv(panel_path, sep="\t", dtype=str, keep_default_na=False)
 
     annotation = annotate_gene_essentiality(
         panel["gene_symbol"],
@@ -332,15 +343,44 @@ def _annotate_marker_panel(
         ),
         shet=load_genebayes_shet(args.shet),
     )
-    annotated_panel = panel.merge(
-        annotation[["gene_symbol", *annotation_columns]],
-        on="gene_symbol",
-        how="left",
-        validate="many_to_one",
+    annotation["depmap_essentiality"] = annotation[
+        "depmap_essentiality"
+    ].replace(
+        {
+            "common_essential": "yes",
+            "not_common_essential": "no",
+            "not_screened": pd.NA,
+        }
+    )
+    annotation = annotation.rename(
+        columns={
+            "shet_post_mean": "s_het_mean",
+            "shet_post_lower_95": "s_het_lower_95",
+            "shet_post_upper_95": "s_het_upper_95",
+        }
+    )
+    row_annotation = panel[["gene_symbol"]].merge(
+        annotation, on="gene_symbol", how="left", validate="many_to_one"
     )
 
+    for preceding_column, group in (
+        ("gene_symbol", identifier_columns),
+        (None, essentiality_columns),
+    ):
+        for column in group:
+            if column not in panel.columns:
+                position = (
+                    len(panel.columns)
+                    if preceding_column is None
+                    else list(panel.columns).index(preceding_column) + 1
+                )
+                panel.insert(position, column, "")
+            preceding_column = column
+    for column in (*identifier_columns, *essentiality_columns):
+        panel[column] = row_annotation[column]
+
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    annotated_panel.to_csv(
+    panel.to_csv(
         out_path,
         sep="\t",
         index=False,
@@ -348,7 +388,7 @@ def _annotate_marker_panel(
         lineterminator=line_terminator,
     )
     status_counts = (
-        annotation["depmap_essentiality"].fillna("undetermined").value_counts()
+        annotation["depmap_essentiality"].fillna("unknown").value_counts()
     )
     manifest = {
         "created": dt.datetime.now().isoformat(timespec="seconds"),
@@ -357,7 +397,7 @@ def _annotate_marker_panel(
         "depmap_essentiality_counts": {
             status: int(count) for status, count in status_counts.items()
         },
-        "n_genes_with_shet": int(annotation["shet_post_mean"].notna().sum()),
+        "n_genes_with_shet": int(annotation["s_het_mean"].notna().sum()),
         "inputs": {
             name: {
                 "path": os.path.relpath(path, out_path.parent),
@@ -371,7 +411,7 @@ def _annotate_marker_panel(
     logger.info(
         "Annotated %d genes in %d panel rows of %s",
         len(annotation),
-        len(annotated_panel),
+        len(panel),
         out_path,
     )
 
