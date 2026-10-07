@@ -77,6 +77,10 @@ def render_module(
 ) -> str:
     """Render one module's genes as a single Markdown table.
 
+    The table shows every column of `module_table` in its order, except
+    module_id unless `show_module_id` is set. Columns without a curated header
+    are titled from their names.
+
     Args:
       module_id: The module_id, used as the page heading.
       module_table: Rows belonging to this module.
@@ -95,6 +99,9 @@ def render_module(
 
     column_headers = {
         "gene_symbol": "Gene",
+        "hgnc_id": "HGNC ID",
+        "hgnc_symbol": "HGNC Symbol",
+        "entrez_id": "Entrez ID",
         "module_id": "Module",
         "module_class": "Module Class",
         "sensor_family": "Sensor Family",
@@ -107,12 +114,26 @@ def render_module(
         "aliases": "Aliases",
         "sensor": "Is_Sensor",
         "panel_source": "Panel Source",
+        "depmap_essentiality": "DepMap Essential",
+        "s_het_mean": "s_het",
+        "s_het_lower_95": "s_het Lower 95%",
+        "s_het_upper_95": "s_het Upper 95%",
+        "uniprot_id": "UniProt ID",
+        "monomer_kDa": "Monomer (kDa)",
+        "n_string_sensor_partners": "STRING Sensor Partners",
     }
-    if not show_module_id:
-        del column_headers["module_id"]
+    columns = [
+        str(column)
+        for column in module_table.columns
+        if show_module_id or column != "module_id"
+    ]
+    headers = [
+        column_headers.get(column, column.replace("_", " ").title())
+        for column in columns
+    ]
     lines += [
-        f"| {' | '.join(column_headers.values())} |",
-        f"| {' | '.join(['---'] * len(column_headers))} |",
+        f"| {' | '.join(headers)} |",
+        f"| {' | '.join(['---'] * len(headers))} |",
     ]
 
     ordered = module_table.sort_values(
@@ -120,8 +141,7 @@ def render_module(
     )
     for _, row in ordered.iterrows():
         values = [
-            _format_table_cell(column, str(row[column]))
-            for column in column_headers
+            _format_table_cell(column, str(row[column])) for column in columns
         ]
         lines.append(f"| {' | '.join(values)} |")
     lines.append("")

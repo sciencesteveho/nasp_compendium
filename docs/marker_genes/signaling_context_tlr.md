@@ -2,21 +2,21 @@
 
 ![Signaling context TLR taxonomy](assets/sankey_signaling_context_tlr.png)
 
-| Gene | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| MYD88 | adaptor_signaling | TLR | Early | positive | Broad | medium |  | [10.1038/ni758](https://doi.org/10.1038/ni758) |  |  |  |
-| TICAM1 | adaptor_signaling | TLR | Early | positive | Broad | low | NASP_RNA_SENSING | [10.1038/ni886](https://doi.org/10.1038/ni886) |  |  |  |
-| TICAM2 | adaptor_signaling | TLR | Early | positive | Immune-enriched | low |  | [10.1038/nri1391](https://doi.org/10.1038/nri1391) |  |  |  |
-| TIRAP | adaptor_signaling | TLR | Early | positive | Broad | low |  | [10.1155/2023/2899271](https://doi.org/10.1155/2023/2899271) |  |  |  |
-| TRAF6 | adaptor_signaling | cGAS-STING | Early | positive | Broad | low |  | [10.1016/j.bbrc.2019.05.022](https://doi.org/10.1016/j.bbrc.2019.05.022) |  |  |  |
-| UNC93B1 | adaptor_signaling | TLR | Early | positive | Broad | low |  | [10.7554/eLife.00291](https://doi.org/10.7554/eLife.00291) |  |  |  |
-| METTL3 | dna_sensing_endosomal | TLR | Active | positive | Broad | low |  | [10.1016/j.jbc.2024.107226](https://doi.org/10.1016/j.jbc.2024.107226) |  |  |  |
-| YTHDF1 | dna_sensing_endosomal | TLR | Active | positive | Immune-enriched | low |  | [10.1016/j.jbc.2024.107226](https://doi.org/10.1016/j.jbc.2024.107226) |  |  |  |
-| IRAK1 | signal_kinase | TLR | Early | positive | Broad | low | SIGNALING_CONTEXT\|IFN_I_OUTPUT | [10.1084/jem.20042372](https://doi.org/10.1084/jem.20042372) |  |  |  |
-| IRAK4 | signal_kinase | TLR | Early | positive | Broad | low | SIGNALING_CONTEXT\|IFN_I_OUTPUT | [10.1016/j.immuni.2005.09.016](https://doi.org/10.1016/j.immuni.2005.09.016) |  |  |  |
-| IRAK2 | signal_transduction | TLR | Active | positive | Broad | medium |  | [10.3389/fimmu.2023.1133354](https://doi.org/10.3389/fimmu.2023.1133354) |  |  |  |
-| CD14 | surface_tlr_sensor | TLR | early | positive | Myeloid-enriched | high |  | [10.1016/j.cell.2011.09.051](https://doi.org/10.1016/j.cell.2011.09.051) |  |  |  |
-| TLR4 | surface_tlr_sensor | TLR | Post-NASP | positive | Adipose/Immune-enriched | medium | NFKB_CYTOKINE_OUTPUT | [10.3892/ijmm.2020.4530](https://doi.org/10.3892/ijmm.2020.4530) |  | lps_sensor |  |
-| IRF5 | transcriptional_effector |  | Active | positive | Immune-enriched | low |  | [10.1093/intimm/dxy032](https://doi.org/10.1093/intimm/dxy032) |  |  |  |
-| XBP1 | transcriptional_effector | TLR | Active | positive | Broad | high |  | [10.1038/ni.1857](https://doi.org/10.1038/ni.1857) |  |  |  |
-| TRIM3 | ubiquitin_regulation | TLR | Active | positive | Broad | low |  | [10.1073/pnas.2002472117](https://doi.org/10.1073/pnas.2002472117) |  |  |  |
+| Gene | HGNC ID | HGNC Symbol | Entrez ID | Module Class | Sensor Family | Activation Tier | Scoring Direction | Cell Type Breadth | Detectability | Also in Module(s) | DOI | Aliases | Is_Sensor | Panel Source | DepMap Essential | s_het | s_het Lower 95% | s_het Upper 95% | UniProt ID | Monomer (kDa) | STRING Sensor Partners |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| MYD88 | HGNC:7562 | MYD88 | 4615 | adaptor_signaling | TLR | Early | positive | Broad | medium |  | [10.1038/ni758](https://doi.org/10.1038/ni758) |  |  |  | no | 0.0237659 | 0.00885597 | 0.0446924 | Q99836 | 33.2 | 7 |
+| TICAM1 | HGNC:18348 | TICAM1 | 148022 | adaptor_signaling | TLR | Early | positive | Broad | low | NASP_RNA_SENSING | [10.1038/ni886](https://doi.org/10.1038/ni886) |  |  |  | no | 0.0219156 | 0.00210825 | 0.0722743 | Q8IUC6 | 76.4 | 5 |
+| TICAM2 | HGNC:21354 | TICAM2 | 353376 | adaptor_signaling | TLR | Early | positive | Immune-enriched | low |  | [10.1038/nri1391](https://doi.org/10.1038/nri1391) |  |  |  | no | 0.00383446 | 0.000897195 | 0.00916715 | Q86XR7 | 26.9 | 4 |
+| TIRAP | HGNC:17192 | TIRAP | 114609 | adaptor_signaling | TLR | Early | positive | Broad | low |  | [10.1155/2023/2899271](https://doi.org/10.1155/2023/2899271) |  |  |  | no | 0.000759334 | 8.62213e-05 | 0.00239341 | P58753 | 23.9 | 4 |
+| TRAF6 | HGNC:12036 | TRAF6 | 7189 | adaptor_signaling | cGAS-STING | Early | positive | Broad | low |  | [10.1016/j.bbrc.2019.05.022](https://doi.org/10.1016/j.bbrc.2019.05.022) |  |  |  | no | 0.124155 | 0.0516268 | 0.235379 | Q9Y4K3 | 59.6 | 9 |
+| UNC93B1 | HGNC:13481 | UNC93B1 | 81622 | adaptor_signaling | TLR | Early | positive | Broad | low |  | [10.7554/eLife.00291](https://doi.org/10.7554/eLife.00291) |  |  |  | no | 0.0129106 | 0.000415153 | 0.0509121 | Q9H1C4 | 66.6 | 4 |
+| METTL3 | HGNC:17563 | METTL3 | 56339 | dna_sensing_endosomal | TLR | Active | positive | Broad | low |  | [10.1016/j.jbc.2024.107226](https://doi.org/10.1016/j.jbc.2024.107226) |  |  |  | yes | 0.0173537 | 0.00863755 | 0.0304512 | Q86U44 | 64.5 | 2 |
+| YTHDF1 | HGNC:15867 | YTHDF1 | 54915 | dna_sensing_endosomal | TLR | Active | positive | Immune-enriched | low |  | [10.1016/j.jbc.2024.107226](https://doi.org/10.1016/j.jbc.2024.107226) |  |  |  | no | 0.20563 | 0.0883972 | 0.377654 | Q9BYJ9 | 60.9 | 5 |
+| IRAK1 | HGNC:6112 | IRAK1 | 3654 | signal_kinase | TLR | Early | positive | Broad | low | SIGNALING_CONTEXT\|IFN_I_OUTPUT | [10.1084/jem.20042372](https://doi.org/10.1084/jem.20042372) |  |  |  | no | 0.140864 | 0.0420269 | 0.340456 | P51617 | 76.5 | 3 |
+| IRAK4 | HGNC:17967 | IRAK4 | 51135 | signal_kinase | TLR | Early | positive | Broad | low | SIGNALING_CONTEXT\|IFN_I_OUTPUT | [10.1016/j.immuni.2005.09.016](https://doi.org/10.1016/j.immuni.2005.09.016) |  |  |  | no | 0.00207388 | 0.000213857 | 0.00667202 | Q9NWZ3 | 51.5 | 2 |
+| IRAK2 | HGNC:6113 | IRAK2 | 3656 | signal_transduction | TLR | Active | positive | Broad | medium |  | [10.3389/fimmu.2023.1133354](https://doi.org/10.3389/fimmu.2023.1133354) |  |  |  | no | 0.00101907 | 0.000156305 | 0.00286568 | O43187 | 69.4 | 4 |
+| CD14 | HGNC:1628 | CD14 | 929 | surface_tlr_sensor | TLR | early | positive | Myeloid-enriched | high |  | [10.1016/j.cell.2011.09.051](https://doi.org/10.1016/j.cell.2011.09.051) |  |  |  | no | 0.001718 | 0.000115924 | 0.00599425 | P08571 | 40.1 | 0 |
+| TLR4 | HGNC:11850 | TLR4 | 7099 | surface_tlr_sensor | TLR | Post-NASP | positive | Adipose/Immune-enriched | medium | NFKB_CYTOKINE_OUTPUT | [10.3892/ijmm.2020.4530](https://doi.org/10.3892/ijmm.2020.4530) |  | lps_sensor |  | no | 0.00281602 | 0.000821745 | 0.00601443 | O00206 | 95.7 | 4 |
+| IRF5 | HGNC:6120 | IRF5 | 3663 | transcriptional_effector |  | Active | positive | Immune-enriched | low |  | [10.1093/intimm/dxy032](https://doi.org/10.1093/intimm/dxy032) |  |  |  | no | 0.0210662 | 0.00898414 | 0.0386397 | Q13568 | 56.0 | 0 |
+| XBP1 | HGNC:12801 | XBP1 | 7494 | transcriptional_effector | TLR | Active | positive | Broad | high |  | [10.1038/ni.1857](https://doi.org/10.1038/ni.1857) |  |  |  | no | 0.0522458 | 0.0209584 | 0.102895 | P17861 | 28.7 | 0 |
+| TRIM3 | HGNC:10064 | TRIM3 | 10612 | ubiquitin_regulation | TLR | Active | positive | Broad | low |  | [10.1073/pnas.2002472117](https://doi.org/10.1073/pnas.2002472117) |  |  |  | no | 0.122934 | 0.0727312 | 0.190007 | O75382 | 80.8 | 1 |

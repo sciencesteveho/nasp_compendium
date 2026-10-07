@@ -278,6 +278,44 @@ def test_na_sensor_page_lists_only_dna_and_rna_sensors(tmp_path: Path) -> None:
     assert listed_genes == {"AIM2", "CGAS", "DDX58"}
 
 
+def test_module_page_shows_every_panel_field(tmp_path: Path) -> None:
+    """A module page row carries each of the gene's TSV values."""
+    panel = pd.DataFrame(
+        {
+            "gene_symbol": ["CGAS"],
+            "hgnc_id": ["HGNC:21367"],
+            "module_id": ["NASP_DNA_SENSING"],
+            "module_class": ["dna_sensing_core"],
+            "sensor_family": ["cGAS-STING"],
+            "activation_tier": ["Early"],
+            "scoring_direction": ["positive"],
+            "cell_type_breadth": ["Broad"],
+            "detectability": ["low"],
+            "also_in_module": ["SENESCENCE"],
+            "doi": [""],
+            "aliases": ["MB21D1"],
+            "sensor": ["dna_sensor"],
+            "panel_source": ["curated"],
+            "s_het_mean": ["0.00114308"],
+            "curator_note": ["checked"],
+        }
+    )
+    panel_path = tmp_path / "marker_genes.tsv"
+    panel.to_csv(panel_path, sep="\t", index=False)
+    docs_dir = tmp_path / "docs"
+
+    render_docs.render_docs(panel_path, docs_dir)
+
+    module_page = (docs_dir / "nasp_dna_sensing.md").read_text()
+    cgas_cells = next(
+        {cell.strip() for cell in line.split("|")}
+        for line in module_page.splitlines()
+        if line.startswith("| CGAS ")
+    )
+    expected = set(panel.drop(columns="module_id").iloc[0]) - {""}
+    assert expected <= cgas_cells
+
+
 def test_modules_resolves_suffix_and_splits_signed_genes(
     tmp_path: Path,
 ) -> None:
